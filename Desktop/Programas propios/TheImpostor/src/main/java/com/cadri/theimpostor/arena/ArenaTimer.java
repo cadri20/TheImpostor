@@ -27,10 +27,11 @@ import org.bukkit.scheduler.BukkitRunnable;
  *
  * @author cadri
  */
-public class ArenaTimer extends BukkitRunnable{
+public class ArenaTimer extends BukkitRunnable {
+
     private int counter;
     private Arena arena;
-    
+
     public ArenaTimer(int time, Arena arena) {
         this.counter = time;
         this.arena = arena;
@@ -38,20 +39,22 @@ public class ArenaTimer extends BukkitRunnable{
 
     @Override
     public void run() {
-        if(counter > 0){
-            counter--;
-            for(Player player: arena.getPlayers()){
+        if (counter > 0) {
+
+            for (Player player : arena.getPlayers()) {
                 player.setLevel(counter);
             }
-            if(counter < 4){
-                for(Player player: arena.getPlayers())
+            if (counter < 4) {
+                for (Player player : arena.getPlayers()) {
                     player.sendMessage(LanguageManager.getTranslation(MessageKeys.ARENA_COUNTDOWN.key) + " " + counter);
+                }
             }
-                
-        }
-        else{
-            for(Player player: arena.getPlayers())
+            counter--;
+        } else {
+            for (Player player : arena.getPlayers()) {
                 player.sendMessage(LanguageManager.getTranslation(MessageKeys.ARENA_GAME_START.key));
+            }
+            arena.startGame();
             this.cancel();
         }
     }
