@@ -1,0 +1,11 @@
+## YAML Template.
+---
+name: Impostor
+main: impostor.Impostor
+version: 0.1
+author: Adrian Coloma
+commands:
+    create:
+        description: Crea una arena
+    join:
+        description: Permite unirse a una arena

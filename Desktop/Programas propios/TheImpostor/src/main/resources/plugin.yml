@@ -1,0 +1,8 @@
+name: TheImpostor
+main: com.cadri.theimpostor.TheImpostor
+version: 0.1
+author: Adrian Coloma
+commands:
+    theimpostor:
+        aliases: [imp]
+        description: Comando principal

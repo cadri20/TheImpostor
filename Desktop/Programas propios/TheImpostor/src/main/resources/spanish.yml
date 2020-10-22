@@ -1,0 +1,8 @@
+## YAML Template.
+---
+arena_created_successfully: '&aLa arena se ha creado exitosamente'
+arena_already_exists: '&cLa arena ya existe'
+arena_ready: '&aYa hay suficientes jugadores!'
+arena_not_exists: '&cLa arena no existe'
+arena_countdown: '&3El juego iniciara en'
+arena_game_start: '&aEl juego ha comenzado'
