@@ -100,6 +100,12 @@ public class Arena  {
             
     }
     
+    public void startGame(){
+        for(Player player: players){
+            player.teleport(spawn);
+        }
+    }
+    
     public List<Player> getPlayers() {
         return players;
     }
