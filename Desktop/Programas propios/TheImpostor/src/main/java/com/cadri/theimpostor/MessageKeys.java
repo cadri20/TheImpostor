@@ -26,8 +26,9 @@ public enum MessageKeys {
     ARENA_READY("arena_ready"),
     ARENA_NOT_EXISTS("arena_not_exists"),
     ARENA_COUNTDOWN("arena_countdown"),
-    ARENA_GAME_START("arena_game_start");
-
+    ARENA_GAME_START("arena_game_start"),
+    ARENA_SPAWN_SET("arena_spawn_set");
+    
     public String key;
     
     private MessageKeys(String key){
