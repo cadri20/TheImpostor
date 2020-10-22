@@ -88,7 +88,18 @@ public class Arena  {
         player.setScoreboard(board);
         
     }
-
+    
+    public void removePlayer(Player player){
+        if(players.remove(player)){
+            player.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
+            player.sendMessage("Abandonaste la arena");
+        }
+        else
+            player.sendMessage("You're not in Arena");
+            
+            
+    }
+    
     public List<Player> getPlayers() {
         return players;
     }
