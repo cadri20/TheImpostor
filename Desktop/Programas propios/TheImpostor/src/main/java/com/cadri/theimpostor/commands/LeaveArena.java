@@ -33,10 +33,9 @@ public class LeaveArena implements SubCommand{
             Player player = (Player) sender;
             Arena wherePlayerIs = ArenaUtils.whereArenaIs(player);
             if(wherePlayerIs != null){
-                wherePlayerIs.getPlayers().remove(player);
-                player.sendMessage("You left the arena");
+                wherePlayerIs.removePlayer(player);
             }else{
-                player.sendMessage("You're not in some arena");
+                
             }
         }
     }
