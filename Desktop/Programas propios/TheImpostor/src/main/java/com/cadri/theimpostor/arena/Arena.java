@@ -19,11 +19,17 @@ package com.cadri.theimpostor.arena;
 import com.cadri.theimpostor.LanguageManager;
 import com.cadri.theimpostor.MessageKeys;
 import com.cadri.theimpostor.TheImpostor;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -37,7 +43,7 @@ import org.bukkit.scoreboard.Scoreboard;
  *
  * @author cadri
  */
-public class Arena  {
+public class Arena {
 
     private String name;
     private int maxPlayers;
@@ -46,16 +52,22 @@ public class Arena  {
     private Location lobby;
     private Location spawn;
     private boolean started;
-    
+    private List<Player> crew;
+    private List<Player> impostors;
+
+    private File fileSettings;
+    private YamlConfiguration yamlSettings;
     private Scoreboard board;
-    private Objective objective ;
-    public Arena(String name, Location lobby){
-        this(name,1,10,lobby,null);
+    private Objective objective;
+
+    public Arena(String name, Location lobby) {
+        this(name, 1, 10, lobby, null);
     }
-    
-    public Arena(String name, int maxPlayers, int minPlayers, Location lobby){
-        this(name,maxPlayers,minPlayers,lobby,null);
+
+    public Arena(String name, int maxPlayers, int minPlayers, Location lobby) {
+        this(name, maxPlayers, minPlayers, lobby, null);
     }
+
     public Arena(String name, int maxPlayers, int minPlayers, Location lobby, Location spawn) {
         this.name = name;
         this.maxPlayers = maxPlayers;
@@ -63,49 +75,82 @@ public class Arena  {
         this.players = new ArrayList<>();
         this.lobby = lobby;
         this.started = false;
+        this.crew = new ArrayList<>();
+        this.impostors = new ArrayList<>();
         this.board = Bukkit.getScoreboardManager().getNewScoreboard();
+        this.fileSettings = new File(TheImpostor.plugin.getDataFolder() + File.separator + name + File.separator + "arena_settings.yml");
+        this.yamlSettings = YamlConfiguration.loadConfiguration(fileSettings);
         objective = board.registerNewObjective("Arena", "dummy", TheImpostor.plugin.getName());
-        objective.setDisplaySlot(DisplaySlot.SIDEBAR); 
+        objective.setDisplaySlot(DisplaySlot.SIDEBAR);
         objective.getScore(ChatColor.GREEN + "Arena: " + name).setScore(1);
-        
-        
+
     }
 
-    public void initCountDown(){
-        for(Player player: players)
+    public void initCountDown() {
+        for (Player player : players) {
             player.sendMessage(LanguageManager.getTranslation(MessageKeys.ARENA_READY.key));
+        }
         BukkitTask countdown = new ArenaTimer(10, this).runTaskTimer(TheImpostor.plugin, 10L, 20L);
-        
+
     }
 
     public Scoreboard getBoard() {
         return board;
     }
-    
 
     public void addPlayer(Player player) {
-        players.add(player);      
+        players.add(player);
         player.setScoreboard(board);
-        
+
     }
-    
-    public void removePlayer(Player player){
-        if(players.remove(player)){
+
+    public void removePlayer(Player player) {
+        if (players.remove(player)) {
             player.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
             player.sendMessage("Abandonaste la arena");
-        }
-        else
+        } else {
             player.sendMessage("You're not in Arena");
-            
-            
+        }
+
     }
-    
-    public void startGame(){
-        for(Player player: players){
+
+    public void startGame() {
+        for (Player player : this.getPlayers()) {
+            player.sendMessage(LanguageManager.getTranslation(MessageKeys.ARENA_GAME_START.key));
+        }
+        setRoles();
+        for (Player player : players) {
             player.teleport(spawn);
         }
+
+        for (Player impostor : impostors) {
+            String title = LanguageManager.getTranslation(MessageKeys.IMPOSTOR_TITLE.key);
+            String subtitle = LanguageManager.getTranslation(MessageKeys.IMPOSTOR_SUBTITLE.key);
+            impostor.sendTitle(title, subtitle, 4, 40, 5);
+        }
+
+        for (Player crewmate : crew) {
+            String title = LanguageManager.getTranslation(MessageKeys.CREWMATE_TITLE.key);
+            String subtitle = LanguageManager.getTranslation(MessageKeys.CREWMATE_SUBTITLE.key);
+            crewmate.sendTitle(title, subtitle, 5, 40, 5);
+        }
+        started = true;
     }
-    
+
+    public void setRoles() {
+        crew.addAll(players);
+        impostors.add(GameUtils.chooseImpostor(crew));
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        Arena arena = (Arena) obj;
+        if (this.getName().equals(arena.getName())) {
+            return true;
+        }
+        return false;
+    }
+
     public List<Player> getPlayers() {
         return players;
     }
@@ -148,12 +193,21 @@ public class Arena  {
 
     public void setSpawn(Location spawn) {
         this.spawn = spawn;
+
+        this.yamlSettings.set("spawn.world", spawn.getWorld().getName());
+        this.yamlSettings.set("spawn.x", spawn.getX());
+        this.yamlSettings.set("spawn.y", spawn.getY());
+        this.yamlSettings.set("spawn.z", spawn.getZ());
+
+        try {
+            yamlSettings.save(fileSettings);
+        } catch (IOException ex) {
+            Logger.getLogger(Arena.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     public Location getSpawn() {
         return spawn;
     }
-
-    
 
 }
