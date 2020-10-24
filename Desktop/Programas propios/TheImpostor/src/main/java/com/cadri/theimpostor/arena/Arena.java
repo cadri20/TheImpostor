@@ -136,6 +136,8 @@ public class Arena {
             String subtitle = LanguageManager.getTranslation(MessageKeys.CREWMATE_SUBTITLE.key);
             crewmate.sendTitle(title, subtitle, 5, 40, 5);
         }
+        
+        GameUtils.setInventoryImpostors(impostors);
         started = true;
     }
 
