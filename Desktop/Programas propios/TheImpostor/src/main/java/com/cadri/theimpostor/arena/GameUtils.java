@@ -19,7 +19,11 @@ package com.cadri.theimpostor.arena;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.ItemMeta;
 
 /**
  *
@@ -29,7 +33,24 @@ public class GameUtils {
     private static Random random = new Random();
     public static Player chooseImpostor(List<Player> players){
         int index = random.nextInt(players.size());
-        players.remove(index);
-        return players.get(index);
+        
+        return players.remove(index);
     }
+    
+    public static void setInventoryImpostors(List<Player> impostors){
+        ItemStack killItem = new ItemStack(Material.RED_WOOL);
+        ItemMeta killItemMeta = killItem.getItemMeta(); 
+        killItemMeta.setDisplayName("Kill Player");
+        List<String> loreKillItem = new ArrayList<>();
+        loreKillItem.add("Hit someone with this to kill him");
+        killItemMeta.setLore(loreKillItem);
+        
+        killItem.setItemMeta(killItemMeta);
+        for(Player impostor: impostors){
+            PlayerInventory impostorInventory = impostor.getInventory();
+            impostorInventory.setItem(0, killItem);
+        }
+    }
+    
+
 }
