@@ -20,6 +20,7 @@ import com.cadri.theimpostor.LanguageManager;
 import com.cadri.theimpostor.MessageKeys;
 import com.cadri.theimpostor.TheImpostor;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,6 +30,7 @@ import java.util.logging.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -200,8 +202,10 @@ public class Arena {
         this.yamlSettings.set("spawn.z", spawn.getZ());
 
         try {
-            yamlSettings.save(fileSettings);
+            yamlSettings.load(fileSettings);
         } catch (IOException ex) {
+            Logger.getLogger(Arena.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InvalidConfigurationException ex) {
             Logger.getLogger(Arena.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
