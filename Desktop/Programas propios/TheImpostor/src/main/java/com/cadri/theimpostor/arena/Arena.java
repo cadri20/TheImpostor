@@ -24,7 +24,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.bukkit.Bukkit;
@@ -56,6 +58,7 @@ public class Arena {
     private boolean started;
     private List<Player> crew;
     private List<Player> impostors;
+    private Map<Player,Boolean> aliveMap;
 
     private File fileSettings;
     private YamlConfiguration yamlSettings;
@@ -79,6 +82,7 @@ public class Arena {
         this.started = false;
         this.crew = new ArrayList<>();
         this.impostors = new ArrayList<>();
+        this.aliveMap = new HashMap<>();
         this.board = Bukkit.getScoreboardManager().getNewScoreboard();
         this.fileSettings = new File(TheImpostor.plugin.getDataFolder() + File.separator + name + File.separator + "arena_settings.yml");
         this.yamlSettings = YamlConfiguration.loadConfiguration(fileSettings);
@@ -102,6 +106,7 @@ public class Arena {
 
     public void addPlayer(Player player) {
         players.add(player);
+        objective.getScore("Players number: " + players.size()).setScore(2);
         player.setScoreboard(board);
 
     }
@@ -138,9 +143,17 @@ public class Arena {
         }
         
         GameUtils.setInventoryImpostors(impostors);
+        
+        setAliveAll();
         started = true;
     }
 
+    private void setAliveAll(){
+        for(Player player: players){
+            aliveMap.put(player, true);
+        }
+    }
+    
     public void setRoles() {
         crew.addAll(players);
         impostors.add(GameUtils.chooseImpostor(crew));
@@ -216,4 +229,9 @@ public class Arena {
         return spawn;
     }
 
+    public Map<Player, Boolean> getAliveMap() {
+        return aliveMap;
+    }
+
+    
 }
