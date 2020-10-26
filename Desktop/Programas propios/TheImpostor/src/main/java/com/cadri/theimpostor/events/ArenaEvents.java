@@ -21,12 +21,14 @@ import com.cadri.theimpostor.arena.Arena;
 import com.cadri.theimpostor.arena.ArenaUtils;
 import com.cadri.theimpostor.game.GameUtils;
 import com.cadri.theimpostor.game.ItemOptions;
+import com.cadri.theimpostor.game.PlayerColor;
 import com.sun.javafx.scene.text.HitInfo;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
@@ -64,8 +66,7 @@ public class ArenaEvents implements Listener {
             CorpseData corpse = CorpseAPI.spawnCorpse(killed, killed.getLocation());
             arena.addCorpse(corpse);
         }
-        else
-            killed.sendMessage("Someone kills you");
+
     }
 
     @EventHandler
@@ -75,5 +76,39 @@ public class ArenaEvents implements Listener {
             return;
         
         arena.corpseReported();
+    }
+    
+    @EventHandler
+    public void onClickItem(PlayerInteractEvent evt){
+        Player player = evt.getPlayer();
+        Arena arena = ArenaUtils.whereArenaIs(player);
+        if(arena == null)
+            return;
+        
+        if(evt.getAction() == Action.RIGHT_CLICK_AIR){
+            if( !evt.getItem().equals(ItemOptions.CHOOSE_COLOR.getItem()) )
+                return;
+            
+            player.openInventory(GameUtils.getGUIChoiceColors());
+            
+        }
+            
+    }
+    
+    @EventHandler
+    public void onClickInventory(InventoryClickEvent evt){
+        Player player = (Player) evt.getWhoClicked();
+        Arena arena = ArenaUtils.whereArenaIs(player);
+        if(arena == null)
+            return;
+        
+        ItemStack itemClicked = evt.getCurrentItem();
+        
+        PlayerColor playerColor = PlayerColor.getPlayerColor(itemClicked);
+        if(playerColor != null){
+            arena.setPlayerColor(player, playerColor);
+            player.sendMessage("You chose " + playerColor.getName());
+            player.closeInventory();
+        }
     }
 }

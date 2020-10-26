@@ -20,16 +20,21 @@ import com.cadri.theimpostor.game.GameUtils;
 import com.cadri.theimpostor.LanguageManager;
 import com.cadri.theimpostor.MessageKeys;
 import com.cadri.theimpostor.TheImpostor;
+import com.cadri.theimpostor.game.ItemOptions;
+import com.cadri.theimpostor.game.PlayerColor;
+import com.sun.prism.paint.Paint;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.scene.paint.Color;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -62,6 +67,7 @@ public class Arena {
     private List<Player> crew;
     private List<Player> impostors;
     private Map<Player,Boolean> aliveMap;
+    private EnumMap<PlayerColor,Player> playersColor = new EnumMap<>(PlayerColor.class);
     private List<CorpseData> corpses;
 
     private File fileSettings;
@@ -71,6 +77,7 @@ public class Arena {
 
     public Arena(String name, Location lobby) {
         this(name, 1, 10, lobby, null);
+        
     }
 
     public Arena(String name, int maxPlayers, int minPlayers, Location lobby) {
@@ -113,7 +120,7 @@ public class Arena {
         players.add(player);
         objective.getScore("Players number: " + players.size()).setScore(2);
         player.setScoreboard(board);
-
+        player.getInventory().addItem(ItemOptions.CHOOSE_COLOR.getItem());
     }
 
     public void removePlayer(Player player) {
@@ -177,6 +184,16 @@ public class Arena {
         }
     }
     
+    public void setPlayerColor(Player player, PlayerColor color){
+        playersColor.put(color, player);
+        player.setDisplayName(color.getChatColor() + player.getDisplayName());
+    }
+    
+    public void startVoting(){
+        
+    }
+    
+   
     @Override
     public boolean equals(Object obj) {
         Arena arena = (Arena) obj;
@@ -251,5 +268,15 @@ public class Arena {
         return aliveMap;
     }
 
-    
+    public EnumMap<PlayerColor, Player> getPlayersColor() {
+        return playersColor;
+    }
+
+    public PlayerColor getPlayerColor(Player player){
+        for(PlayerColor color: playersColor.keySet()){
+            if(playersColor.get(color).equals(player))
+                return color;
+        }
+        return null;
+    }
 }

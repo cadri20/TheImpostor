@@ -16,9 +16,8 @@
  */
 package com.cadri.theimpostor.game;
 
-import java.util.Collections;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.entity.Item;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -26,31 +25,49 @@ import org.bukkit.inventory.meta.ItemMeta;
  *
  * @author cadri
  */
-public enum ItemOptions {
-    CHOOSE_COLOR("Choose color","Your color in game",Material.GREEN_WOOL),
-    KILL_PLAYER("Kill Player", "Right click with this to a player to kill him",Material.RED_WOOL);
+public enum PlayerColor {
+    RED("Red",ChatColor.RED,Material.RED_WOOL),
+    BLUE("Blue",ChatColor.BLUE,Material.BLUE_WOOL);
     
     private String name;
-    private String description;
+    private ChatColor chatColor;
     private Material material;
-    ItemStack item;
-
-    private ItemOptions(String name, String description, Material material) {
+    
+    private PlayerColor(String name,ChatColor chatColor, Material material) {
         this.name = name;
-        this.description = description;
+        this.chatColor = chatColor;
         this.material = material;
-        item = new ItemStack(material);
-        setMeta();
     }
     
     public ItemStack getItem(){
+        ItemStack item = new ItemStack(material);
+        ItemMeta meta = item.getItemMeta();
+        
+        meta.setDisplayName(chatColor + name);
+        item.setItemMeta(meta);
+        
         return item;
     }
     
-    private void setMeta(){
-        ItemMeta itemMeta = item.getItemMeta();
-        itemMeta.setDisplayName(name);
-        itemMeta.setLore(Collections.singletonList(description));
-        item.setItemMeta(itemMeta);
+    public static PlayerColor getPlayerColor(ItemStack item){
+        for(PlayerColor color: values()){
+            if(item.equals(color.getItem()))
+                return color;
+        }
+        
+        return null;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public ChatColor getChatColor() {
+        return chatColor;
+    }
+    
+    public Material getMaterial(){
+        return material;
     }
 }
+

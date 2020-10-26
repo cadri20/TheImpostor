@@ -21,7 +21,9 @@ import com.cadri.theimpostor.arena.Arena;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.PlayerInventory;
 
 /**
@@ -30,7 +32,8 @@ import org.bukkit.inventory.PlayerInventory;
  */
 public class GameUtils {
     private static Random random = new Random();
-
+    
+    
     public static Player chooseImpostor(List<Player> players) {
         int index = random.nextInt(players.size());
 
@@ -65,5 +68,14 @@ public class GameUtils {
         
     }
     
+    public static Inventory getGUIChoiceColors(){
+        PlayerColor[] playerColors = PlayerColor.values();
+        Inventory guiColors = Bukkit.createInventory(null, 9, "Choose a color");
+        for(PlayerColor color: playerColors){
+            guiColors.addItem(color.getItem());
+        }
+        
+        return guiColors;
+    }
     
 }
