@@ -35,6 +35,7 @@ import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.inventory.ItemStack;
 import org.golde.bukkit.corpsereborn.CorpseAPI.CorpseAPI;
 import org.golde.bukkit.corpsereborn.CorpseAPI.events.CorpseClickEvent;
+import org.golde.bukkit.corpsereborn.nms.Corpses.CorpseData;
 
 /**
  *
@@ -60,8 +61,8 @@ public class ArenaEvents implements Listener {
         if(itemInHand.equals(ItemOptions.KILL_PLAYER.getItem())){
             killed.sendTitle("You've been killed", "Make tasks", 20, 70, 20);
             GameUtils.makePhantom(killed, arena);
-            CorpseAPI.spawnCorpse(killed, killed.getLocation());
-            
+            CorpseData corpse = CorpseAPI.spawnCorpse(killed, killed.getLocation());
+            arena.addCorpse(corpse);
         }
         else
             killed.sendMessage("Someone kills you");
@@ -73,8 +74,6 @@ public class ArenaEvents implements Listener {
         if(arena == null)
             return;
         
-        for(Player playerInArena: arena.getPlayers()){
-            playerInArena.sendTitle("Someone reported a corpse", null,20,70,20);
-        }
+        arena.corpseReported();
     }
 }

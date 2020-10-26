@@ -43,6 +43,8 @@ import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
+import org.golde.bukkit.corpsereborn.CorpseAPI.CorpseAPI;
+import org.golde.bukkit.corpsereborn.nms.Corpses.CorpseData;
 
 /**
  *
@@ -60,6 +62,7 @@ public class Arena {
     private List<Player> crew;
     private List<Player> impostors;
     private Map<Player,Boolean> aliveMap;
+    private List<CorpseData> corpses;
 
     private File fileSettings;
     private YamlConfiguration yamlSettings;
@@ -84,6 +87,7 @@ public class Arena {
         this.crew = new ArrayList<>();
         this.impostors = new ArrayList<>();
         this.aliveMap = new HashMap<>();
+        this.corpses = new ArrayList<>();
         this.board = Bukkit.getScoreboardManager().getNewScoreboard();
         this.fileSettings = new File(TheImpostor.plugin.getDataFolder() + File.separator + name + File.separator + "arena_settings.yml");
         this.yamlSettings = YamlConfiguration.loadConfiguration(fileSettings);
@@ -122,6 +126,9 @@ public class Arena {
 
     }
 
+    public void addCorpse(CorpseData corpse){
+        corpses.add(corpse);
+    }
     public void startGame() {
         for (Player player : this.getPlayers()) {
             player.sendMessage(LanguageManager.getTranslation(MessageKeys.ARENA_GAME_START.key));
@@ -160,6 +167,16 @@ public class Arena {
         impostors.add(GameUtils.chooseImpostor(crew));
     }
 
+    public void corpseReported(){
+        for(Player player: players){
+            player.sendTitle("Dead body reported!", "Voting started", 20, 70, 20);
+            player.teleport(spawn);
+        }
+        for(CorpseData corpse: corpses){
+            CorpseAPI.removeCorpse(corpse);
+        }
+    }
+    
     @Override
     public boolean equals(Object obj) {
         Arena arena = (Arena) obj;
