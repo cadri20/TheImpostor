@@ -20,6 +20,7 @@ import com.cadri.theimpostor.LanguageManager;
 import com.cadri.theimpostor.MessageKeys;
 import com.cadri.theimpostor.arena.Arena;
 import com.cadri.theimpostor.arena.ArenaManager;
+import com.cadri.theimpostor.arena.ArenaUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -34,9 +35,14 @@ import org.bukkit.entity.Player;
  */
 public class JoinArena implements SubCommand{
     public void onCommand(CommandSender sender, String[] args) {
-
+        
         if (sender instanceof Player) {
             Player player = (Player) sender;
+            
+            if(ArenaUtils.whereArenaIs(player) != null){
+                player.sendMessage("You're in an arena!");
+                return;
+            }
             if (ArenaManager.arenaNames.contains(args[0])) {
                 Arena arena = ArenaManager.getArena(args[0]);
                 

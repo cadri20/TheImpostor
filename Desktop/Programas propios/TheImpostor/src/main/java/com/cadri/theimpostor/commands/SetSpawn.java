@@ -36,9 +36,14 @@ public class SetSpawn implements SubCommand{
         
         if(sender instanceof Player){
             Player player = (Player) sender;
-            if(ArenaManager.arenaNames.contains(arenaName)){
-                Arena arena = ArenaManager.arenas.get(ArenaManager.arenas.indexOf(arenaName));
-                arena.setSpawn(player.getLocation());
+            Arena arenaFound = null;
+            
+            for(Arena arena: ArenaManager.arenas){
+                if(arena.getName().equals(arenaName))
+                    arenaFound = arena;
+            }
+            if(arenaFound != null){
+                arenaFound.setSpawn(player.getLocation());
                 
                 player.sendMessage(LanguageManager.getTranslation(MessageKeys.ARENA_SPAWN_SET.key));
             }else{

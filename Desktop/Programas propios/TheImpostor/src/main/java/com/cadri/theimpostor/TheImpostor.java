@@ -2,9 +2,10 @@ package com.cadri.theimpostor;
 
 import com.cadri.theimpostor.arena.Arena;
 import com.cadri.theimpostor.arena.ArenaManager;
-import com.cadri.theimpostor.commands.BaseCommand;
+import com.cadri.theimpostor.commands.CommandManager;
 import com.cadri.theimpostor.commands.CreateArena;
 import com.cadri.theimpostor.commands.JoinArena;
+import com.cadri.theimpostor.events.ArenaEvents;
 import java.io.File;
 import java.util.logging.Level;
 import org.bukkit.Bukkit;
@@ -29,11 +30,12 @@ public class TheImpostor extends JavaPlugin{
     public void onEnable() {
         saveDefaultConfig();
         this.getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "The plugin has been Enabled");
-        this.getCommand(BaseCommand.mainCommand).setExecutor(new BaseCommand());
-        BaseCommand.loadCommands();
+        this.getCommand(CommandManager.mainCommand).setExecutor(new CommandManager());
+        CommandManager.loadCommands();
         LanguageManager.loadLanguage();
         ArenaManager.loadArenas();
         
+        this.getServer().getPluginManager().registerEvents(new ArenaEvents(), plugin);
     }
 
     @Override

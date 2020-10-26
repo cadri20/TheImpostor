@@ -14,16 +14,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.cadri.theimpostor.arena;
+package com.cadri.theimpostor.game;
 
-import java.util.ArrayList;
+import com.cadri.theimpostor.TheImpostor;
+import com.cadri.theimpostor.arena.Arena;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.inventory.meta.ItemMeta;
 
 /**
  *
@@ -31,26 +30,40 @@ import org.bukkit.inventory.meta.ItemMeta;
  */
 public class GameUtils {
     private static Random random = new Random();
-    public static Player chooseImpostor(List<Player> players){
+
+    public static Player chooseImpostor(List<Player> players) {
         int index = random.nextInt(players.size());
-        
+
         return players.remove(index);
     }
-    
-    public static void setInventoryImpostors(List<Player> impostors){
-        ItemStack killItem = new ItemStack(Material.RED_WOOL);
-        ItemMeta killItemMeta = killItem.getItemMeta(); 
-        killItemMeta.setDisplayName("Kill Player");
-        List<String> loreKillItem = new ArrayList<>();
-        loreKillItem.add("Hit someone with this to kill him");
-        killItemMeta.setLore(loreKillItem);
-        
-        killItem.setItemMeta(killItemMeta);
-        for(Player impostor: impostors){
+
+    public static void setInventoryImpostors(List<Player> impostors) {
+        for (Player impostor : impostors) {
             PlayerInventory impostorInventory = impostor.getInventory();
-            impostorInventory.setItem(0, killItem);
+            impostorInventory.setItem(0, ItemOptions.KILL_PLAYER.getItem());
         }
     }
-    
 
+    public static void makePhantom(Player player, Arena arena) {
+        Map<Player, Boolean> aliveMap = arena.getAliveMap();
+        aliveMap.put(player, false);
+
+        for (Player playerInArena : arena.getPlayers()) {
+            Boolean isAlive = aliveMap.get(playerInArena);
+            if (isAlive != null) {
+                if (isAlive) {
+                    playerInArena.hidePlayer(TheImpostor.plugin, player);
+                } else {
+                    player.showPlayer(TheImpostor.plugin, playerInArena);
+                   
+                }
+            }else{
+                playerInArena.sendMessage("You're not in arena");
+            }
+
+        }
+        
+    }
+    
+    
 }

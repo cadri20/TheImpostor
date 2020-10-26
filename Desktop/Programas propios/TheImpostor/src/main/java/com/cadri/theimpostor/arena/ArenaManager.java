@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.logging.Level;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
@@ -36,11 +37,11 @@ public class ArenaManager {
     public static File arenaNamesFile = new File(TheImpostor.plugin.getDataFolder(), "arenas.yml");
     public static YamlConfiguration fc = YamlConfiguration.loadConfiguration(arenaNamesFile);
     public static List<Arena> arenas = new ArrayList<>();
-    public static List<String> arenaNames = fc.getStringList("Arena-list");
+    public static List<String> arenaNames = fc.getStringList("arena-list");
 
     public static void loadArenas() {
         for (String s : ArenaManager.arenaNames) {
-            File arena = new File(TheImpostor.plugin.getDataFolder() + File.separator + s + File.separator + "ArenaSettings.yml");
+            File arena = new File(TheImpostor.plugin.getDataFolder() + File.separator + s + File.separator + "arena_settings.yml");
             YamlConfiguration fc = YamlConfiguration.loadConfiguration(arena);
             String Name = fc.getString("Name");
             int minPlayers = fc.getInt("minPlayers");
@@ -51,12 +52,19 @@ public class ArenaManager {
                 TheImpostor.plugin.getLogger().log(Level.INFO, "La arena " + s + " no tiene lobby");
             } else {
                 String World = fc.getString("Lobby" + ".world");
-                org.bukkit.World w = Bukkit.getWorld(World);
+                World lobbyWorld = Bukkit.getWorld(World);
                 Double x = fc.getDouble("Lobby" + ".x");
                 Double y = fc.getDouble("Lobby" + ".y");
                 Double z = fc.getDouble("Lobby" + ".z");
-                Location lobby = new Location(w, x, y, z);
-                Arena a = new Arena(Name, minPlayers, maxPlayers, lobby);
+                Location lobby = new Location(lobbyWorld, x, y, z);
+                
+                World spawnWorld = Bukkit.getWorld(fc.getString("spawn.world"));
+                Double spawnX = fc.getDouble("spawn.x");
+                Double spawnY = fc.getDouble("spawn.y");
+                Double spawnZ = fc.getDouble("spawn.z");
+                
+                Location spawn = new Location(spawnWorld, spawnX, spawnY, spawnZ);
+                Arena a = new Arena(Name, minPlayers, maxPlayers, lobby, spawn);
                 ArenaManager.arenas.add(a);
 
             }

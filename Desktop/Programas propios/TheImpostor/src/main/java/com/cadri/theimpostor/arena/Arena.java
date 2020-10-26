@@ -16,6 +16,7 @@
  */
 package com.cadri.theimpostor.arena;
 
+import com.cadri.theimpostor.game.GameUtils;
 import com.cadri.theimpostor.LanguageManager;
 import com.cadri.theimpostor.MessageKeys;
 import com.cadri.theimpostor.TheImpostor;

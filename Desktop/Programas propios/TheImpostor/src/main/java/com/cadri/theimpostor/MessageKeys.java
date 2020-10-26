@@ -27,7 +27,11 @@ public enum MessageKeys {
     ARENA_NOT_EXISTS("arena_not_exists"),
     ARENA_COUNTDOWN("arena_countdown"),
     ARENA_GAME_START("arena_game_start"),
-    ARENA_SPAWN_SET("arena_spawn_set");
+    ARENA_SPAWN_SET("arena_spawn_set"),
+    IMPOSTOR_TITLE("impostor_title"),
+    IMPOSTOR_SUBTITLE("impostor_subtitle"),
+    CREWMATE_TITLE("crewmate_title"),
+    CREWMATE_SUBTITLE("crewmate_subtitle");
     
     public String key;
     

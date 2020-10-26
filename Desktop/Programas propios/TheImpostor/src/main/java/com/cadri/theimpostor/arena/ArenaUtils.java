@@ -27,6 +27,11 @@ public class ArenaUtils {
         return arena.getPlayers().contains(player);
     }
     
+    /**
+     * 
+     * @param player
+     * @return The arena where the player is. If it's not in an arena returns null 
+     */
     public static Arena whereArenaIs(Player player){
         for(Arena arena: ArenaManager.arenas){
             if(isInArena(player,arena))

@@ -37,20 +37,20 @@ import org.bukkit.entity.Player;
  *
  * @author cadri
  */
-public class CreateArena implements SubCommand{
+public class CreateArena implements SubCommand {
 
     @Override
     public void onCommand(CommandSender sender, String[] args) {
-        
+
         if (sender instanceof Player) {
             Player player = (Player) sender;
             if (!ArenaManager.arenaNames.contains(args[0])) {
                 Arena arena = new Arena(args[0], Integer.parseInt(args[1]), Integer.parseInt(args[2]), player.getLocation());
                 ArenaManager.arenas.add(arena);
                 ArenaManager.arenaNames.add(arena.getName());
-                File a = new File(TheImpostor.plugin.getDataFolder() + File.separator + arena.getName() + File.separator + "ArenaSettings.yml");
+                File a = new File(TheImpostor.plugin.getDataFolder() + File.separator + arena.getName() + File.separator + "arena_settings.yml");
                 YamlConfiguration fc = YamlConfiguration.loadConfiguration(a);
-                File ArenaNames = new File(TheImpostor.plugin.getDataFolder() + File.separator + "Arenas.yml");
+                File ArenaNames = new File(TheImpostor.plugin.getDataFolder() + File.separator + "arenas.yml");
                 YamlConfiguration fcn = YamlConfiguration.loadConfiguration(ArenaNames);
                 fc.set("Name", arena.getName());
                 fc.set("minPlayers", arena.getMinPlayers());
@@ -59,22 +59,23 @@ public class CreateArena implements SubCommand{
                 fc.set("Lobby" + ".x", player.getLocation().getX());
                 fc.set("Lobby" + ".y", player.getLocation().getY());
                 fc.set("Lobby" + ".z", player.getLocation().getZ());
-                fcn.set("Arena-list", ArenaManager.arenaNames);
+                fc.set("spawn.world", player.getLocation().getWorld().getName());
+                fc.set("spawn.x", player.getLocation().getX());
+                fc.set("spawn.y", player.getLocation().getY());
+                fc.set("spawn.z", player.getLocation().getZ());
+                fcn.set("arena-list", ArenaManager.arenaNames);
                 try {
                     fc.save(a);
                     fcn.save(ArenaNames);
                 } catch (IOException e) {
                     player.sendMessage("Error saving the files");
-                    
+
                 }
                 player.sendMessage(LanguageManager.getTranslation(MessageKeys.ARENA_CREATED_SUCCESSFULLY.key));
-            }else{
+            } else {
                 player.sendMessage(LanguageManager.getTranslation(MessageKeys.ARENA_ALREADY_EXISTS.key));
             }
         }
-        
-        
+
     }
 }
-
-

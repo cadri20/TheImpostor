@@ -51,11 +51,9 @@ public class ArenaTimer extends BukkitRunnable {
             }
             counter--;
         } else {
-            for (Player player : arena.getPlayers()) {
-                player.sendMessage(LanguageManager.getTranslation(MessageKeys.ARENA_GAME_START.key));
-            }
             arena.startGame();
             this.cancel();
+            
         }
     }
 }
