@@ -230,7 +230,7 @@ public class Arena {
         String colorName = color.getChatColor() + player.getName();
         player.setDisplayName(color.getChatColor() + player.getDisplayName());
         player.setPlayerListName(colorName);
-        player.setPlayerListHeader(colorName);
+       
     }
     
     public boolean areColorsSelected(){
