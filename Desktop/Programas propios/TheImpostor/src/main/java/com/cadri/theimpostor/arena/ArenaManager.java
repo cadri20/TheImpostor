@@ -64,7 +64,7 @@ public class ArenaManager {
                 Double spawnZ = fc.getDouble("spawn.z");
                 
                 Location spawn = new Location(spawnWorld, spawnX, spawnY, spawnZ);
-                Arena a = new Arena(Name, minPlayers, maxPlayers, lobby, spawn);
+                Arena a = new Arena(Name, maxPlayers, minPlayers, lobby, spawn);
                 ArenaManager.arenas.add(a);
 
             }
