@@ -18,8 +18,10 @@ package com.cadri.theimpostor.commands;
 
 import com.cadri.theimpostor.LanguageManager;
 import com.cadri.theimpostor.MessageKeys;
+import com.cadri.theimpostor.TheImpostor;
 import com.cadri.theimpostor.arena.Arena;
 import com.cadri.theimpostor.arena.ArenaManager;
+import java.util.logging.Level;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -39,6 +41,14 @@ public class SetSpawn implements SubCommand{
             Arena arenaFound = null;
             
             for(Arena arena: ArenaManager.arenas){
+                if(arena == null){
+                    TheImpostor.plugin.getLogger().log(Level.SEVERE,"Arenas contains a null!");
+                    return; 
+                }
+                if(arena.getName() == null){
+                    TheImpostor.plugin.getLogger().log(Level.SEVERE,"One arena name is null");
+                    return;
+                }
                 if(arena.getName().equals(arenaName))
                     arenaFound = arena;
             }

@@ -49,9 +49,6 @@ public class JoinArena implements SubCommand{
                 player.teleport(arena.getLobby());
                 arena.addPlayer(player);
                 
-                if(arena.getPlayers().size() == arena.getMinPlayers()){
-                    arena.initCountDown();
-                }
             }else{
                 player.sendMessage(LanguageManager.getTranslation(MessageKeys.ARENA_NOT_EXISTS.key  ));
             }

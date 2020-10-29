@@ -109,6 +109,9 @@ public class ArenaEvents implements Listener {
             arena.setPlayerColor(player, playerColor);
             player.sendMessage("You chose " + playerColor.getName());
             player.closeInventory();
+            return;
         }
+        
+        
     }
 }

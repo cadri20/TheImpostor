@@ -22,6 +22,8 @@ import com.cadri.theimpostor.MessageKeys;
 import com.cadri.theimpostor.TheImpostor;
 import com.cadri.theimpostor.game.ItemOptions;
 import com.cadri.theimpostor.game.PlayerColor;
+import com.cadri.theimpostor.game.VoteStartTimer;
+import com.cadri.theimpostor.game.VoteSystem;
 import com.sun.prism.paint.Paint;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -39,6 +41,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -67,11 +70,11 @@ public class Arena {
     private List<Player> crew;
     private List<Player> impostors;
     private Map<Player,Boolean> aliveMap;
-    private EnumMap<PlayerColor,Player> playersColor = new EnumMap<>(PlayerColor.class);
+    private Map<Player,PlayerColor> playersColor = new HashMap<>();
     private List<CorpseData> corpses;
 
     private File fileSettings;
-    private YamlConfiguration yamlSettings;
+    private FileConfiguration yamlSettings;
     private Scoreboard board;
     private Objective objective;
 
@@ -99,9 +102,8 @@ public class Arena {
         this.fileSettings = new File(TheImpostor.plugin.getDataFolder() + File.separator + name + File.separator + "arena_settings.yml");
         this.yamlSettings = YamlConfiguration.loadConfiguration(fileSettings);
         objective = board.registerNewObjective("Arena", "dummy", TheImpostor.plugin.getName());
-        objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-        objective.getScore(ChatColor.GREEN + "Arena: " + name).setScore(1);
-
+        
+        makeScoreBoard();
     }
 
     public void initCountDown() {
@@ -112,6 +114,11 @@ public class Arena {
 
     }
 
+    private void makeScoreBoard(){
+        objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+        objective.getScore(ChatColor.GREEN + "Arena: " + name).setScore(1);  
+        objective.getScore(ChatColor.BLUE + "MinPlayers: " + minPlayers).setScore(0);
+    }
     public Scoreboard getBoard() {
         return board;
     }
@@ -121,6 +128,9 @@ public class Arena {
         objective.getScore("Players number: " + players.size()).setScore(2);
         player.setScoreboard(board);
         player.getInventory().addItem(ItemOptions.CHOOSE_COLOR.getItem());
+        
+        if(players.size() == minPlayers)
+            this.initCountDown();
     }
 
     public void removePlayer(Player player) {
@@ -141,10 +151,17 @@ public class Arena {
             player.sendMessage(LanguageManager.getTranslation(MessageKeys.ARENA_GAME_START.key));
         }
         setRoles();
+        try{
         for (Player player : players) {
             player.teleport(spawn);
         }
-
+        }catch(IllegalArgumentException e){
+            if(spawn == null){
+                TheImpostor.plugin.getLogger().log(Level.SEVERE,"Error, spawn is null");
+            }else{
+            TheImpostor.plugin.getLogger().log(Level.SEVERE,"Location spawn error: " + String.format("X: %d Y: %d Z: %d", spawn.getX(), spawn.getY(), spawn.getZ()));
+            }
+        }
         for (Player impostor : impostors) {
             String title = LanguageManager.getTranslation(MessageKeys.IMPOSTOR_TITLE.key);
             String subtitle = LanguageManager.getTranslation(MessageKeys.IMPOSTOR_SUBTITLE.key);
@@ -158,8 +175,12 @@ public class Arena {
         }
         
         GameUtils.setInventoryImpostors(impostors);
-        
         setAliveAll();
+        
+        if(! areColorsSelected())
+            GameUtils.selectRandomColors(playersColor, players, this);
+        
+        //showColorsOnBoard();
         started = true;
     }
 
@@ -169,28 +190,68 @@ public class Arena {
         }
     }
     
+    private void showColorsOnBoard(){
+        for(Player player: players){
+            Objective obj = player.getScoreboard().getObjective(objective.getName());
+            if(obj == null){
+                TheImpostor.plugin.getLogger().log(Level.SEVERE, "Objective" + objective.getName() + " not found");
+                return;
+            }        
+            PlayerColor color = this.getPlayerColor(player);
+            if(color == null){
+                TheImpostor.plugin.getLogger().log(Level.SEVERE, "Color of player " + player.getName() + " not assigned");
+                return;
+            }
+            obj.getScore("Color: " + this.getPlayerColor(player).getName()).setScore(3);
+        }
+    }
     public void setRoles() {
         crew.addAll(players);
         impostors.add(GameUtils.chooseImpostor(crew));
     }
 
     public void corpseReported(){
+        int timeToVote = 30;
         for(Player player: players){
             player.sendTitle("Dead body reported!", "Voting started", 20, 70, 20);
             player.teleport(spawn);
+            player.sendMessage("The vote will start in " + timeToVote + " seconds");
         }
         for(CorpseData corpse: corpses){
             CorpseAPI.removeCorpse(corpse);
         }
+        
+        BukkitTask countdown = new VoteStartTimer(timeToVote, this).runTaskTimer(TheImpostor.plugin, 10L, 20L);
+        
     }
     
     public void setPlayerColor(Player player, PlayerColor color){
-        playersColor.put(color, player);
+        playersColor.put(player,color);
+        String colorName = color.getChatColor() + player.getName();
         player.setDisplayName(color.getChatColor() + player.getDisplayName());
+        player.setPlayerListName(colorName);
+        player.setPlayerListHeader(colorName);
+    }
+    
+    public boolean areColorsSelected(){
+        for(Player player: players){
+            if(playersColor.get(player) == null)
+                return false;
+        }
+        return true;
     }
     
     public void startVoting(){
+        VoteSystem voteSystem = new VoteSystem(this.getAlivePlayers(),this);
         
+        try{
+        for(Player player: players){
+            if(isAlive(player))
+                player.openInventory(voteSystem.getInventory());
+        }
+        }catch(NullPointerException e){
+            TheImpostor.plugin.getLogger().log(Level.SEVERE, "Error");
+        }
     }
     
    
@@ -252,10 +313,8 @@ public class Arena {
         this.yamlSettings.set("spawn.z", spawn.getZ());
 
         try {
-            yamlSettings.load(fileSettings);
+            yamlSettings.save(fileSettings);
         } catch (IOException ex) {
-            Logger.getLogger(Arena.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InvalidConfigurationException ex) {
             Logger.getLogger(Arena.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -268,15 +327,32 @@ public class Arena {
         return aliveMap;
     }
 
-    public EnumMap<PlayerColor, Player> getPlayersColor() {
+    public boolean isAlive(Player player){
+        return aliveMap.get(player);
+    }
+    public List<Player> getAlivePlayers(){
+        ArrayList<Player> alivePlayers = new ArrayList<>();
+        for(Player player: players){
+            if(isAlive(player))
+                alivePlayers.add(player);
+        }
+        
+        return alivePlayers;
+    }
+    
+    public Map<Player, PlayerColor> getPlayersColor() {
         return playersColor;
     }
 
     public PlayerColor getPlayerColor(Player player){
-        for(PlayerColor color: playersColor.keySet()){
-            if(playersColor.get(color).equals(player))
-                return color;
+        return playersColor.get(player);
+    }
+    
+    public boolean isColorSelected(PlayerColor color){
+        for(Player player: playersColor.keySet()){
+            if(playersColor.get(player).equals(color))
+                return true;
         }
-        return null;
+        return false;
     }
 }

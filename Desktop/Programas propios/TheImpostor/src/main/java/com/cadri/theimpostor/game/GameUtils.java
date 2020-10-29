@@ -18,9 +18,11 @@ package com.cadri.theimpostor.game;
 
 import com.cadri.theimpostor.TheImpostor;
 import com.cadri.theimpostor.arena.Arena;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Stack;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -78,4 +80,18 @@ public class GameUtils {
         return guiColors;
     }
     
+    public static void selectRandomColors(Map<Player,PlayerColor> playersColor, List<Player> players, Arena arena){
+        Stack<PlayerColor> availableColors = new Stack<>();
+        for(PlayerColor color: PlayerColor.values()){
+            if(! arena.isColorSelected(color))
+                availableColors.push(color);
+        }
+ 
+        for(Player player: arena.getPlayers()){
+            if(playersColor.get(player) == null){ //If it's not asigned
+                //playersColor.put(player, availableColors.pop());
+                arena.setPlayerColor(player, availableColors.pop());
+            }
+        }
+    } 
 }
