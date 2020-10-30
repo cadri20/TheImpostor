@@ -82,17 +82,18 @@ public class Arena {
         this(name, 1, 10, lobby, null);
         
     }
-
+/*
     public Arena(String name, int maxPlayers, int minPlayers, Location lobby) {
         this(name, maxPlayers, minPlayers, lobby, null);
     }
-
+*/
     public Arena(String name, int maxPlayers, int minPlayers, Location lobby, Location spawn) {
         this.name = name;
         this.maxPlayers = maxPlayers;
         this.minPlayers = minPlayers;
         this.players = new ArrayList<>();
         this.lobby = lobby;
+        this.spawn = spawn;
         this.started = false;
         this.crew = new ArrayList<>();
         this.impostors = new ArrayList<>();
@@ -230,7 +231,7 @@ public class Arena {
         String colorName = color.getChatColor() + player.getName();
         player.setDisplayName(color.getChatColor() + player.getDisplayName());
         player.setPlayerListName(colorName);
-       
+        
     }
     
     public boolean areColorsSelected(){

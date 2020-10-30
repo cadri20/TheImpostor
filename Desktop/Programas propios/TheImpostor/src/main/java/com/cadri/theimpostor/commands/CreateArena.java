@@ -45,7 +45,7 @@ public class CreateArena implements SubCommand {
         if (sender instanceof Player) {
             Player player = (Player) sender;
             if (!ArenaManager.arenaNames.contains(args[0])) {
-                Arena arena = new Arena(args[0], Integer.parseInt(args[1]), Integer.parseInt(args[2]), player.getLocation());
+                Arena arena = new Arena(args[0], Integer.parseInt(args[1]), Integer.parseInt(args[2]), player.getLocation(), player.getLocation());
                 ArenaManager.arenas.add(arena);
                 ArenaManager.arenaNames.add(arena.getName());
                 File a = new File(TheImpostor.plugin.getDataFolder() + File.separator + arena.getName() + File.separator + "arena_settings.yml");
