@@ -16,6 +16,7 @@
  */
 package com.cadri.theimpostor.events;
 
+import com.cadri.theimpostor.arena.Arena;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
@@ -29,10 +30,12 @@ public class VoteEvent extends Event{
     
     private Player voter;
     private Player voted;
+    private Arena arena;
 
-    public VoteEvent(Player voter, Player voted) {
+    public VoteEvent(Player voter, Player voted, Arena arena) {
         this.voter = voter;
         this.voted = voted;
+        this.arena = arena;
     }
     
     @Override
@@ -48,5 +51,7 @@ public class VoteEvent extends Event{
         return voted;
     }
     
-    
+    public Arena getArena(){
+        return arena;
+    }
 }

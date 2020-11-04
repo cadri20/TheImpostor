@@ -22,8 +22,10 @@ import com.cadri.theimpostor.arena.ArenaUtils;
 import com.cadri.theimpostor.game.GameUtils;
 import com.cadri.theimpostor.game.ItemOptions;
 import com.cadri.theimpostor.game.PlayerColor;
+import com.cadri.theimpostor.game.VoteSystem;
 import com.sun.javafx.scene.text.HitInfo;
-import org.bukkit.Material;
+import java.util.logging.Level;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -31,6 +33,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
@@ -101,8 +104,22 @@ public class ArenaEvents implements Listener {
         Arena arena = ArenaUtils.whereArenaIs(player);
         if(arena == null)
             return;
+        ItemStack itemClicked = evt.getCursor();
+        VoteSystem vs = arena.getVoteSystem();
+        if(vs != null){
+            if(evt.getInventory().equals(vs.getInventory())){
+                PlayerColor colorSelected = PlayerColor.getPlayerColor(itemClicked.getType());
+                if(colorSelected != null){
+                    vs.vote(colorSelected,player);
+                    player.closeInventory();
+                }else{
+                    TheImpostor.plugin.getLogger().log(Level.SEVERE, "colorSelected is null and type of item is " + itemClicked.getType().name());
+                    return;
+                }
+            }
+        }
+            
         
-        ItemStack itemClicked = evt.getCurrentItem();
         
         PlayerColor playerColor = PlayerColor.getPlayerColor(itemClicked);
         if(playerColor != null){
@@ -111,7 +128,20 @@ public class ArenaEvents implements Listener {
             player.closeInventory();
             return;
         }
+      
+    }
+    
+    public void onDrag(InventoryDragEvent evt){
+        Player player = (Player) evt.getWhoClicked();
+        Arena arena = ArenaUtils.whereArenaIs(player);
+        if(arena == null)
+            return;
         
+        evt.setCancelled(true);
+    }
+    public void onVote(VoteEvent evt){
+        Player voted = evt.getVoted();
         
+        evt.getArena().getVoteSystem().vote(voted, evt.getVoter());
     }
 }

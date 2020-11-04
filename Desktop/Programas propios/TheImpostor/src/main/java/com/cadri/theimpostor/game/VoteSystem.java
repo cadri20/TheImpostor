@@ -36,16 +36,19 @@ import org.bukkit.inventory.meta.ItemMeta;
  *
  * @author cadri
  */
-public class VoteSystem {
+public class VoteSystem{
+
     Inventory inv;
-    HashMap<Player,Integer> votes;
+    HashMap<Player, Integer> votes = new HashMap<>();
     Arena arena;
-    public VoteSystem(List<Player> players, Arena arena){
+
+    public VoteSystem(List<Player> players, Arena arena) {
         this.arena = arena;
         inv = Bukkit.createInventory(null, 9, "Vote");
-        for(Player player: players){
+        for (Player player : players) {
+            votes.put(player, 0);
             PlayerColor color = arena.getPlayerColor(player);
-            if(color == null){
+            if (color == null) {
                 TheImpostor.plugin.getLogger().log(Level.SEVERE, "Color of " + player.getName() + " is NULL");
                 return;
             }
@@ -54,29 +57,45 @@ public class VoteSystem {
             meta.setDisplayName(color.getChatColor() + player.getDisplayName());
             item.setItemMeta(meta);
             inv.addItem(item);
-            
+
         }
-        
+
     }
-    
-    public void vote(Player player){
-       votes.put(player, votes.get(player) + 1);
+
+    public void vote(Player voted, Player voter) {
+        Integer voteCount = votes.get(voted);
+        if (voteCount == null) {
+            TheImpostor.plugin.getLogger().log(Level.SEVERE, "The player " + voted + " is not in the vote");
+            return;
+        }
+        Integer previousCount = votes.put(voted, voteCount + 1);
+        if(previousCount != null)
+            voter.sendMessage("You voted for " + voted.getName());
     }
-    
-    public Inventory getInventory(){
+
+    public void vote(PlayerColor color, Player voter) {
+        Player voted = arena.getPlayer(color);
+        if (voted == null) {
+            TheImpostor.plugin.getLogger().log(Level.SEVERE, "Player has not a color assigned");
+        }
+        vote(voted, voter);
+    }
+
+    public Inventory getInventory() {
         return inv;
     }
-    
-    public Player getMostVoted(){
+
+    public Player getMostVoted() {
         Player[] players = (Player[]) votes.keySet().toArray();
         Player mostVoted = players[0];
-        
-        for(Player player: players){
+
+        for (Player player : players) {
             int votesNumber = votes.get(player);
-            if(votesNumber > votes.get(mostVoted))
+            if (votesNumber > votes.get(mostVoted)) {
                 mostVoted = player;
+            }
         }
-        
+
         return mostVoted;
     }
 }

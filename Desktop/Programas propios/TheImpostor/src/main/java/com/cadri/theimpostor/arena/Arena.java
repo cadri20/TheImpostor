@@ -77,9 +77,10 @@ public class Arena {
     private FileConfiguration yamlSettings;
     private Scoreboard board;
     private Objective objective;
-
+    private VoteSystem voteSystem = null;
+    
     public Arena(String name, Location lobby) {
-        this(name, 1, 10, lobby, null);
+        this(name, 1, 10, lobby, null); 
         
     }
 /*
@@ -243,7 +244,7 @@ public class Arena {
     }
     
     public void startVoting(){
-        VoteSystem voteSystem = new VoteSystem(this.getAlivePlayers(),this);
+        voteSystem = new VoteSystem(this.getAlivePlayers(),this);
         
         try{
         for(Player player: players){
@@ -324,6 +325,10 @@ public class Arena {
         return spawn;
     }
 
+    public VoteSystem getVoteSystem() {
+        return voteSystem;
+    }
+
     public Map<Player, Boolean> getAliveMap() {
         return aliveMap;
     }
@@ -349,11 +354,24 @@ public class Arena {
         return playersColor.get(player);
     }
     
-    public boolean isColorSelected(PlayerColor color){
+    /**
+     * 
+     * @param color The color of the player
+     * @return The player found, if player not found returns null
+     */
+    public Player getPlayer(PlayerColor color){
+
         for(Player player: playersColor.keySet()){
             if(playersColor.get(player).equals(color))
-                return true;
+                return player;
         }
-        return false;
+        
+        return null;
+    }
+    
+    public boolean isColorSelected(PlayerColor color){
+        if(getPlayer(color) == null)
+            return false;
+        return true;
     }
 }

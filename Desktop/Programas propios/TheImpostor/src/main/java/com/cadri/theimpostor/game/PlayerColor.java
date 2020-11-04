@@ -50,14 +50,7 @@ public enum PlayerColor {
         return item;
     }
     
-    public static PlayerColor getPlayerColor(ItemStack item){
-        for(PlayerColor color: values()){
-            if(item.equals(color.getItem()))
-                return color;
-        }
-        
-        return null;
-    }
+
 
     public String getName() {
         return name;
@@ -69,6 +62,24 @@ public enum PlayerColor {
     
     public Material getMaterial(){
         return material;
+    }
+    
+    public static PlayerColor getPlayerColor(ItemStack item){
+        for(PlayerColor color: values()){
+            if(item.equals(color.getItem()))
+                return color;
+        }
+        
+        return null;
+    }
+
+    public static PlayerColor getPlayerColor(Material material){
+        for(PlayerColor color: values()){
+            if(material.equals(color.getMaterial()))
+                return color;
+        }
+        
+        return null;
     }
 }
 
