@@ -26,6 +26,7 @@ import com.cadri.theimpostor.game.VoteSystem;
 import com.sun.javafx.scene.text.HitInfo;
 import java.util.logging.Level;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -34,9 +35,11 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.golde.bukkit.corpsereborn.CorpseAPI.CorpseAPI;
 import org.golde.bukkit.corpsereborn.CorpseAPI.events.CorpseClickEvent;
@@ -104,14 +107,20 @@ public class ArenaEvents implements Listener {
         Arena arena = ArenaUtils.whereArenaIs(player);
         if(arena == null)
             return;
-        ItemStack itemClicked = evt.getCursor();
+        
+        ItemStack itemClicked = evt.getCurrentItem();
+        if(itemClicked.getType() == Material.AIR)
+            return;
+        
         VoteSystem vs = arena.getVoteSystem();
         if(vs != null){
             if(evt.getInventory().equals(vs.getInventory())){
                 PlayerColor colorSelected = PlayerColor.getPlayerColor(itemClicked.getType());
                 if(colorSelected != null){
                     vs.vote(colorSelected,player);
-                    player.closeInventory();
+                    player.closeInventory();    
+                    evt.setCancelled(true);
+                    return;
                 }else{
                     TheImpostor.plugin.getLogger().log(Level.SEVERE, "colorSelected is null and type of item is " + itemClicked.getType().name());
                     return;
@@ -123,14 +132,36 @@ public class ArenaEvents implements Listener {
         
         PlayerColor playerColor = PlayerColor.getPlayerColor(itemClicked);
         if(playerColor != null){
+
             arena.setPlayerColor(player, playerColor);
             player.sendMessage("You chose " + playerColor.getName());
-            player.closeInventory();
+            player.closeInventory();  
+            evt.setCancelled(true);
             return;
         }
       
     }
     
+    @EventHandler
+    public void onMoveItemFromInventory(InventoryMoveItemEvent evt){
+        Inventory inventorySource = evt.getInitiator();
+        Inventory inventoryDestiny = evt.getDestination();
+        if(! (inventoryDestiny.getHolder() instanceof Player))
+            return;
+        
+        Player player = (Player) inventoryDestiny.getHolder();
+        Arena arena = ArenaUtils.whereArenaIs(player);
+        
+        if(arena == null)
+            return;
+        
+        VoteSystem vs = arena.getVoteSystem();
+        if(inventorySource.equals(vs.getInventory()) || inventorySource.equals(GameUtils.getGUIChoiceColors())){
+            evt.setCancelled(true);
+        }
+    }
+/*    
+    @EventHandler
     public void onDrag(InventoryDragEvent evt){
         Player player = (Player) evt.getWhoClicked();
         Arena arena = ArenaUtils.whereArenaIs(player);
@@ -138,7 +169,7 @@ public class ArenaEvents implements Listener {
             return;
         
         evt.setCancelled(true);
-    }
+    }*/
     public void onVote(VoteEvent evt){
         Player voted = evt.getVoted();
         

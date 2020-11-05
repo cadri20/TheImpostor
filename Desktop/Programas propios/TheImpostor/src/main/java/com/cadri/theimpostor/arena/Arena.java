@@ -24,6 +24,7 @@ import com.cadri.theimpostor.game.ItemOptions;
 import com.cadri.theimpostor.game.PlayerColor;
 import com.cadri.theimpostor.game.VoteStartTimer;
 import com.cadri.theimpostor.game.VoteSystem;
+import com.cadri.theimpostor.game.VoteTimer;
 import com.sun.prism.paint.Paint;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -254,9 +255,32 @@ public class Arena {
         }catch(NullPointerException e){
             TheImpostor.plugin.getLogger().log(Level.SEVERE, "Error");
         }
+        
+        BukkitTask task = new VoteTimer(30, this).runTaskTimer(TheImpostor.plugin, 10L, 20L);
     }
     
-   
+    public void stopVote(){
+        if(voteSystem == null){
+            TheImpostor.plugin.getLogger().log(Level.SEVERE,"Vote System is null");
+            return;
+        }
+        
+        Player mostVoted = voteSystem.getMostVoted();
+        String ejectMessage;
+        if(isTheImpostor(mostVoted))
+            ejectMessage = "was the impostor";
+        else
+            ejectMessage = "was not the impostor";
+        
+        for(Player player: this.getPlayers()){
+            player.sendMessage("The player " + mostVoted.getName() + " was the most voted and " + ejectMessage);
+        }
+    }
+    
+    public boolean isTheImpostor(Player player){
+        return impostors.contains(player);
+    }
+    
     @Override
     public boolean equals(Object obj) {
         Arena arena = (Arena) obj;
