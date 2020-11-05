@@ -68,6 +68,8 @@ public class Arena {
     private Location lobby;
     private Location spawn;
     private boolean started;
+    private int timeToVote;
+    private int voteTime;
     private List<Player> crew;
     private List<Player> impostors;
     private Map<Player,Boolean> aliveMap;
@@ -97,6 +99,8 @@ public class Arena {
         this.lobby = lobby;
         this.spawn = spawn;
         this.started = false;
+        this.timeToVote = 30;
+        this.voteTime = 30;
         this.crew = new ArrayList<>();
         this.impostors = new ArrayList<>();
         this.aliveMap = new HashMap<>();
@@ -214,7 +218,6 @@ public class Arena {
     }
 
     public void corpseReported(){
-        int timeToVote = 30;
         for(Player player: players){
             player.sendTitle("Dead body reported!", "Voting started", 20, 70, 20);
             player.teleport(spawn);
@@ -251,12 +254,13 @@ public class Arena {
         for(Player player: players){
             if(isAlive(player))
                 player.openInventory(voteSystem.getInventory());
+            
         }
         }catch(NullPointerException e){
             TheImpostor.plugin.getLogger().log(Level.SEVERE, "Error");
         }
         
-        BukkitTask task = new VoteTimer(30, this).runTaskTimer(TheImpostor.plugin, 10L, 20L);
+        BukkitTask task = new VoteTimer(this.voteTime, this).runTaskTimer(TheImpostor.plugin, 10L, 20L);
     }
     
     public void stopVote(){
