@@ -19,8 +19,10 @@ package com.cadri.theimpostor.game;
 import com.cadri.theimpostor.TheImpostor;
 import com.cadri.theimpostor.arena.Arena;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Level;
 import org.bukkit.Bukkit;
@@ -86,16 +88,20 @@ public class VoteSystem{
     }
 
     public Player getMostVoted() {
-        Player[] players = (Player[]) votes.keySet().toArray();
-        Player mostVoted = players[0];
-
+        Entry<Player,Integer> maxEntry = null;
+        
+        for(Entry<Player,Integer> entry: votes.entrySet()){
+            if(maxEntry == null || entry.getValue().compareTo(maxEntry.getValue()) > 0)
+                maxEntry = entry;
+        }
+        /*
         for (Player player : players) {
             int votesNumber = votes.get(player);
             if (votesNumber > votes.get(mostVoted)) {
                 mostVoted = player;
             }
-        }
+        }*/
 
-        return mostVoted;
+        return maxEntry.getKey();
     }
 }
