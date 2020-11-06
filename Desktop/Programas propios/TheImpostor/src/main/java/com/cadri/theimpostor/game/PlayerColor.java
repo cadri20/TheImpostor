@@ -28,7 +28,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 public enum PlayerColor {
     RED("Red",ChatColor.RED,Material.RED_WOOL),
     BLUE("Blue",ChatColor.BLUE,Material.BLUE_WOOL),
-    YELLOW("Yellow", ChatColor.YELLOW,Material.YELLOW_WOOL);
+    YELLOW("Yellow", ChatColor.YELLOW,Material.YELLOW_WOOL),
+    GREEN("Green", ChatColor.GREEN, Material.GREEN_WOOL);
     
     private String name;
     private ChatColor chatColor;
