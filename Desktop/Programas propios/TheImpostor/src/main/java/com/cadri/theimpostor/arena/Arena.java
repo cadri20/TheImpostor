@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 Hp
+ * Copyright (C) 2020 cadri
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -270,6 +270,12 @@ public class Arena {
         }
         
         Player mostVoted = voteSystem.getMostVoted();
+        if(mostVoted == null){
+            for(Player player: this.getPlayers()){
+                player.sendMessage("No one was ejected");
+            }
+            return;
+        }
         String ejectMessage;
         if(isTheImpostor(mostVoted))
             ejectMessage = "was the impostor";

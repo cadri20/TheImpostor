@@ -25,7 +25,9 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Level;
+import javafx.scene.paint.Color;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.SkullType;
 import org.bukkit.entity.Player;
@@ -40,9 +42,12 @@ import org.bukkit.inventory.meta.ItemMeta;
  */
 public class VoteSystem{
 
-    Inventory inv;
-    HashMap<Player, Integer> votes = new HashMap<>();
-    Arena arena;
+    private Inventory inv;
+    private HashMap<Player, Integer> votes = new HashMap<>();
+    private List<Player> playersSkipVotes = new ArrayList<>();
+    private boolean tie = false;
+    private Arena arena;
+    private String skipVoteDisplayName = ChatColor.DARK_PURPLE + "Skip Vote";
 
     public VoteSystem(List<Player> players, Arena arena) {
         this.arena = arena;
@@ -61,9 +66,17 @@ public class VoteSystem{
             inv.addItem(item);
 
         }
+        addSkipVote();
 
     }
 
+    private void addSkipVote(){
+        ItemStack item = new ItemStack(Material.BARRIER);
+        ItemMeta meta = item.getItemMeta();
+        meta.setDisplayName(skipVoteDisplayName);
+        item.setItemMeta(meta);
+        inv.addItem(item);
+    }
     public void vote(Player voted, Player voter) {
         Integer voteCount = votes.get(voted);
         if (voteCount == null) {
@@ -83,25 +96,46 @@ public class VoteSystem{
         vote(voted, voter);
     }
 
+    public void skipVote(Player voter){
+        playersSkipVotes.add(voter);
+    }
     public Inventory getInventory() {
         return inv;
     }
 
+    /**
+     * 
+     * @return The player most voted, if there is a tie or the majority skipped the vote it returns null;
+     */
     public Player getMostVoted() {
         Entry<Player,Integer> maxEntry = null;
         
         for(Entry<Player,Integer> entry: votes.entrySet()){
-            if(maxEntry == null || entry.getValue().compareTo(maxEntry.getValue()) > 0)
+            int comparison;
+            if(maxEntry == null){
                 maxEntry = entry;
-        }
-        /*
-        for (Player player : players) {
-            int votesNumber = votes.get(player);
-            if (votesNumber > votes.get(mostVoted)) {
-                mostVoted = player;
+            }else if((comparison = entry.getValue().compareTo(maxEntry.getValue())) >= 0){
+                tie = comparison == 0;
+                maxEntry = entry;
             }
-        }*/
+        }
+        if(thereIsTie() || skipVotesCount() >= maxEntry.getValue())
+            return null;
 
         return maxEntry.getKey();
     }
+    
+    public int skipVotesCount(){
+        return playersSkipVotes.size();
+    }
+    
+    public boolean thereIsTie(){
+        return tie;
+    }
+
+    public String getSkipVoteText() {
+        return skipVoteDisplayName;
+    }
+    
+    
 }

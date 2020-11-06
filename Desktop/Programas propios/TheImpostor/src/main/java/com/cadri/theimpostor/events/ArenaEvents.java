@@ -34,6 +34,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
@@ -114,7 +115,14 @@ public class ArenaEvents implements Listener {
         
         VoteSystem vs = arena.getVoteSystem();
         if(vs != null){
-            if(evt.getInventory().equals(vs.getInventory())){
+            if(evt.getInventory().equals(vs.getInventory())){ //If player selected skip vote
+                if(itemClicked.getItemMeta().getDisplayName().equals(vs.getSkipVoteText())){
+                    vs.skipVote(player);
+                    player.sendMessage("You've skipped the vote");
+                    player.closeInventory();
+                    evt.setCancelled(true);
+                    return;
+                }
                 PlayerColor colorSelected = PlayerColor.getPlayerColor(itemClicked.getType());
                 if(colorSelected != null){
                     vs.vote(colorSelected,player);
@@ -170,6 +178,25 @@ public class ArenaEvents implements Listener {
         
         evt.setCancelled(true);
     }*/
+/*    
+    @EventHandler
+    public void onCloseInventory(InventoryCloseEvent evt){
+        Player player = (Player) evt.getPlayer();
+        Arena arena = ArenaUtils.whereArenaIs(player);
+        if (arena == null)
+            return;
+        
+        Inventory inventoryClosed = evt.getInventory();
+        VoteSystem vs = arena.getVoteSystem();
+        if(vs == null)
+            return;
+        
+        if(inventoryClosed.equals(vs.getInventory())){
+            vs.skipVote(player);
+            player.sendMessage("You've skipped your vote");
+        }
+    }
+    */
     public void onVote(VoteEvent evt){
         Player voted = evt.getVoted();
         
