@@ -2,6 +2,7 @@ name: TheImpostor
 main: com.cadri.theimpostor.TheImpostor
 version: 0.1
 author: Adrian Coloma
+api-version: 1.13
 commands:
     theimpostor:
         aliases: [imp]
