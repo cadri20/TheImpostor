@@ -70,6 +70,11 @@ public class GameUtils {
         
     }
     
+    public static void ejectPlayer(Player player, Arena arena){
+        makePhantom(player,arena);
+        player.sendTitle("You were ejected", "", 20, 70, 20);
+    }
+    
     public static Inventory getGUIChoiceColors(){
         PlayerColor[] playerColors = PlayerColor.values();
         Inventory guiColors = Bukkit.createInventory(null, 9, "Choose a color");
