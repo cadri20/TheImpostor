@@ -150,7 +150,13 @@ public class Arena {
         } else {
             player.sendMessage("You're not in Arena");
         }
-
+        
+        playersColor.remove(player);
+        aliveMap.remove(player);
+        if(this.isTheImpostor(player))
+            impostors.remove(player);
+        else
+            crew.remove(player);
     }
 
     public void addCorpse(CorpseData corpse){
