@@ -18,7 +18,6 @@ package com.cadri.theimpostor.game;
 
 import com.cadri.theimpostor.TheImpostor;
 import com.cadri.theimpostor.arena.Arena;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;

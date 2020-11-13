@@ -19,7 +19,6 @@ package com.cadri.theimpostor.arena;
 import com.cadri.theimpostor.TheImpostor;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import org.bukkit.Bukkit;

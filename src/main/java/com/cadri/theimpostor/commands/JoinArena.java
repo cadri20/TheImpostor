@@ -21,11 +21,6 @@ import com.cadri.theimpostor.MessageKeys;
 import com.cadri.theimpostor.arena.Arena;
 import com.cadri.theimpostor.arena.ArenaManager;
 import com.cadri.theimpostor.arena.ArenaUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
