@@ -145,14 +145,11 @@ public class Arena {
             this.initCountDown();
     }
 
-    public void removePlayer(Player player) {
-        if (players.remove(player)) {
-            player.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
-            player.sendMessage("Abandonaste la arena");
-        } else {
-            player.sendMessage("You're not in Arena");
-        }
+    public boolean removePlayer(Player player) {
+        if (! players.remove(player))
+            return false;
         
+        player.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
         playersColor.remove(player);
         aliveMap.remove(player);
         if(this.isTheImpostor(player))
@@ -160,6 +157,8 @@ public class Arena {
         else
             crew.remove(player);
         player.teleport(playerLocations.get(player));
+        playerLocations.remove(player);
+        return true;
     }
 
     public void addCorpse(CorpseData corpse){
@@ -449,6 +448,8 @@ public class Arena {
                 player.sendTitle(ChatColor.RED + "Defeat", "", 20, 70, 20);
             }
         }
+        
+        removeAllPlayers();
     }
     
     public int getAlivePlayersCount(){
@@ -463,7 +464,15 @@ public class Arena {
     public int getCrewAlive(){
         return getAlivePlayersCount() - impostorsAlive;
     }
+    
     public boolean noenoughCrew(){
         return this.getCrewAlive() == impostorsAlive ;
+    }
+    
+    public void removeAllPlayers(){
+        for(Player player: players){
+            removePlayer(player);
+        }
+        
     }
 }
