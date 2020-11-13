@@ -50,6 +50,10 @@ public class GameUtils {
     }
 
     public static void makePhantom(Player player, Arena arena) {
+        if(arena.noenoughCrew()){
+            arena.endGame(true);
+            return;
+        }
         Map<Player, Boolean> aliveMap = arena.getAliveMap();
         aliveMap.put(player, false);
 
@@ -67,7 +71,9 @@ public class GameUtils {
             }
 
         }
-        
+        if(arena.noenoughCrew()){
+            arena.endGame(true);
+        }
     }
     
     public static void ejectPlayer(Player player, Arena arena){

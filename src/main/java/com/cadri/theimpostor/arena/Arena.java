@@ -35,6 +35,7 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.scene.paint.Color;
@@ -70,6 +71,7 @@ public class Arena {
     private boolean started;
     private int timeToVote;
     private int voteTime;
+    private int impostorsAlive;
     private List<Player> crew;
     private List<Player> impostors;
     private Map<Player,Boolean> aliveMap;
@@ -103,6 +105,7 @@ public class Arena {
         this.voteTime = 30;
         this.crew = new ArrayList<>();
         this.impostors = new ArrayList<>();
+        this.impostorsAlive = 0;
         this.aliveMap = new HashMap<>();
         this.corpses = new ArrayList<>();
         this.board = Bukkit.getScoreboardManager().getNewScoreboard();
@@ -215,6 +218,7 @@ public class Arena {
     public void setRoles() {
         crew.addAll(players);
         impostors.add(GameUtils.chooseImpostor(crew));
+        impostorsAlive = impostors.size();
     }
 
     public void corpseReported(){
@@ -277,14 +281,20 @@ public class Arena {
             return;
         }
         String ejectMessage;
-        if(isTheImpostor(mostVoted))
+        if(isTheImpostor(mostVoted)){
             ejectMessage = "was the impostor";
+            impostorsAlive--;
+        }
         else
             ejectMessage = "was not the impostor";
         
         for(Player player: this.getPlayers()){
             player.sendMessage("The player " + mostVoted.getName() + " was the most voted and " + ejectMessage);
         }
+        
+        GameUtils.ejectPlayer(mostVoted, this);
+        if(this.noImpostorsRemaining())
+            endGame(false);
     }
     
     public boolean isTheImpostor(Player player){
@@ -407,5 +417,44 @@ public class Arena {
         if(getPlayer(color) == null)
             return false;
         return true;
+    }
+    
+    public boolean noImpostorsRemaining(){
+        return impostorsAlive == 0;
+    }
+    
+    public void endGame(boolean impostorsWon){
+  
+        if(impostorsWon){
+            for(Player player: crew){        
+                player.sendTitle(ChatColor.RED + "Defeat", "", 20, 70, 20);
+            }
+            for(Player player: impostors){
+                player.sendTitle(ChatColor.BLUE + "Winners", "", 20,70,20);
+            }
+        }else{
+            for(Player player: crew){
+                player.sendTitle(ChatColor.BLUE + "Winners", "", 20,70,20);
+            }
+            for(Player player: impostors){        
+                player.sendTitle(ChatColor.RED + "Defeat", "", 20, 70, 20);
+            }
+        }
+    }
+    
+    public int getAlivePlayersCount(){
+        int alivePlayers = 0;
+        for(Entry<Player,Boolean> entry: aliveMap.entrySet()){
+            if(entry.getValue())
+                alivePlayers++;
+        }
+        return alivePlayers;
+    }
+    
+    public int getCrewAlive(){
+        return getAlivePlayersCount() - impostorsAlive;
+    }
+    public boolean noenoughCrew(){
+        return this.getCrewAlive() == impostorsAlive ;
     }
 }
