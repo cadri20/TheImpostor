@@ -76,6 +76,7 @@ public class Arena {
     private List<Player> impostors;
     private Map<Player,Boolean> aliveMap;
     private Map<Player,PlayerColor> playersColor = new HashMap<>();
+    private Map<Player,Location> playerLocations = new HashMap<>();
     private List<CorpseData> corpses;
 
     private File fileSettings;
@@ -135,6 +136,7 @@ public class Arena {
 
     public void addPlayer(Player player) {
         players.add(player);
+        playerLocations.put(player, player.getLocation());
         objective.getScore("Players number: " + players.size()).setScore(2);
         player.setScoreboard(board);
         player.getInventory().addItem(ItemOptions.CHOOSE_COLOR.getItem());
@@ -157,6 +159,7 @@ public class Arena {
             impostors.remove(player);
         else
             crew.remove(player);
+        player.teleport(playerLocations.get(player));
     }
 
     public void addCorpse(CorpseData corpse){

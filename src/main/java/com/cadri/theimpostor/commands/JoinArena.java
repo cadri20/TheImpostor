@@ -46,8 +46,8 @@ public class JoinArena implements SubCommand{
             if (ArenaManager.arenaNames.contains(args[0])) {
                 Arena arena = ArenaManager.getArena(args[0]);
                 
-                player.teleport(arena.getLobby());
                 arena.addPlayer(player);
+                player.teleport(arena.getLobby());
                 
             }else{
                 player.sendMessage(LanguageManager.getTranslation(MessageKeys.ARENA_NOT_EXISTS.key  ));
