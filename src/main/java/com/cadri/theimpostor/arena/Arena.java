@@ -25,30 +25,21 @@ import com.cadri.theimpostor.game.PlayerColor;
 import com.cadri.theimpostor.game.VoteStartTimer;
 import com.cadri.theimpostor.game.VoteSystem;
 import com.cadri.theimpostor.game.VoteTimer;
-import com.sun.prism.paint.Paint;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.scene.paint.Color;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
@@ -148,7 +139,6 @@ public class Arena {
     public boolean removePlayer(Player player) {
         if (! players.remove(player))
             return false;
-        
         player.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
         playersColor.remove(player);
         aliveMap.remove(player);
