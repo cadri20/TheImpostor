@@ -29,9 +29,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.bukkit.Bukkit;
@@ -460,9 +463,35 @@ public class Arena {
     }
     
     public void removeAllPlayers(){
+        teleportAllToEndLocation();
+        stopAllScoreboards();
+        players.clear();
+        playersColor.clear();
+        impostors.clear();
+        crew.clear();
+        aliveMap.clear();
+        playerLocations.clear();
+    }
+    
+    public void stopAllScoreboards(){
+        for(Player player: players)
+            player.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
+            
+    }
+    
+    public void teleportAllToEndLocation(){
         for(Player player: players){
-            removePlayer(player);
+            player.teleport(playerLocations.get(player));
+        }
+    }
+    public Set<Player> getDeadPlayers(){
+        Set<Player> deadPlayers = new HashSet<>();
+        for(Player player: players){
+            if(!isAlive(player)){
+                deadPlayers.add(player);
+            }
         }
         
+        return deadPlayers;
     }
 }
