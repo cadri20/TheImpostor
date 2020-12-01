@@ -43,6 +43,9 @@ import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
@@ -71,6 +74,7 @@ public class Arena {
     private Map<Player,Boolean> aliveMap;
     private Map<Player,PlayerColor> playersColor = new HashMap<>();
     private Map<Player,Location> playerLocations = new HashMap<>();
+    private Map<Player,ItemStack[]> invStore = new HashMap<>();
     private List<CorpseData> corpses;
 
     private File fileSettings;
@@ -132,6 +136,8 @@ public class Arena {
         players.add(player);
         playerLocations.put(player, player.getLocation());
         objective.getScore("Players number: " + players.size()).setScore(2);
+        invStore.put(player, player.getInventory().getContents());
+        player.getInventory().clear();
         player.setScoreboard(board);
         player.getInventory().addItem(ItemOptions.CHOOSE_COLOR.getItem());
         
@@ -151,6 +157,8 @@ public class Arena {
             crew.remove(player);
         player.teleport(playerLocations.get(player));
         playerLocations.remove(player);
+        resetInventory(player);
+        invStore.remove(player);
         return true;
     }
 
@@ -464,6 +472,7 @@ public class Arena {
     
     public void removeAllPlayers(){
         teleportAllToEndLocation();
+        resetAllInventories();
         stopAllScoreboards();
         players.clear();
         playersColor.clear();
@@ -471,6 +480,7 @@ public class Arena {
         crew.clear();
         aliveMap.clear();
         playerLocations.clear();
+        invStore.clear();
     }
     
     public void stopAllScoreboards(){
@@ -493,5 +503,19 @@ public class Arena {
         }
         
         return deadPlayers;
+    }
+    
+    private void resetInventory(Player player){
+        ItemStack[] previousInventoryContent = invStore.get(player);
+        if(previousInventoryContent.equals(player.getInventory().getContents()));
+            TheImpostor.plugin.getLogger().log(Level.INFO,"Pointers are equal");
+        player.getInventory().setContents(previousInventoryContent);
+        
+    }
+    
+    private void resetAllInventories(){
+        for(Player player: players)
+            resetInventory(player);
+        
     }
 }
