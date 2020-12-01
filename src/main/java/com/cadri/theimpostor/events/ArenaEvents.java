@@ -26,12 +26,14 @@ import com.cadri.theimpostor.game.VoteSystem;
 import java.util.logging.Level;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
@@ -163,5 +165,15 @@ public class ArenaEvents implements Listener {
         }
     }
     
+    @EventHandler
+    public void onDropItem(PlayerDropItemEvent evt){
+        Player player = evt.getPlayer();
+        if(ArenaUtils.whereArenaIs(player) == null)
+            return;
+        
+        Item itemDropped = evt.getItemDrop();
+        if(ItemOptions.isItemOption(itemDropped.getItemStack()))
+            evt.setCancelled(true);
+    }
     
 }

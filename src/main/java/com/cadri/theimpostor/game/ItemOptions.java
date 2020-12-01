@@ -53,4 +53,12 @@ public enum ItemOptions {
         itemMeta.setLore(Collections.singletonList(description));
         item.setItemMeta(itemMeta);
     }
+    
+    public static boolean isItemOption(ItemStack item){
+        for(ItemOptions itemOption: values()){
+            if(itemOption.item.equals(item))
+                return true;
+        }
+        return false;
+    }
 }
