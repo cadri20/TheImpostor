@@ -162,10 +162,6 @@ public class ArenaEvents implements Listener {
             evt.setCancelled(true);
         }
     }
-
-    public void onVote(VoteEvent evt){
-        Player voted = evt.getVoted();
-        
-        evt.getArena().getVoteSystem().vote(voted, evt.getVoter());
-    }
+    
+    
 }
