@@ -21,6 +21,7 @@ import com.cadri.theimpostor.arena.Arena;
 import com.cadri.theimpostor.arena.ArenaUtils;
 import java.util.Set;
 import java.util.logging.Level;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -31,6 +32,7 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
  * @author cadri
  */
 public class ChatEvents implements Listener{
+    String deadChatPrefix = ChatColor.DARK_GRAY + "[Dead Chat]";
     
     @EventHandler
     public void onPlayerChat(AsyncPlayerChatEvent evt){
@@ -42,9 +44,10 @@ public class ChatEvents implements Listener{
             Set<Player> recipients = evt.getRecipients();
             recipients.clear();
             recipients.addAll(arena.getDeadPlayers());
-            TheImpostor.plugin.getLogger().log(Level.INFO,"Recipients changed");
+            evt.setFormat(deadChatPrefix + " %s: " + ChatColor.DARK_GRAY + "%s");
+            
         }
-        TheImpostor.plugin.getLogger().log(Level.INFO,"Recipients not changed");
+        
         
         
     }
