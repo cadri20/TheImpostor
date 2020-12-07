@@ -299,6 +299,7 @@ public class Arena {
         
         for(Player player: this.getPlayers()){
             player.sendMessage("The player " + mostVoted.getName() + " was the most voted and " + ejectMessage);
+            player.closeInventory();
         }
         
         GameUtils.ejectPlayer(mostVoted, this);
