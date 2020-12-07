@@ -7,6 +7,7 @@ import com.cadri.theimpostor.commands.CreateArena;
 import com.cadri.theimpostor.commands.JoinArena;
 import com.cadri.theimpostor.events.ArenaEvents;
 import com.cadri.theimpostor.events.ChatEvents;
+import com.cadri.theimpostor.events.ServerEvents;
 import java.io.File;
 import java.util.logging.Level;
 import org.bukkit.Bukkit;
@@ -38,6 +39,7 @@ public class TheImpostor extends JavaPlugin{
         
         this.getServer().getPluginManager().registerEvents(new ArenaEvents(), plugin);
         this.getServer().getPluginManager().registerEvents(new ChatEvents(), plugin);
+        this.getServer().getPluginManager().registerEvents(new ServerEvents(), plugin);
     }
 
     @Override
