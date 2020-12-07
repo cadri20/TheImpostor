@@ -75,6 +75,12 @@ public class GameUtils {
         }
     }
     
+    public static void setPlayerVisible(Player deadPlayer, Arena arena){
+        for(Player player: arena.getPlayers()){
+            player.showPlayer(TheImpostor.plugin, deadPlayer);
+        }
+    }
+    
     public static void ejectPlayer(Player player, Arena arena){
         makePhantom(player,arena);
         player.sendTitle("You were ejected", "", 20, 70, 20);

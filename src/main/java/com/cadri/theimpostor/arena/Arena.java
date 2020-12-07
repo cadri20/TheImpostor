@@ -148,6 +148,8 @@ public class Arena {
     public boolean removePlayer(Player player) {
         if (! players.remove(player))
             return false;
+        
+        GameUtils.setPlayerVisible(player, this);
         player.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
         playersColor.remove(player);
         aliveMap.remove(player);
@@ -475,6 +477,9 @@ public class Arena {
         teleportAllToEndLocation();
         resetAllInventories();
         stopAllScoreboards();
+        setVisibleAllPlayers();
+        resetAllDisplayColors();
+        
         players.clear();
         playersColor.clear();
         impostors.clear();
@@ -482,6 +487,22 @@ public class Arena {
         aliveMap.clear();
         playerLocations.clear();
         invStore.clear();
+    }
+    
+    public void setVisibleAllPlayers(){
+        for(Player player: players){
+            GameUtils.setPlayerVisible(player, this);
+        }
+    }
+    
+    public void resetAllDisplayColors(){
+        for(Player player: players){
+            resetDisplayColor(player);
+        }
+    }
+    
+    public void resetDisplayColor(Player player){
+        player.setDisplayName(ChatColor.RESET + player.getName());
     }
     
     public void stopAllScoreboards(){
