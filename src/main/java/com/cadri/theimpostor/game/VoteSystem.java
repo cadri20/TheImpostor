@@ -61,7 +61,7 @@ public class VoteSystem{
             }
             ItemStack item = new ItemStack(color.getMaterial());
             ItemMeta meta = item.getItemMeta();
-            meta.setDisplayName(color.getChatColor() + player.getDisplayName());
+            meta.setDisplayName(color.getChatColor() + player.getName());         
             item.setItemMeta(meta);
             inv.addItem(item);
 
