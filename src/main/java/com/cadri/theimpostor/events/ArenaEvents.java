@@ -79,6 +79,7 @@ public class ArenaEvents implements Listener {
             return;
         
         arena.corpseReported();
+        evt.setCancelled(true);
     }
     
     @EventHandler
