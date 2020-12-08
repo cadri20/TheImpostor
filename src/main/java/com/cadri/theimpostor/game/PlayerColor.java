@@ -17,28 +17,37 @@
 package com.cadri.theimpostor.game;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
 
 /**
  *
  * @author cadri
  */
 public enum PlayerColor {
-    RED("Red",ChatColor.RED,Material.RED_WOOL),
-    BLUE("Blue",ChatColor.BLUE,Material.BLUE_WOOL),
-    YELLOW("Yellow", ChatColor.YELLOW,Material.YELLOW_WOOL),
-    GREEN("Green", ChatColor.GREEN, Material.GREEN_WOOL);
+    RED("Red", ChatColor.RED, Material.RED_WOOL, Color.RED),
+    BLUE("Blue",ChatColor.BLUE,Material.BLUE_WOOL, Color.BLUE),
+    YELLOW("Yellow", ChatColor.YELLOW,Material.YELLOW_WOOL, Color.YELLOW),
+    GREEN("Green", ChatColor.GREEN, Material.GREEN_WOOL, Color.GREEN);
     
     private String name;
     private ChatColor chatColor;
     private Material material;
+    private ItemStack[] armor;
     
-    private PlayerColor(String name,ChatColor chatColor, Material material) {
+    private PlayerColor(String name,ChatColor chatColor, Material material, Color armorColor) {
         this.name = name;
         this.chatColor = chatColor;
         this.material = material;
+        this.armor = new ItemStack[4];
+        
+        armor[3] = getColoredLeatherArmor(Material.LEATHER_HELMET, armorColor);
+        armor[2] = getColoredLeatherArmor(Material.LEATHER_CHESTPLATE, armorColor);
+        armor[1] = getColoredLeatherArmor(Material.LEATHER_LEGGINGS, armorColor);
+        armor[0] = getColoredLeatherArmor(material.LEATHER_BOOTS, armorColor);
     }
     
     public ItemStack getItem(){
@@ -64,6 +73,10 @@ public enum PlayerColor {
     public Material getMaterial(){
         return material;
     }
+
+    public ItemStack[] getArmor() {
+        return armor;
+    }
     
     public static PlayerColor getPlayerColor(ItemStack item){
         for(PlayerColor color: values()){
@@ -82,5 +95,18 @@ public enum PlayerColor {
         
         return null;
     }
+    
+    private ItemStack getColoredLeatherArmor(Material armorPart, Color color){
+        ItemStack item = new ItemStack(armorPart);
+        ItemMeta meta = item.getItemMeta();
+        if(! (meta instanceof LeatherArmorMeta))
+            throw new IllegalArgumentException("Material is not leather");
+        LeatherArmorMeta leatherMeta = (LeatherArmorMeta) meta;
+        leatherMeta.setColor(color);
+        item.setItemMeta(leatherMeta);
+        
+        return item;
+    }
+    
 }
 

@@ -248,10 +248,7 @@ public class Arena {
     
     public void setPlayerColor(Player player, PlayerColor color){
         playersColor.put(player,color);
-        String colorName = color.getChatColor() + player.getName();
-        player.setDisplayName(color.getChatColor() + player.getDisplayName());
-        player.setPlayerListName(colorName);
-        
+        player.getInventory().setArmorContents(color.getArmor());
     }
     
     public boolean areColorsSelected(){
