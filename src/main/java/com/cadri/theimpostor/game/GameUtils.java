@@ -86,11 +86,12 @@ public class GameUtils {
         player.sendTitle("You were ejected", "", 20, 70, 20);
     }
     
-    public static Inventory getGUIChoiceColors(){
+    public static Inventory getGUIChoiceColors(Arena arena){
         PlayerColor[] playerColors = PlayerColor.values();
         Inventory guiColors = Bukkit.createInventory(null, 9, "Choose a color");
         for(PlayerColor color: playerColors){
-            guiColors.addItem(color.getItem());
+            if(!isColorSelected(color, arena))
+                guiColors.addItem(color.getItem());
         }
         
         return guiColors;
@@ -110,4 +111,8 @@ public class GameUtils {
             }
         }
     } 
+    
+    public static boolean isColorSelected(PlayerColor color, Arena arena){
+        return arena.getPlayer(color) != null;
+    }
 }

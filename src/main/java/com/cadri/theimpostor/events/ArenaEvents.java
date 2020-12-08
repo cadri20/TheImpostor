@@ -93,7 +93,7 @@ public class ArenaEvents implements Listener {
             if( !evt.getItem().equals(ItemOptions.CHOOSE_COLOR.getItem()) )
                 return;
             
-            player.openInventory(GameUtils.getGUIChoiceColors());
+            player.openInventory(GameUtils.getGUIChoiceColors(arena));
             
         }
             
@@ -161,7 +161,7 @@ public class ArenaEvents implements Listener {
             return;
         
         VoteSystem vs = arena.getVoteSystem();
-        if(inventorySource.equals(vs.getInventory()) || inventorySource.equals(GameUtils.getGUIChoiceColors())){
+        if(inventorySource.equals(vs.getInventory()) || inventorySource.equals(GameUtils.getGUIChoiceColors(arena))){
             evt.setCancelled(true);
         }
     }
