@@ -276,6 +276,9 @@ public class Arena {
     }
     
     public void stopVote(){
+        for(Player player: players)
+            player.closeInventory();
+        
         if(voteSystem == null){
             TheImpostor.plugin.getLogger().log(Level.SEVERE,"Vote System is null");
             return;
@@ -298,7 +301,6 @@ public class Arena {
         
         for(Player player: this.getPlayers()){
             player.sendMessage("The player " + mostVoted.getName() + " was the most voted and " + ejectMessage);
-            player.closeInventory();
         }
         
         GameUtils.ejectPlayer(mostVoted, this);
