@@ -79,6 +79,9 @@ public class ArenaEvents implements Listener {
             return;
         
         Player whoClicked = evt.getClicker();
+        ItemStack itemInHand = whoClicked.getInventory().getItemInMainHand();
+        if(ItemOptions.isItemOption(itemInHand))
+            return;
         
         arena.reportCorpse(whoClicked);
         evt.setCancelled(true);
