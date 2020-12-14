@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.logging.Level;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -40,6 +41,7 @@ public class VoteSystem{
     private Inventory inv;
     private HashMap<Player, Integer> votes = new HashMap<>();
     private List<Player> playersSkipVotes = new ArrayList<>();
+    private HashMap<Player,List<Player>> votersMap = new HashMap<>();
     private boolean tie = false;
     private Arena arena;
     private String skipVoteDisplayName = ChatColor.DARK_PURPLE + "Skip Vote";
@@ -62,7 +64,7 @@ public class VoteSystem{
 
         }
         addSkipVote();
-
+        addListVoters(players);
     }
 
     private void addSkipVote(){
@@ -72,6 +74,12 @@ public class VoteSystem{
         item.setItemMeta(meta);
         inv.addItem(item);
     }
+    
+    private void addListVoters(List<Player> players){
+        for(Player player: players){
+            votersMap.put(player, new ArrayList<>());
+        }
+    }
     public void vote(Player voted, Player voter) {
         Integer voteCount = votes.get(voted);
         if (voteCount == null) {
@@ -79,8 +87,14 @@ public class VoteSystem{
             return;
         }
         Integer previousCount = votes.put(voted, voteCount + 1);
-        if(previousCount != null)
+        if(previousCount != null){ // If the player was in the map
             voter.sendMessage("You voted for " + voted.getName());
+            List<Player> voters = votersMap.get(voted);
+            if(voters != null)
+                voters.add(voter);
+            else
+                TheImpostor.plugin.getLogger().log(Level.SEVERE, "Voters list is null");
+        }
     }
 
     public void vote(PlayerColor color, Player voter) {
@@ -132,5 +146,27 @@ public class VoteSystem{
         return skipVoteDisplayName;
     }
     
+    public List<Player> getVoters(Player player){
+        return votersMap.get(player);
+    }
     
+    public String getVotersString(Player player){
+        List<Player> voters = votersMap.get(player);
+        if(voters == null)
+            return null;
+        
+        PlayerColor playerColor = arena.getPlayerColor(player);
+        String votersString = playerColor.getChatColor() + player.getName() + ChatColor.WHITE + " -";
+        
+        for(Player voter: voters){
+            PlayerColor voterColor = arena.getPlayerColor(voter);
+            votersString += " " + voterColor.getChatColor() + voter.getName();
+        }
+        
+        return votersString;
+    }
+    
+    public Set<Player> getPlayersInVote(){
+        return votes.keySet();
+    }
 }

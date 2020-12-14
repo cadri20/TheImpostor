@@ -281,6 +281,12 @@ public class Arena {
             return;
         }
         
+        for(Player player: players){
+            player.sendMessage(ChatColor.GREEN + "----------Votes----------");
+            for(Player playerVoted: voteSystem.getPlayersInVote()){               
+                player.sendMessage(voteSystem.getVotersString(playerVoted));
+            }            
+        }
         Player mostVoted = voteSystem.getMostVoted();
         if(mostVoted == null){
             for(Player player: this.getPlayers()){
