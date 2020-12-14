@@ -89,5 +89,10 @@ public class ArenaManager {
         }
         return null;
     }
-
+    
+    public static void removePlayersFromArenas(){
+        for(Arena arena: arenas){
+            arena.removeAllPlayers();
+        }
+    }
 }
