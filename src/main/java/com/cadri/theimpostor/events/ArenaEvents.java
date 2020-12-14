@@ -111,7 +111,8 @@ public class ArenaEvents implements Listener {
             return;
         
         ItemStack itemClicked = evt.getCurrentItem();
-        if(itemClicked.getType() == Material.AIR)
+            
+        if(itemClicked == null || itemClicked.getType() == Material.AIR)
             return;
         
         VoteSystem vs = arena.getVoteSystem();
