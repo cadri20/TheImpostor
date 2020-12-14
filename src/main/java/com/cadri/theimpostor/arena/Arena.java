@@ -564,8 +564,6 @@ public class Arena {
     
     private void resetInventory(Player player){
         ItemStack[] previousInventoryContent = invStore.get(player);
-        if(previousInventoryContent.equals(player.getInventory().getContents()));
-            TheImpostor.plugin.getLogger().log(Level.INFO,"Pointers are equal");
         player.getInventory().setContents(previousInventoryContent);
         
     }
