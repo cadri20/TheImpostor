@@ -93,12 +93,13 @@ public class ArenaEvents implements Listener {
         if(arena == null)
             return;
         
-        if(evt.getAction() == Action.RIGHT_CLICK_AIR){
+        Action action = evt.getAction();
+        if(action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK){
             if( !evt.getItem().equals(ItemOptions.CHOOSE_COLOR.getItem()) )
                 return;
             
             player.openInventory(GameUtils.getGUIChoiceColors(arena));
-            
+            evt.setCancelled(true);
         }
             
     }
