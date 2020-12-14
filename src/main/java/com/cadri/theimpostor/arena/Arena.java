@@ -469,6 +469,7 @@ public class Arena {
             }            
         }
         removeAllPlayers();
+        started = false;
     }
     
     private String getImpostorsString(){
@@ -573,5 +574,9 @@ public class Arena {
         for(Player player: players)
             resetInventory(player);
         
+    }
+    
+    public boolean started(){
+        return started;
     }
 }

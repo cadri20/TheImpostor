@@ -36,8 +36,9 @@ public class ChatEvents implements Listener{
     public void onPlayerChat(AsyncPlayerChatEvent evt){
         Player player = evt.getPlayer();
         Arena arena = ArenaUtils.whereArenaIs(player);
-        if(arena == null)
+        if(arena == null || !arena.started())
             return;
+
         if(!arena.isAlive(player)){
             Set<Player> recipients = evt.getRecipients();
             recipients.clear();
