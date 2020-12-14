@@ -74,16 +74,15 @@ public class ArenaEvents implements Listener {
 
     @EventHandler
     public void onCorpseClick(CorpseClickEvent evt){
-        Arena arena = ArenaUtils.whereArenaIs(evt.getClicker());
-        if(arena == null)
-            return;
-        
         Player whoClicked = evt.getClicker();
+        Arena arena = ArenaUtils.whereArenaIs(whoClicked);
+        if(arena == null)
+            return;        
+
         ItemStack itemInHand = whoClicked.getInventory().getItemInMainHand();
-        if(ItemOptions.isItemOption(itemInHand))
-            return;
+        if(!ItemOptions.isItemOption(itemInHand))            
+            arena.reportCorpse(whoClicked);
         
-        arena.reportCorpse(whoClicked);
         evt.setCancelled(true);
     }
     
