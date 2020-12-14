@@ -16,11 +16,9 @@
  */
 package com.cadri.theimpostor.events;
 
-import com.cadri.theimpostor.TheImpostor;
 import com.cadri.theimpostor.arena.Arena;
 import com.cadri.theimpostor.arena.ArenaUtils;
 import java.util.Set;
-import java.util.logging.Level;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

@@ -1,19 +1,11 @@
 package com.cadri.theimpostor;
 
-import com.cadri.theimpostor.arena.Arena;
 import com.cadri.theimpostor.arena.ArenaManager;
 import com.cadri.theimpostor.commands.CommandManager;
-import com.cadri.theimpostor.commands.CreateArena;
-import com.cadri.theimpostor.commands.JoinArena;
 import com.cadri.theimpostor.events.ArenaEvents;
 import com.cadri.theimpostor.events.ChatEvents;
 import com.cadri.theimpostor.events.ServerEvents;
-import java.io.File;
-import java.util.logging.Level;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**

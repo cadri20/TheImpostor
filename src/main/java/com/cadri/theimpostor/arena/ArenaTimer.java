@@ -18,8 +18,6 @@ package com.cadri.theimpostor.arena;
 
 import com.cadri.theimpostor.LanguageManager;
 import com.cadri.theimpostor.MessageKeys;
-import com.cadri.theimpostor.TheImpostor;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
