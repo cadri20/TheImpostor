@@ -448,6 +448,12 @@ public class Arena {
             for(Player player: impostors){
                 player.sendTitle(ChatColor.BLUE + "Winners", "", 20,70,20);
             }
+            String impostorsString = getImpostorsString();
+            for(Player player: players){
+                player.sendMessage(ChatColor.GREEN + "------WINNERS------");
+                player.sendMessage(impostorsString);
+            }
+            
         }else{
             for(Player player: crew){
                 player.sendTitle(ChatColor.BLUE + "Winners", "", 20,70,20);
@@ -455,11 +461,35 @@ public class Arena {
             for(Player player: impostors){        
                 player.sendTitle(ChatColor.RED + "Defeat", "", 20, 70, 20);
             }
+            
+            String crewString = getCrewString();
+            for(Player player: players){
+                player.sendMessage(ChatColor.GREEN + "------WINNERS------");
+                player.sendMessage(crewString);
+            }            
         }
-        
         removeAllPlayers();
     }
     
+    private String getImpostorsString(){
+        String impostors = ChatColor.RED + "Impostors: ";
+        for(Player impostor: this.impostors){
+            PlayerColor color = getPlayerColor(impostor);
+            impostors += color.getChatColor() + impostor.getName() + " ";
+        }
+        
+        return impostors;
+    }
+    
+    private String getCrewString(){
+        String crew = ChatColor.BLUE + "Crew: ";
+        for(Player crewmate: this.crew){
+            PlayerColor color = getPlayerColor(crewmate);
+            crew += color.getChatColor() + crewmate.getName() + " ";
+        }
+        
+        return crew;
+    }
     public int getAlivePlayersCount(){
         int alivePlayers = 0;
         for(Entry<Player,Boolean> entry: aliveMap.entrySet()){
