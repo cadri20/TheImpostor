@@ -78,7 +78,9 @@ public class ArenaEvents implements Listener {
         if(arena == null)
             return;
         
-        arena.corpseReported();
+        Player whoClicked = evt.getClicker();
+        
+        arena.reportCorpse(whoClicked);
         evt.setCancelled(true);
     }
     

@@ -229,8 +229,10 @@ public class Arena {
         impostorsAlive = impostors.size();
     }
 
-    public void corpseReported(){
+    public void reportCorpse(Player reporter){
+        PlayerColor reporterColor = getPlayerColor(reporter);
         for(Player player: players){
+            player.sendMessage(reporterColor.getChatColor() + reporter.getDisplayName() + ChatColor.WHITE + " reported a Corpse");
             player.sendTitle("Dead body reported!", "Voting started", 20, 70, 20);
             player.teleport(spawn);
             player.sendMessage("The vote will start in " + timeToVote + " seconds");
