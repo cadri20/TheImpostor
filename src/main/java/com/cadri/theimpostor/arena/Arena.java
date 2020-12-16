@@ -66,12 +66,14 @@ public class Arena {
     private int timeToVote;
     private int voteTime;
     private int impostorsAlive;
+    private int killTime;
     private List<Player> crew;
     private List<Player> impostors;
     private Map<Player,Boolean> aliveMap;
     private Map<Player,PlayerColor> playersColor = new HashMap<>();
     private Map<Player,Location> playerLocations = new HashMap<>();
     private Map<Player,ItemStack[]> invStore = new HashMap<>();
+    private Map<Player,Boolean> impostorsKillFlags = new HashMap<>(); 
     private List<CorpseData> corpses;
 
     private File fileSettings;
@@ -99,6 +101,7 @@ public class Arena {
         this.started = false;
         this.timeToVote = 30;
         this.voteTime = 30;
+        this.killTime = 10;
         this.crew = new ArrayList<>();
         this.impostors = new ArrayList<>();
         this.impostorsAlive = 0;
@@ -150,7 +153,7 @@ public class Arena {
         player.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
         playersColor.remove(player);
         aliveMap.remove(player);
-        if(this.isTheImpostor(player))
+        if(this.isImpostor(player))
             impostors.remove(player);
         else
             crew.remove(player);
@@ -227,6 +230,10 @@ public class Arena {
         crew.addAll(players);
         impostors.add(GameUtils.chooseImpostor(crew));
         impostorsAlive = impostors.size();
+        
+        for(Player impostor: impostors){
+            impostorsKillFlags.put(impostor, true);
+        }
     }
 
     public void reportCorpse(Player reporter){
@@ -297,7 +304,7 @@ public class Arena {
             return;
         }
         String ejectMessage;
-        if(isTheImpostor(mostVoted)){
+        if(isImpostor(mostVoted)){
             ejectMessage = "was the impostor";
             impostorsAlive--;
         }
@@ -313,7 +320,7 @@ public class Arena {
             endGame(false);
     }
     
-    public boolean isTheImpostor(Player player){
+    public boolean isImpostor(Player player){
         return impostors.contains(player);
     }
     
@@ -576,5 +583,23 @@ public class Arena {
     
     public boolean started(){
         return started;
+    }
+    
+    public int getKillTime(){
+        return killTime;
+    }
+    public boolean canKill(Player player){
+        if(!isImpostor(player))
+            return false;
+        
+        return impostorsKillFlags.get(player);
+    }
+    
+    public void setKillFlag(Player impostor, boolean canKill){        
+        Boolean previousValue = impostorsKillFlags.put(impostor, canKill);
+        if(canKill)
+            impostor.sendMessage("You're able to kill!");
+        if(previousValue == null)
+            TheImpostor.plugin.getLogger().log(Level.SEVERE, "Player is not in impostors map");
     }
 }

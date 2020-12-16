@@ -23,6 +23,7 @@ import com.cadri.theimpostor.game.GameUtils;
 import com.cadri.theimpostor.game.ItemOptions;
 import com.cadri.theimpostor.game.PlayerColor;
 import com.cadri.theimpostor.game.VoteSystem;
+import com.google.common.util.concurrent.AbstractScheduledService.Scheduler;
 import java.util.logging.Level;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
@@ -38,6 +39,8 @@ import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitScheduler;
 import org.golde.bukkit.corpsereborn.CorpseAPI.CorpseAPI;
 import org.golde.bukkit.corpsereborn.CorpseAPI.events.CorpseClickEvent;
 import org.golde.bukkit.corpsereborn.nms.Corpses.CorpseData;
@@ -63,11 +66,18 @@ public class ArenaEvents implements Listener {
         Player killed = (Player) entity;
         ItemStack itemInHand = killer.getInventory().getItemInMainHand();
         
-        if(itemInHand.equals(ItemOptions.KILL_PLAYER.getItem())){
+        if(itemInHand.equals(ItemOptions.KILL_PLAYER.getItem()) && arena.canKill(killer)){
             killed.sendTitle("You've been killed", "Make tasks", 20, 70, 20);
             GameUtils.makePhantom(killed, arena);
             CorpseData corpse = CorpseAPI.spawnCorpse(killed, killed.getLocation());
             arena.addCorpse(corpse);
+            arena.setKillFlag(killer, false);
+            BukkitScheduler scheduler = TheImpostor.plugin.getServer().getScheduler();
+            int killTime = arena.getKillTime();
+            scheduler.runTaskLater(TheImpostor.plugin, () -> {
+                arena.setKillFlag(killer, true);                                
+            }, killTime * 20);
+            killer.sendMessage("Now you have to wait " + killTime + " seconds before killing again");
         }
 
     }
