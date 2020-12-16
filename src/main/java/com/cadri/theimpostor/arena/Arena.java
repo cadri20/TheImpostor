@@ -67,6 +67,7 @@ public class Arena {
     private int voteTime;
     private int impostorsAlive;
     private int killTime;
+    private int impostorsNumber;
     private List<Player> crew;
     private List<Player> impostors;
     private Map<Player,Boolean> aliveMap;
@@ -102,6 +103,7 @@ public class Arena {
         this.timeToVote = 30;
         this.voteTime = 30;
         this.killTime = 10;
+        this.impostorsNumber = 2;
         this.crew = new ArrayList<>();
         this.impostors = new ArrayList<>();
         this.impostorsAlive = 0;
@@ -228,7 +230,8 @@ public class Arena {
     }
     public void setRoles() {
         crew.addAll(players);
-        impostors.add(GameUtils.chooseImpostor(crew));
+        for(int i = 1; i <= impostorsNumber; i++)
+            impostors.add(GameUtils.chooseImpostor(crew));
         impostorsAlive = impostors.size();
         
         for(Player impostor: impostors){
