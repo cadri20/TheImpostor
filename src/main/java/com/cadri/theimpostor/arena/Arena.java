@@ -240,10 +240,11 @@ public class Arena {
         }
     }
 
-    public void reportCorpse(Player reporter){
+    public void reportCorpse(Player reporter, CorpseData corpseReported){
         PlayerColor reporterColor = getPlayerColor(reporter);
         for(Player player: players){
-            player.sendMessage(reporterColor.getChatColor() + reporter.getDisplayName() + ChatColor.WHITE + " reported a Corpse");
+            String corpseName = corpseReported.getCorpseName();
+            player.sendMessage(reporterColor.getChatColor() + reporter.getDisplayName() + ChatColor.WHITE +  " reported the corpse of " + getPlayerColor(corpseName).getChatColor() + corpseName);
             player.sendTitle("Dead body reported!", "Voting started", 20, 70, 20);
             player.teleport(spawn);
             player.sendMessage("The vote will start in " + timeToVote + " seconds");
@@ -425,6 +426,20 @@ public class Arena {
         return playersColor.get(player);
     }
     
+    public PlayerColor getPlayerColor(String playerName){
+        Player player = null;
+        for(Player playerInGame: players){
+            if(playerInGame.getName().equals(playerName)){
+                player = playerInGame;
+                break;
+            }
+        }
+        
+        if(player == null)
+            return null;
+        
+        return playersColor.get(player);
+    }
     /**
      * 
      * @param color The color of the player
