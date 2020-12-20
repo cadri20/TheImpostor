@@ -89,11 +89,13 @@ public class ArenaEvents implements Listener {
         if(arena == null)
             return;        
         
-        CorpseData corpse = evt.getCorpse();
-        ItemStack itemInHand = whoClicked.getInventory().getItemInMainHand();
-        if(!ItemOptions.isItemOption(itemInHand))            
-            arena.reportCorpse(whoClicked, corpse);
-        
+        if(arena.isAlive(whoClicked)){
+            CorpseData corpse = evt.getCorpse();
+            ItemStack itemInHand = whoClicked.getInventory().getItemInMainHand();
+            if (!ItemOptions.isItemOption(itemInHand))
+                arena.reportCorpse(whoClicked, corpse);        
+        }
+       
         evt.setCancelled(true);
     }
     
