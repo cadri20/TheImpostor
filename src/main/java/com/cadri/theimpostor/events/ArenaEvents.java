@@ -75,7 +75,8 @@ public class ArenaEvents implements Listener {
             BukkitScheduler scheduler = TheImpostor.plugin.getServer().getScheduler();
             int killTime = arena.getKillTime();
             scheduler.runTaskLater(TheImpostor.plugin, () -> {
-                arena.setKillFlag(killer, true);                                
+                if(arena.started())
+                    arena.setKillFlag(killer, true);                                
             }, killTime * 20);
             killer.sendMessage("Now you have to wait " + killTime + " seconds before killing again");
         }
