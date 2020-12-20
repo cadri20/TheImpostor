@@ -103,7 +103,7 @@ public class Arena {
         this.timeToVote = 30;
         this.voteTime = 30;
         this.killTime = 10;
-        this.impostorsNumber = 2;
+        this.impostorsNumber = 1;
         this.crew = new ArrayList<>();
         this.impostors = new ArrayList<>();
         this.impostorsAlive = 0;
@@ -177,6 +177,7 @@ public class Arena {
         try{
         for (Player player : players) {
             player.teleport(spawn);
+            player.getInventory().remove(ItemOptions.CHOOSE_COLOR.getItem());
         }
         }catch(IllegalArgumentException e){
             if(spawn == null){
