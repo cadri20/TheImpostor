@@ -17,6 +17,7 @@
 package com.cadri.theimpostor.arena;
 
 import com.cadri.theimpostor.TheImpostor;
+import com.cadri.theimpostor.game.CrewTask;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -63,7 +64,16 @@ public class ArenaManager {
                 Double spawnZ = fc.getDouble("spawn.z");
                 
                 Location spawn = new Location(spawnWorld, spawnX, spawnY, spawnZ);
-                Arena a = new Arena(Name, maxPlayers, minPlayers, lobby, spawn);
+                
+                List<CrewTask> tasksList = new ArrayList<>();
+                for(String taskName: fc.getConfigurationSection("tasks").getKeys(false)){
+                    Location loc = fc.getLocation("tasks." + taskName + ".location");
+                    int time = fc.getInt("tasks." + taskName + ".time_to_complete");
+                    CrewTask task = new CrewTask(taskName, loc, time);
+                    tasksList.add(task);
+                }
+                //TheImpostor.plugin.getLogger().log(Level.INFO, "Keys: " + fc.getKeys(true));
+                Arena a = new Arena(Name, maxPlayers, minPlayers, lobby, spawn, tasksList);
                 ArenaManager.arenas.add(a);
 
             }
@@ -74,6 +84,10 @@ public class ArenaManager {
 
     public static Arena getArena(String arena) {
         for (Arena a : arenas) {
+            if(a.getName() == null){
+                TheImpostor.plugin.getLogger().log(Level.SEVERE, "Arena name is null");
+                return null;
+            }
             if (a.getName().equals(arena)) {
                 return a;
             }

@@ -20,6 +20,7 @@ import com.cadri.theimpostor.game.GameUtils;
 import com.cadri.theimpostor.LanguageManager;
 import com.cadri.theimpostor.MessageKeys;
 import com.cadri.theimpostor.TheImpostor;
+import com.cadri.theimpostor.game.CrewTask;
 import com.cadri.theimpostor.game.ItemOptions;
 import com.cadri.theimpostor.game.PlayerColor;
 import com.cadri.theimpostor.game.VoteStartTimer;
@@ -39,10 +40,13 @@ import java.util.logging.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.MapMeta;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
@@ -76,6 +80,8 @@ public class Arena {
     private Map<Player,ItemStack[]> invStore = new HashMap<>();
     private Map<Player,Boolean> impostorsKillFlags = new HashMap<>(); 
     private List<CorpseData> corpses;
+    private List<CrewTask> tasks;
+    private Map<Player, List<CrewTask>> playerTasks;
 
     private File fileSettings;
     private FileConfiguration yamlSettings;
@@ -83,8 +89,9 @@ public class Arena {
     private Objective objective;
     private VoteSystem voteSystem = null;
     
+    
     public Arena(String name, Location lobby) {
-        this(name, 1, 10, lobby, null); 
+        this(name, 1, 10, lobby, null, null); 
         
     }
 /*
@@ -92,7 +99,10 @@ public class Arena {
         this(name, maxPlayers, minPlayers, lobby, null);
     }
 */
-    public Arena(String name, int maxPlayers, int minPlayers, Location lobby, Location spawn) {
+    public Arena(String name, int maxPlayers, int minPlayers, Location lobby, Location spawn){
+        this(name, maxPlayers, minPlayers, lobby, spawn, new ArrayList<>());
+    }
+    public Arena(String name, int maxPlayers, int minPlayers, Location lobby, Location spawn, List<CrewTask> tasks) {
         this.name = name;
         this.maxPlayers = maxPlayers;
         this.minPlayers = minPlayers;
@@ -109,6 +119,8 @@ public class Arena {
         this.impostorsAlive = 0;
         this.aliveMap = new HashMap<>();
         this.corpses = new ArrayList<>();
+        this.tasks = tasks;
+        this.playerTasks = new HashMap<>();
         this.board = Bukkit.getScoreboardManager().getNewScoreboard();
         this.fileSettings = new File(TheImpostor.plugin.getDataFolder() + File.separator + name + File.separator + "arena_settings.yml");
         this.yamlSettings = YamlConfiguration.loadConfiguration(fileSettings);
@@ -380,17 +392,8 @@ public class Arena {
 
     public void setSpawn(Location spawn) {
         this.spawn = spawn;
-
-        this.yamlSettings.set("spawn.world", spawn.getWorld().getName());
-        this.yamlSettings.set("spawn.x", spawn.getX());
-        this.yamlSettings.set("spawn.y", spawn.getY());
-        this.yamlSettings.set("spawn.z", spawn.getZ());
-
-        try {
-            yamlSettings.save(fileSettings);
-        } catch (IOException ex) {
-            Logger.getLogger(Arena.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        
+        saveConfig();
     }
 
     public Location getSpawn() {
@@ -620,5 +623,52 @@ public class Arena {
             impostor.sendMessage("You're able to kill!");
         if(previousValue == null)
             TheImpostor.plugin.getLogger().log(Level.SEVERE, "Player is not in impostors map");
+    }
+    
+    public void addTask(CrewTask task){
+        tasks.add(task);
+        
+        saveConfig();
+    }
+    
+    public void putMapsToPlayers(){
+        for (Player player : players) {
+            ItemStack mapItem = new ItemStack(Material.FILLED_MAP);
+            MapMeta mapMeta = (MapMeta) mapItem.getItemMeta();
+            GameUtils.putTaskMarkers(mapMeta.getMapView(), getPlayerTasks(player));
+            player.getInventory().addItem(mapItem);
+        }
+        
+    }
+    
+    public List<CrewTask> getPlayerTasks(Player player){
+        return playerTasks.get(player);
+    }
+    
+    public void saveConfig(){
+        yamlSettings.set("Name", name);
+        yamlSettings.set("minPlayers", minPlayers);
+        yamlSettings.set("maxPlayers", maxPlayers);
+        yamlSettings.set("Lobby" + ".world", lobby.getWorld().getName());
+        yamlSettings.set("Lobby" + ".x", lobby.getX());
+        yamlSettings.set("Lobby" + ".y", lobby.getY());
+        yamlSettings.set("Lobby" + ".z", lobby.getZ());
+        yamlSettings.set("spawn.world", spawn.getWorld().getName());
+        yamlSettings.set("spawn.x", spawn.getX());
+        yamlSettings.set("spawn.y", spawn.getY());
+        yamlSettings.set("spawn.z", spawn.getZ());
+        
+        for(CrewTask task: tasks){
+            String taskName = task.getName();
+            String key = "tasks." + taskName;
+            yamlSettings.set(key + ".location", task.getLocation());
+            yamlSettings.set(key + ".time_to_complete", task.getTimeToComplete());
+        }
+        
+        try {
+            yamlSettings.save(fileSettings);
+        } catch (IOException ex) {
+            Logger.getLogger(Arena.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 }

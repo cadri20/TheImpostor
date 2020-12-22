@@ -18,14 +18,22 @@ package com.cadri.theimpostor.game;
 
 import com.cadri.theimpostor.TheImpostor;
 import com.cadri.theimpostor.arena.Arena;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.Stack;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.MapMeta;
+import org.bukkit.map.MapCanvas;
+import org.bukkit.map.MapRenderer;
+import org.bukkit.map.MapView;
 
 /**
  *
@@ -114,5 +122,28 @@ public class GameUtils {
     
     public static boolean isColorSelected(PlayerColor color, Arena arena){
         return arena.getPlayer(color) != null;
+    }
+    
+    public static Map<Player,List<CrewTask>> assignTasks(List<Player> players, List<CrewTask> tasks){
+        Map<Player,List<CrewTask>> tasksMap = new HashMap<>();
+        for(int i = 0; i < tasks.size(); i++){
+            List<CrewTask> playerTasks = new ArrayList<>(tasks);
+            playerTasks.remove(i);
+            tasksMap.put(players.get(i), playerTasks);
+        }
+        
+        return tasksMap;
+    }
+    
+    public static void putTaskMarkers(MapView mapView, List<CrewTask> taskList){
+        mapView.addRenderer(new MapRenderer() {
+            @Override
+            public void render(MapView mv, MapCanvas mc, Player player) {
+                for(CrewTask task: taskList){
+                    Location loc = task.getLocation();
+                    mc.getCursors().addCursor((int) loc.getX(), (int) loc.getY(), (byte) 4);
+                }
+            }
+        });
     }
 }

@@ -23,6 +23,7 @@ import com.cadri.theimpostor.arena.Arena;
 import com.cadri.theimpostor.arena.ArenaManager;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
@@ -63,6 +64,7 @@ public class CreateArena implements SubCommand {
                 fc.set("spawn.x", player.getLocation().getX());
                 fc.set("spawn.y", player.getLocation().getY());
                 fc.set("spawn.z", player.getLocation().getZ());
+                fc.set("tasks", new ArrayList<>());
                 fcn.set("arena-list", ArenaManager.arenaNames);
                 try {
                     fc.save(a);
