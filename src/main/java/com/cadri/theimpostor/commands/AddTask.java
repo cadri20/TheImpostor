@@ -35,6 +35,7 @@ public class AddTask implements SubCommand{
             Player player = (Player) sender;
             CrewTask task = new CrewTask(args[1], player.getLocation(), Integer.parseInt(args[2]));
             arena.addTask(task);
+            player.sendMessage("Task created successfully!");
         }
         
     }
