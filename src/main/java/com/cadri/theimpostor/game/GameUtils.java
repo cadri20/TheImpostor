@@ -136,13 +136,8 @@ public class GameUtils {
                 playerTasks.remove(random.nextInt(playerTasks.size()));
             }
             
-            tasksMap.put(player, tasks);
+            tasksMap.put(player, playerTasks);
         }
-        /*for(int i = 0; i < tasks.size(); i++){
-            List<CrewTask> playerTasks = new ArrayList<>(tasks);
-            playerTasks.remove(i);
-            tasksMap.put(players.get(i), playerTasks);
-        }*/
         
         return tasksMap;
     }

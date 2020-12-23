@@ -53,6 +53,7 @@ import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 import org.golde.bukkit.corpsereborn.CorpseAPI.CorpseAPI;
 import org.golde.bukkit.corpsereborn.nms.Corpses.CorpseData;
+import org.bukkit.map.MapView;
 
 /**
  *
@@ -82,7 +83,6 @@ public class Arena {
     private List<CorpseData> corpses;
     private List<CrewTask> tasks;
     private Map<Player, List<CrewTask>> playerTasks;
-
     private File fileSettings;
     private FileConfiguration yamlSettings;
     private Scoreboard board;
@@ -216,6 +216,8 @@ public class Arena {
         if(! areColorsSelected())
             GameUtils.selectRandomColors(playersColor, players, this);
         
+        playerTasks = GameUtils.assignTasks(players, tasks, tasks.size() - 1);
+        putMapsToPlayers();
         //showColorsOnBoard();
         started = true;
     }
@@ -634,8 +636,17 @@ public class Arena {
     public void putMapsToPlayers(){
         for (Player player : players) {
             ItemStack mapItem = new ItemStack(Material.FILLED_MAP);
+            MapView view = Bukkit.createMap(spawn.getWorld());
+            int centerX = spawn.getBlockX();
+            int centerZ = spawn.getBlockZ();
+            GameUtils.putTaskMarkers(view, getPlayerTasks(player), centerX, centerZ);
+            view.setScale(MapView.Scale.CLOSE);
+            view.setCenterX(centerX);
+            view.setCenterZ(centerZ);
+            view.setTrackingPosition(true);
             MapMeta mapMeta = (MapMeta) mapItem.getItemMeta();
-            GameUtils.putTaskMarkers(mapMeta.getMapView(), getPlayerTasks(player));
+            mapMeta.setMapView(view);
+            mapItem.setItemMeta(mapMeta);
             player.getInventory().addItem(mapItem);
         }
         
