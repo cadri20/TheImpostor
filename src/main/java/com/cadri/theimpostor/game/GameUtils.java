@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.Stack;
+import java.util.logging.Level;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -32,6 +33,8 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.MapMeta;
 import org.bukkit.map.MapCanvas;
+import org.bukkit.map.MapCursor;
+import org.bukkit.map.MapCursor.Type;
 import org.bukkit.map.MapRenderer;
 import org.bukkit.map.MapView;
 
@@ -124,24 +127,39 @@ public class GameUtils {
         return arena.getPlayer(color) != null;
     }
     
-    public static Map<Player,List<CrewTask>> assignTasks(List<Player> players, List<CrewTask> tasks){
+    public static Map<Player,List<CrewTask>> assignTasks(List<Player> players, List<CrewTask> tasks, int tasksNumber){
         Map<Player,List<CrewTask>> tasksMap = new HashMap<>();
-        for(int i = 0; i < tasks.size(); i++){
+        for(Player player: players){
+            List<CrewTask> playerTasks = new ArrayList<>(tasks);
+            int tasksToRemove = tasks.size() - tasksNumber;
+            for(int i = 1; i <= tasksToRemove; i++){
+                playerTasks.remove(random.nextInt(playerTasks.size()));
+            }
+            
+            tasksMap.put(player, tasks);
+        }
+        /*for(int i = 0; i < tasks.size(); i++){
             List<CrewTask> playerTasks = new ArrayList<>(tasks);
             playerTasks.remove(i);
             tasksMap.put(players.get(i), playerTasks);
-        }
+        }*/
         
         return tasksMap;
     }
     
-    public static void putTaskMarkers(MapView mapView, List<CrewTask> taskList){
+    public static void putTaskMarkers(MapView mapView, List<CrewTask> taskList, int centerX, int centerY){
         mapView.addRenderer(new MapRenderer() {
+            boolean done = false;
             @Override
             public void render(MapView mv, MapCanvas mc, Player player) {
-                for(CrewTask task: taskList){
-                    Location loc = task.getLocation();
-                    mc.getCursors().addCursor((int) loc.getX(), (int) loc.getY(), (byte) 4);
+                
+                if (!done) {
+                    for (CrewTask task : taskList) {
+                        Location loc = task.getLocation();
+                        MapCursor cursor = new MapCursor((byte) (loc.getBlockX() - centerX), (byte) (loc.getBlockZ() - centerY), (byte) 8, Type.GREEN_POINTER, true);
+                        mc.getCursors().addCursor(cursor);
+                    }
+                    done = true;
                 }
             }
         });
