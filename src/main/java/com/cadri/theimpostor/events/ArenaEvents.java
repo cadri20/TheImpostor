@@ -205,7 +205,7 @@ public class ArenaEvents implements Listener {
     public void onPlayerMove(PlayerMoveEvent evt){
         Player player = evt.getPlayer();
         Arena arena = ArenaUtils.whereArenaIs(player);
-        if(arena == null || !arena.started())
+        if(arena == null || !arena.started() || arena.isImpostor(player))
             return;
         
         List<CrewTask> playerTasks = arena.getPlayerTasks(player);

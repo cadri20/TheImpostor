@@ -702,6 +702,8 @@ public class Arena {
     
     public boolean tasksAreCompleted(){
         for(Entry<Player,List<CrewTask>> entry: playerTasks.entrySet()){
+            if(isImpostor(entry.getKey()))
+                continue;
             for(CrewTask task: entry.getValue()){
                 if(!task.isCompleted())
                     return false;
