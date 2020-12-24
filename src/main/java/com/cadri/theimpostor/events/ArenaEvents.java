@@ -219,7 +219,7 @@ public class ArenaEvents implements Listener {
         
         if(taskAtPlayerPositionTo != null){ // Player is entering 
             if (!taskAtPlayerPositionTo.isCompleted()) {
-                TaskTimer timer = new TaskTimer(taskAtPlayerPositionTo, player);
+                TaskTimer timer = new TaskTimer(taskAtPlayerPositionTo, player, arena);
                 timer.runTaskTimer(TheImpostor.plugin, 10L, 20L);
                 arena.addTaskTimer(player, timer);
             }

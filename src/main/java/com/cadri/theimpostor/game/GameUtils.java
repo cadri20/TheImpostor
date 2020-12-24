@@ -131,7 +131,7 @@ public class GameUtils {
     public static Map<Player,List<CrewTask>> assignTasks(List<Player> players, List<CrewTask> tasks, int tasksNumber){
         Map<Player,List<CrewTask>> tasksMap = new HashMap<>();
         for(Player player: players){
-            List<CrewTask> playerTasks = new ArrayList<>(tasks);
+            List<CrewTask> playerTasks = copyTaskList(tasks);
             int tasksToRemove = tasks.size() - tasksNumber;
             for(int i = 1; i <= tasksToRemove; i++){
                 playerTasks.remove(random.nextInt(playerTasks.size()));
@@ -181,6 +181,16 @@ public class GameUtils {
     
     public static boolean areEquals(Location loc1, Location loc2){
         return loc1.getBlockX() == loc2.getBlockX() && loc1.getBlockY() == loc2.getBlockY() && loc1.getBlockZ() == loc2.getBlockZ();
+    }
+    
+    public static List<CrewTask> copyTaskList(List<CrewTask> taskList){
+        List<CrewTask> newTaskList = new ArrayList<CrewTask>();
+        for(CrewTask task: taskList){
+            CrewTask taskCopy = new CrewTask(task.getName(), task.getLocation(), task.getTimeToComplete());
+            newTaskList.add(taskCopy);
+        }
+        
+        return newTaskList;
     }
     
 }

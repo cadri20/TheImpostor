@@ -16,6 +16,7 @@
  */
 package com.cadri.theimpostor.game;
 
+import com.cadri.theimpostor.arena.Arena;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -28,12 +29,14 @@ public class TaskTimer extends BukkitRunnable{
     private CrewTask task;
     private ProgressBar taskProgress;
     private Player player;
+    private Arena arena;
     
-    public TaskTimer(CrewTask task, Player player) {
+    public TaskTimer(CrewTask task, Player player, Arena arena) {
         this.count = 0;
         this.player = player;
         this.task = task;
         this.taskProgress = new ProgressBar(task.getTimeToComplete(), 6);
+        this.arena = arena;
     }
     
     @Override
@@ -45,6 +48,8 @@ public class TaskTimer extends BukkitRunnable{
         }else{
             task.complete();
             player.sendMessage("You completed " + task.getName());
+            if(arena.tasksAreCompleted())
+                arena.endGame(false);
             this.cancel();
         }
         
