@@ -154,9 +154,18 @@ public class GameUtils {
                         Location loc = task.getLocation();
                         MapCursor cursor = new MapCursor((byte) (loc.getBlockX() - centerX), (byte) (loc.getBlockZ() - centerY), (byte) 8, Type.GREEN_POINTER, true);
                         mc.getCursors().addCursor(cursor);
+                        task.setMapCursor(cursor);
                     }
                     done = true;
+                }else{
+                    for(CrewTask task: taskList){
+                        boolean wasRemoved = false;
+                        if(task.isCompleted())
+                            wasRemoved = mc.getCursors().removeCursor(task.getMapCursor());
+                    }
                 }
+                
+                
             }
         });
     }

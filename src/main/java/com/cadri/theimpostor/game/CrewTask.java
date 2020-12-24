@@ -17,6 +17,7 @@
 package com.cadri.theimpostor.game;
 
 import org.bukkit.Location;
+import org.bukkit.map.MapCursor;
 
 /**
  *
@@ -27,6 +28,7 @@ public class CrewTask {
     private Location location;
     private boolean completed;
     private int timeToComplete;
+    private MapCursor mapCursor = null;
 
     public CrewTask(String name, Location location, int timeToComplete) {
         this.name = name;
@@ -53,6 +55,14 @@ public class CrewTask {
 
     public int getTimeToComplete() {
         return timeToComplete;
+    }
+
+    public MapCursor getMapCursor() {
+        return mapCursor;
+    }
+
+    public void setMapCursor(MapCursor mapCursor) {
+        this.mapCursor = mapCursor;
     }
     
     

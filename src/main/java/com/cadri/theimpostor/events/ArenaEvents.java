@@ -218,11 +218,13 @@ public class ArenaEvents implements Listener {
         CrewTask taskAtPlayerPositionFrom = GameUtils.getTaskByLocation(evt.getFrom(),playerTasks);
         
         if(taskAtPlayerPositionTo != null){ // Player is entering 
-            TaskTimer timer = new TaskTimer(taskAtPlayerPositionTo, player);
-            timer.runTaskTimer(TheImpostor.plugin, 10L, 20L);
-            arena.addTaskTimer(player, timer);
+            if (!taskAtPlayerPositionTo.isCompleted()) {
+                TaskTimer timer = new TaskTimer(taskAtPlayerPositionTo, player);
+                timer.runTaskTimer(TheImpostor.plugin, 10L, 20L);
+                arena.addTaskTimer(player, timer);
+            }
         }else{
-            if(taskAtPlayerPositionFrom != null){ //Player is going out
+            if(taskAtPlayerPositionFrom != null && !taskAtPlayerPositionFrom.isCompleted()){ //Player is going out
                 arena.removeTaskTimer(player).cancel(); //Stop the timer
             }
         }
