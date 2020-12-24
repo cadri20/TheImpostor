@@ -18,6 +18,7 @@ package com.cadri.theimpostor.game;
 
 import com.cadri.theimpostor.TheImpostor;
 import com.cadri.theimpostor.arena.Arena;
+import com.sun.prism.paint.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -159,4 +160,18 @@ public class GameUtils {
             }
         });
     }
+    
+    public static CrewTask getTaskByLocation(Location location, List<CrewTask> tasks){
+        for(CrewTask task: tasks){
+            Location loc = task.getLocation();
+            if(areEquals(loc, location))
+                return task;
+        }
+        return null;
+    }
+    
+    public static boolean areEquals(Location loc1, Location loc2){
+        return loc1.getBlockX() == loc2.getBlockX() && loc1.getBlockY() == loc2.getBlockY() && loc1.getBlockZ() == loc2.getBlockZ();
+    }
+    
 }

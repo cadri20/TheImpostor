@@ -23,6 +23,7 @@ import com.cadri.theimpostor.TheImpostor;
 import com.cadri.theimpostor.game.CrewTask;
 import com.cadri.theimpostor.game.ItemOptions;
 import com.cadri.theimpostor.game.PlayerColor;
+import com.cadri.theimpostor.game.TaskTimer;
 import com.cadri.theimpostor.game.VoteStartTimer;
 import com.cadri.theimpostor.game.VoteSystem;
 import com.cadri.theimpostor.game.VoteTimer;
@@ -88,7 +89,7 @@ public class Arena {
     private Scoreboard board;
     private Objective objective;
     private VoteSystem voteSystem = null;
-    
+    private Map<Player,TaskTimer> taskTimers = new HashMap<>();
     
     public Arena(String name, Location lobby) {
         this(name, 1, 10, lobby, null, null); 
@@ -681,5 +682,21 @@ public class Arena {
         } catch (IOException ex) {
             Logger.getLogger(Arena.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+    
+    public void addTaskTimer(Player player, TaskTimer timer){
+        taskTimers.put(player, timer);
+    }
+    
+    public TaskTimer removeTaskTimer(Player player){
+        return taskTimers.remove(player);
+    }
+    
+    public TaskTimer getCurrentTaskTimer(Player player){
+        return taskTimers.get(player);
+    }
+    
+    public boolean isCompletingATask(Player player){
+        return taskTimers.containsKey(player);
     }
 }
