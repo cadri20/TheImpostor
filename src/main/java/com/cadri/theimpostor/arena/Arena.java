@@ -396,7 +396,11 @@ public class Arena {
     public void setSpawn(Location spawn) {
         this.spawn = spawn;
         
+        try{
         saveConfig();
+        }catch(IOException e){
+            TheImpostor.plugin.getLogger().log(Level.SEVERE, e.getMessage());
+        }
     }
 
     public Location getSpawn() {
@@ -631,7 +635,11 @@ public class Arena {
     public void addTask(CrewTask task){
         tasks.add(task);
         
+        try{
         saveConfig();
+        }catch(IOException e){
+            TheImpostor.plugin.getLogger().log(Level.SEVERE, e.getMessage());
+        }
     }
     
     public void putMapsToPlayers(){
@@ -657,7 +665,7 @@ public class Arena {
         return playerTasks.get(player);
     }
     
-    public void saveConfig(){
+    public void saveConfig() throws IOException{
         yamlSettings.set("Name", name);
         yamlSettings.set("minPlayers", minPlayers);
         yamlSettings.set("maxPlayers", maxPlayers);
@@ -673,15 +681,17 @@ public class Arena {
         for(CrewTask task: tasks){
             String taskName = task.getName();
             String key = "tasks." + taskName;
-            yamlSettings.set(key + ".location", task.getLocation());
+            
+            Location loc = task.getLocation();
+            yamlSettings.set(key + ".location.world", loc.getWorld().getName());
+            yamlSettings.set(key + ".location.x", loc.getX());
+            yamlSettings.set(key + ".location.y", loc.getY());
+            yamlSettings.set(key + ".location.z", loc.getZ());
+            
             yamlSettings.set(key + ".time_to_complete", task.getTimeToComplete());
         }
         
-        try {
-            yamlSettings.save(fileSettings);
-        } catch (IOException ex) {
-            Logger.getLogger(Arena.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        yamlSettings.save(fileSettings);
     }
     
     public void addTaskTimer(Player player, TaskTimer timer){

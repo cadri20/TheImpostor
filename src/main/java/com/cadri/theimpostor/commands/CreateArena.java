@@ -49,26 +49,12 @@ public class CreateArena implements SubCommand {
                 Arena arena = new Arena(args[0], Integer.parseInt(args[1]), Integer.parseInt(args[2]), player.getLocation(), player.getLocation());
                 ArenaManager.arenas.add(arena);
                 ArenaManager.arenaNames.add(arena.getName());
-                File a = new File(TheImpostor.plugin.getDataFolder() + File.separator + arena.getName() + File.separator + "arena_settings.yml");
-                YamlConfiguration fc = YamlConfiguration.loadConfiguration(a);
-                File ArenaNames = new File(TheImpostor.plugin.getDataFolder() + File.separator + "arenas.yml");
-                YamlConfiguration fcn = YamlConfiguration.loadConfiguration(ArenaNames);
-                fc.set("Name", arena.getName());
-                fc.set("minPlayers", arena.getMinPlayers());
-                fc.set("maxPlayers", arena.getMaxPlayers());
-                fc.set("Lobby" + ".world", player.getLocation().getWorld().getName());
-                fc.set("Lobby" + ".x", player.getLocation().getX());
-                fc.set("Lobby" + ".y", player.getLocation().getY());
-                fc.set("Lobby" + ".z", player.getLocation().getZ());
-                fc.set("spawn.world", player.getLocation().getWorld().getName());
-                fc.set("spawn.x", player.getLocation().getX());
-                fc.set("spawn.y", player.getLocation().getY());
-                fc.set("spawn.z", player.getLocation().getZ());
-                fc.set("tasks", new ArrayList<>());
-                fcn.set("arena-list", ArenaManager.arenaNames);
+                File arenaNamesFile = new File(TheImpostor.plugin.getDataFolder() + File.separator + "arenas.yml");
+                YamlConfiguration fcn = YamlConfiguration.loadConfiguration(arenaNamesFile);
+                fcn.set("arena-list", ArenaManager.arenaNames);                
                 try {
-                    fc.save(a);
-                    fcn.save(ArenaNames);
+                    arena.saveConfig();
+                    fcn.save(arenaNamesFile);
                 } catch (IOException e) {
                     player.sendMessage("Error saving the files");
 
