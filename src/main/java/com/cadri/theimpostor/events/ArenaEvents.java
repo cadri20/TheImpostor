@@ -18,6 +18,7 @@ package com.cadri.theimpostor.events;
 
 import com.cadri.theimpostor.TheImpostor;
 import com.cadri.theimpostor.arena.Arena;
+import com.cadri.theimpostor.arena.ArenaState;
 import com.cadri.theimpostor.arena.ArenaUtils;
 import com.cadri.theimpostor.game.CrewTask;
 import com.cadri.theimpostor.game.GameUtils;
@@ -205,7 +206,15 @@ public class ArenaEvents implements Listener {
     public void onPlayerMove(PlayerMoveEvent evt){
         Player player = evt.getPlayer();
         Arena arena = ArenaUtils.whereArenaIs(player);
-        if(arena == null || !arena.started() || arena.isImpostor(player))
+        if(arena == null || !arena.started())
+            return;
+        
+        if(arena.state == ArenaState.VOTING){
+            player.sendMessage("You can't move until the voting finish!");
+            evt.setCancelled(true);
+        }
+        
+        if(arena.isImpostor(player))
             return;
         
         List<CrewTask> playerTasks = arena.getPlayerTasks(player);
