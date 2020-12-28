@@ -68,7 +68,7 @@ public class Arena {
     private List<Player> players;
     private Location lobby;
     private Location spawn;
-    private boolean started;
+    public ArenaState state;
     private int timeToVote;
     private int voteTime;
     private int impostorsAlive;
@@ -110,7 +110,7 @@ public class Arena {
         this.players = new ArrayList<>();
         this.lobby = lobby;
         this.spawn = spawn;
-        this.started = false;
+        this.state = ArenaState.WAITING_FOR_PLAYERS;
         this.timeToVote = 30;
         this.voteTime = 30;
         this.killTime = 10;
@@ -220,7 +220,7 @@ public class Arena {
         playerTasks = GameUtils.assignTasks(players, tasks, tasks.size() - 1);
         putMapsToPlayers();
         //showColorsOnBoard();
-        started = true;
+        state = ArenaState.IN_GAME;
     }
 
     private void setAliveAll(){
@@ -269,7 +269,7 @@ public class Arena {
         }
         
         BukkitTask countdown = new VoteStartTimer(timeToVote, this).runTaskTimer(TheImpostor.plugin, 10L, 20L);
-        
+        state = ArenaState.VOTING;
     }
     
     public void setPlayerColor(Player player, PlayerColor color){
@@ -302,6 +302,7 @@ public class Arena {
     }
     
     public void stopVote(){
+        state = ArenaState.IN_GAME;
         for(Player player: players)
             player.closeInventory();
         
@@ -338,6 +339,7 @@ public class Arena {
         GameUtils.ejectPlayer(mostVoted, this);
         if(this.noImpostorsRemaining())
             endGame(false);
+        
     }
     
     public boolean isImpostor(Player player){
@@ -505,7 +507,7 @@ public class Arena {
             }            
         }
         removeAllPlayers();
-        started = false;
+        state = ArenaState.WAITING_FOR_PLAYERS;
     }
     
     private String getImpostorsString(){
@@ -611,7 +613,7 @@ public class Arena {
     }
     
     public boolean started(){
-        return started;
+        return state != ArenaState.WAITING_FOR_PLAYERS;
     }
     
     public int getKillTime(){
