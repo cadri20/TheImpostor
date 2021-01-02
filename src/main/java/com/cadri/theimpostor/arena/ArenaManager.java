@@ -26,6 +26,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
@@ -63,18 +64,22 @@ public class ArenaManager {
                 }
                 
                 List<CrewTask> tasksList = new ArrayList<>();
-                for(String taskName: fc.getConfigurationSection("tasks").getKeys(false)){
-                    String taskPath = "tasks." + taskName + ".";
-                    
-                    World world = Bukkit.getWorld(fc.getString(taskPath + "location.world"));
-                    double locX = fc.getDouble(taskPath + "location.x");
-                    double locY = fc.getDouble(taskPath + "location.y");
-                    double locZ = fc.getDouble(taskPath + "location.z");
-                    Location loc = new Location(world, locX, locY, locZ);                                       
-                    
-                    int time = fc.getInt("tasks." + taskName + ".time_to_complete");
-                    CrewTask task = new CrewTask(taskName, loc, time);
-                    tasksList.add(task);
+                
+                ConfigurationSection tasksSection = fc.getConfigurationSection("tasks");
+                if (tasksSection != null) {
+                    for (String taskName : tasksSection.getKeys(false)) {
+                        String taskPath = "tasks." + taskName + ".";
+
+                        World world = Bukkit.getWorld(fc.getString(taskPath + "location.world"));
+                        double locX = fc.getDouble(taskPath + "location.x");
+                        double locY = fc.getDouble(taskPath + "location.y");
+                        double locZ = fc.getDouble(taskPath + "location.z");
+                        Location loc = new Location(world, locX, locY, locZ);
+
+                        int time = fc.getInt("tasks." + taskName + ".time_to_complete");
+                        CrewTask task = new CrewTask(taskName, loc, time);
+                        tasksList.add(task);
+                    }
                 }
                 
                 Block emergencyMeetingBlock = null;
