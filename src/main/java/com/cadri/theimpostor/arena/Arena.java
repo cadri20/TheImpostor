@@ -67,7 +67,7 @@ public class Arena {
     private int minPlayers;
     private List<Player> players;
     private Location lobby;
-    private Location spawn;
+    private List<Location> playerSpawnPoints;
     public ArenaState state;
     private int timeToVote;
     private int voteTime;
@@ -91,25 +91,16 @@ public class Arena {
     private VoteSystem voteSystem = null;
     private Map<Player,TaskTimer> taskTimers = new HashMap<>();
     
-    public Arena(String name, Location lobby) {
-        this(name, 1, 10, lobby, null, null); 
-        
+    public Arena(String name, int maxPlayers, int minPlayers, Location lobby){
+        this(name, maxPlayers, minPlayers, lobby, new ArrayList<>(), new ArrayList<>());
     }
-/*
-    public Arena(String name, int maxPlayers, int minPlayers, Location lobby) {
-        this(name, maxPlayers, minPlayers, lobby, null);
-    }
-*/
-    public Arena(String name, int maxPlayers, int minPlayers, Location lobby, Location spawn){
-        this(name, maxPlayers, minPlayers, lobby, spawn, new ArrayList<>());
-    }
-    public Arena(String name, int maxPlayers, int minPlayers, Location lobby, Location spawn, List<CrewTask> tasks) {
+    public Arena(String name, int maxPlayers, int minPlayers, Location lobby, List<Location> spawnLocations, List<CrewTask> tasks) {
         this.name = name;
         this.maxPlayers = maxPlayers;
         this.minPlayers = minPlayers;
         this.players = new ArrayList<>();
         this.lobby = lobby;
-        this.spawn = spawn;
+        this.playerSpawnPoints = spawnLocations;
         this.state = ArenaState.WAITING_FOR_PLAYERS;
         this.timeToVote = 30;
         this.voteTime = 30;
@@ -187,18 +178,12 @@ public class Arena {
             player.sendMessage(LanguageManager.getTranslation(MessageKeys.ARENA_GAME_START.key));
         }
         setRoles();
-        try{
+
         for (Player player : players) {
-            player.teleport(spawn);
+            teleportToSpawnPoint(player);
             player.getInventory().remove(ItemOptions.CHOOSE_COLOR.getItem());
         }
-        }catch(IllegalArgumentException e){
-            if(spawn == null){
-                TheImpostor.plugin.getLogger().log(Level.SEVERE,"Error, spawn is null");
-            }else{
-            TheImpostor.plugin.getLogger().log(Level.SEVERE,"Location spawn error: " + String.format("X: %d Y: %d Z: %d", spawn.getX(), spawn.getY(), spawn.getZ()));
-            }
-        }
+
         for (Player impostor : impostors) {
             String title = LanguageManager.getTranslation(MessageKeys.IMPOSTOR_TITLE.key);
             String subtitle = LanguageManager.getTranslation(MessageKeys.IMPOSTOR_SUBTITLE.key);
@@ -261,7 +246,7 @@ public class Arena {
             String corpseName = corpseReported.getCorpseName();
             player.sendMessage(reporterColor.getChatColor() + reporter.getDisplayName() + ChatColor.WHITE +  " reported the corpse of " + getPlayerColor(corpseName).getChatColor() + corpseName);
             player.sendTitle("Dead body reported!", "Voting started", 20, 70, 20);
-            player.teleport(spawn);
+            teleportToSpawnPoint(player);
             player.sendMessage("The vote will start in " + timeToVote + " seconds");
         }
         for(CorpseData corpse: corpses){
@@ -393,20 +378,6 @@ public class Arena {
 
     public void setLobby(Location lobby) {
         this.lobby = lobby;
-    }
-
-    public void setSpawn(Location spawn) {
-        this.spawn = spawn;
-        
-        try{
-        saveConfig();
-        }catch(IOException e){
-            TheImpostor.plugin.getLogger().log(Level.SEVERE, e.getMessage());
-        }
-    }
-
-    public Location getSpawn() {
-        return spawn;
     }
 
     public VoteSystem getVoteSystem() {
@@ -647,9 +618,9 @@ public class Arena {
     public void putMapsToPlayers(){
         for (Player player : players) {
             ItemStack mapItem = new ItemStack(Material.FILLED_MAP);
-            MapView view = Bukkit.createMap(spawn.getWorld());
-            int centerX = spawn.getBlockX();
-            int centerZ = spawn.getBlockZ();
+            MapView view = Bukkit.createMap(lobby.getWorld());
+            int centerX = lobby.getBlockX();
+            int centerZ = lobby.getBlockZ();
             GameUtils.putTaskMarkers(view, getPlayerTasks(player), centerX, centerZ);
             view.setScale(MapView.Scale.CLOSE);
             view.setCenterX(centerX);
@@ -675,10 +646,12 @@ public class Arena {
         yamlSettings.set("Lobby" + ".x", lobby.getX());
         yamlSettings.set("Lobby" + ".y", lobby.getY());
         yamlSettings.set("Lobby" + ".z", lobby.getZ());
-        yamlSettings.set("spawn.world", spawn.getWorld().getName());
-        yamlSettings.set("spawn.x", spawn.getX());
-        yamlSettings.set("spawn.y", spawn.getY());
-        yamlSettings.set("spawn.z", spawn.getZ());
+        
+        List<String> spawnLocations = new ArrayList<>();
+        for(Location spawn: playerSpawnPoints){
+            spawnLocations.add(Serializer.serializeLocation(spawn));
+        }
+        yamlSettings.set("player_spawn_points", spawnLocations);
         
         for(CrewTask task: tasks){
             String taskName = task.getName();
@@ -723,5 +696,18 @@ public class Arena {
         }
         
         return true;
+    }
+    
+    public void addSpawnLocation(Location spawn){
+        try {
+            playerSpawnPoints.add(spawn);
+            saveConfig();
+        } catch (IOException ex) {
+            Logger.getLogger(Arena.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    private void teleportToSpawnPoint(Player player){
+        player.teleport(playerSpawnPoints.get(players.indexOf(player)));
     }
 }

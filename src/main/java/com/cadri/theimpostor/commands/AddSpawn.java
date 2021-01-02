@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 cadri
+ * Copyright (C) 2021 cadri
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,30 +14,31 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.cadri.theimpostor.arena;
+package com.cadri.theimpostor.commands;
 
+import com.cadri.theimpostor.arena.Arena;
+import com.cadri.theimpostor.arena.ArenaManager;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 /**
  *
  * @author cadri
  */
-public class ArenaUtils {
-    public static boolean isInArena(Player player, Arena arena){
-        return arena.getPlayers().contains(player);
-    }
-    
-    /**
-     * 
-     * @param player
-     * @return The arena where the player is. If it's not in an arena returns null 
-     */
-    public static Arena whereArenaIs(Player player){
-        for(Arena arena: ArenaManager.arenas){
-            if(isInArena(player,arena))
-                return arena;
+public class AddSpawn implements SubCommand{
+
+    @Override
+    public void onCommand(CommandSender sender, String[] args) {
+        if(sender instanceof Player){
+            Player player = (Player) sender;
+            Arena arena = ArenaManager.getArena(args[0]);
+            if(arena != null){
+                arena.addSpawnLocation(player.getLocation());
+                player.sendMessage("Spawn successfully added!");
+            }else
+                player.sendMessage(args[0] + "doesn't exist");
+           
         }
-        return null;
     }
     
 }

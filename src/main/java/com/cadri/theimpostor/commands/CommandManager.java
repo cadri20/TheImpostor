@@ -43,8 +43,8 @@ public class CommandManager implements CommandExecutor{
         commands.put("join", new JoinArena());
         commands.put("create", new CreateArena());
         commands.put("leave", new LeaveArena());
-        commands.put("setspawn", new SetSpawn());
         commands.put("addtask", new AddTask());
+        commands.put("addspawn", new AddSpawn());
     }
     
 }

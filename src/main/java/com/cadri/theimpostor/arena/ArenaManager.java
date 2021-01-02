@@ -47,8 +47,6 @@ public class ArenaManager {
             int minPlayers = fc.getInt("minPlayers");
             int maxPlayers = fc.getInt("maxPlayers");
             if (fc.getString("Lobby") == null) {
-                Arena a = new Arena(Name, null);
-                ArenaManager.arenas.add(a);
                 TheImpostor.plugin.getLogger().log(Level.INFO, "La arena " + s + " no tiene lobby");
             } else {
                 String World = fc.getString("Lobby" + ".world");
@@ -65,6 +63,11 @@ public class ArenaManager {
                 
                 Location spawn = new Location(spawnWorld, spawnX, spawnY, spawnZ);
                 
+                List<Location> playerSpawnPoints = new ArrayList<>();
+                for(String stringLocation: fc.getStringList("player_spawn_points")){
+                    playerSpawnPoints.add(Serializer.getLocation(stringLocation));
+                }
+                
                 List<CrewTask> tasksList = new ArrayList<>();
                 for(String taskName: fc.getConfigurationSection("tasks").getKeys(false)){
                     String taskPath = "tasks." + taskName + ".";
@@ -79,8 +82,8 @@ public class ArenaManager {
                     CrewTask task = new CrewTask(taskName, loc, time);
                     tasksList.add(task);
                 }
-                //TheImpostor.plugin.getLogger().log(Level.INFO, "Keys: " + fc.getKeys(true));
-                Arena a = new Arena(Name, maxPlayers, minPlayers, lobby, spawn, tasksList);
+      
+                Arena a = new Arena(Name, maxPlayers, minPlayers, lobby, playerSpawnPoints, tasksList);
                 ArenaManager.arenas.add(a);
 
             }
