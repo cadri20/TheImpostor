@@ -42,6 +42,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -90,11 +92,12 @@ public class Arena {
     private Objective objective;
     private VoteSystem voteSystem = null;
     private Map<Player,TaskTimer> taskTimers = new HashMap<>();
+    private Block emergencyMeetingBlock;
     
     public Arena(String name, int maxPlayers, int minPlayers, Location lobby){
-        this(name, maxPlayers, minPlayers, lobby, new ArrayList<>(), new ArrayList<>());
+        this(name, maxPlayers, minPlayers, lobby, new ArrayList<>(), new ArrayList<>(), null);
     }
-    public Arena(String name, int maxPlayers, int minPlayers, Location lobby, List<Location> spawnLocations, List<CrewTask> tasks) {
+    public Arena(String name, int maxPlayers, int minPlayers, Location lobby, List<Location> spawnLocations, List<CrewTask> tasks, Block emergencyMeetingBlock) {
         this.name = name;
         this.maxPlayers = maxPlayers;
         this.minPlayers = minPlayers;
@@ -112,6 +115,7 @@ public class Arena {
         this.aliveMap = new HashMap<>();
         this.corpses = new ArrayList<>();
         this.tasks = tasks;
+        this.emergencyMeetingBlock = emergencyMeetingBlock;
         this.playerTasks = new HashMap<>();
         this.board = Bukkit.getScoreboardManager().getNewScoreboard();
         this.fileSettings = new File(TheImpostor.plugin.getDataFolder() + File.separator + name + File.separator + "arena_settings.yml");
@@ -653,6 +657,13 @@ public class Arena {
         }
         yamlSettings.set("player_spawn_points", spawnLocations);
         
+        if(emergencyMeetingBlock != null){
+            Location embLoc = emergencyMeetingBlock.getLocation();
+            yamlSettings.set("emergency_meeting_block_location.world", embLoc.getWorld().getName());
+            yamlSettings.set("emergency_meeting_block_location.x", embLoc.getX());
+            yamlSettings.set("emergency_meeting_block_location.y", embLoc.getY());
+            yamlSettings.set("emergency_meeting_block_location.z", embLoc.getZ());
+        }
         for(CrewTask task: tasks){
             String taskName = task.getName();
             String key = "tasks." + taskName;
@@ -709,5 +720,40 @@ public class Arena {
     
     private void teleportToSpawnPoint(Player player){
         player.teleport(playerSpawnPoints.get(players.indexOf(player)));
+    }
+
+    public void setEmergencyMeetingBlock(Block emergencyMeetingBlock) {
+        try {
+            this.emergencyMeetingBlock = emergencyMeetingBlock;
+            saveConfig();
+        } catch (IOException ex) {
+            Logger.getLogger(Arena.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public boolean isEmergencyMeetingBlock(Block block){
+        if(emergencyMeetingBlock == null)
+            return false;
+        
+        return block.equals(emergencyMeetingBlock);
+    }
+    
+    public World getWorld(){
+        return playerSpawnPoints.get(0).getWorld();
+    }
+    
+    public void startEmergencyMeeting(Player whoStartedMeeting){
+        for(Player player: players){
+            player.sendMessage(whoStartedMeeting.getName() + "started an emergency meeting");
+            player.sendTitle(ChatColor.BLUE + "Emergency Meeting", "Vote talk started", 20, 70, 20);
+            teleportToSpawnPoint(player);
+            player.sendMessage("The vote will start in " + timeToVote + " seconds");
+        }
+        for(CorpseData corpse: corpses){
+            CorpseAPI.removeCorpse(corpse);
+        }
+        
+        BukkitTask countdown = new VoteStartTimer(timeToVote, this).runTaskTimer(TheImpostor.plugin, 10L, 20L);
+        state = ArenaState.VOTING;        
     }
 }

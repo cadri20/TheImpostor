@@ -29,6 +29,8 @@ import java.util.Stack;
 import java.util.logging.Level;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.PlayerInventory;
@@ -45,7 +47,6 @@ import org.bukkit.map.MapView;
  */
 public class GameUtils {
     private static Random random = new Random();
-    
     
     public static Player chooseImpostor(List<Player> players) {
         int index = random.nextInt(players.size());

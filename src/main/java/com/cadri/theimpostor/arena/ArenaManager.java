@@ -25,6 +25,7 @@ import java.util.logging.Level;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
@@ -55,14 +56,7 @@ public class ArenaManager {
                 Double y = fc.getDouble("Lobby" + ".y");
                 Double z = fc.getDouble("Lobby" + ".z");
                 Location lobby = new Location(lobbyWorld, x, y, z);
-                
-                World spawnWorld = Bukkit.getWorld(fc.getString("spawn.world"));
-                Double spawnX = fc.getDouble("spawn.x");
-                Double spawnY = fc.getDouble("spawn.y");
-                Double spawnZ = fc.getDouble("spawn.z");
-                
-                Location spawn = new Location(spawnWorld, spawnX, spawnY, spawnZ);
-                
+                                
                 List<Location> playerSpawnPoints = new ArrayList<>();
                 for(String stringLocation: fc.getStringList("player_spawn_points")){
                     playerSpawnPoints.add(Serializer.getLocation(stringLocation));
@@ -82,8 +76,17 @@ public class ArenaManager {
                     CrewTask task = new CrewTask(taskName, loc, time);
                     tasksList.add(task);
                 }
-      
-                Arena a = new Arena(Name, maxPlayers, minPlayers, lobby, playerSpawnPoints, tasksList);
+                
+                Block emergencyMeetingBlock = null;
+                if(fc.get("emergency_meeting_block_location") != null){
+                    World world = Bukkit.getWorld(fc.getString("emergency_meeting_block_location.world"));
+                    double xBlock = fc.getDouble("emergency_meeting_block_location.x");
+                    double yBlock = fc.getDouble("emergency_meeting_block_location.y");
+                    double zBlock = fc.getDouble("emergency_meeting_block_location.z");
+                    Location blockLocation = new Location(world, xBlock, yBlock, zBlock);
+                    emergencyMeetingBlock = world.getBlockAt(blockLocation);
+                }
+                Arena a = new Arena(Name, maxPlayers, minPlayers, lobby, playerSpawnPoints, tasksList, emergencyMeetingBlock);
                 ArenaManager.arenas.add(a);
 
             }

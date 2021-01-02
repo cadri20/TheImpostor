@@ -45,6 +45,7 @@ public class CommandManager implements CommandExecutor{
         commands.put("leave", new LeaveArena());
         commands.put("addtask", new AddTask());
         commands.put("addspawn", new AddSpawn());
+        commands.put("setemb", new SetEmergencyMeeetingBlock());
     }
     
 }

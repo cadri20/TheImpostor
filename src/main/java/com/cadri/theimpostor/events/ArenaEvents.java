@@ -50,6 +50,7 @@ import org.bukkit.scheduler.BukkitScheduler;
 import org.golde.bukkit.corpsereborn.CorpseAPI.CorpseAPI;
 import org.golde.bukkit.corpsereborn.CorpseAPI.events.CorpseClickEvent;
 import org.golde.bukkit.corpsereborn.nms.Corpses.CorpseData;
+import org.bukkit.Bukkit;
 
 /**
  *
@@ -115,11 +116,14 @@ public class ArenaEvents implements Listener {
         
         Action action = evt.getAction();
         if(action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK){
-            if( !evt.getItem().equals(ItemOptions.CHOOSE_COLOR.getItem()) )
-                return;
-            
-            player.openInventory(GameUtils.getGUIChoiceColors(arena));
-            evt.setCancelled(true);
+            ItemStack item = evt.getItem();
+            if(item != null && item.equals(ItemOptions.CHOOSE_COLOR.getItem()) ){           
+                player.openInventory(GameUtils.getGUIChoiceColors(arena));
+                evt.setCancelled(true);
+            }else if(arena.isEmergencyMeetingBlock(evt.getClickedBlock())){
+                if(arena.started())
+                    arena.startEmergencyMeeting(player);                                    
+            }
         }
             
     }
@@ -210,7 +214,6 @@ public class ArenaEvents implements Listener {
             return;
         
         if(arena.state == ArenaState.VOTING){
-            player.sendMessage("You can't move until the voting finish!");
             evt.setCancelled(true);
         }
         
