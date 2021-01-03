@@ -76,6 +76,7 @@ public class Arena {
     private int impostorsAlive;
     private int killTime;
     private int impostorsNumber;
+    private boolean enabled;
     private List<Player> crew;
     private List<Player> impostors;
     private Map<Player,Boolean> aliveMap;
@@ -95,9 +96,9 @@ public class Arena {
     private Block emergencyMeetingBlock;
     
     public Arena(String name, int maxPlayers, int minPlayers, Location lobby){
-        this(name, maxPlayers, minPlayers, lobby, new ArrayList<>(), new ArrayList<>(), null);
+        this(name, maxPlayers, minPlayers, lobby, new ArrayList<>(), new ArrayList<>(), null, false);
     }
-    public Arena(String name, int maxPlayers, int minPlayers, Location lobby, List<Location> spawnLocations, List<CrewTask> tasks, Block emergencyMeetingBlock) {
+    public Arena(String name, int maxPlayers, int minPlayers, Location lobby, List<Location> spawnLocations, List<CrewTask> tasks, Block emergencyMeetingBlock, boolean enabled) {
         this.name = name;
         this.maxPlayers = maxPlayers;
         this.minPlayers = minPlayers;
@@ -109,6 +110,7 @@ public class Arena {
         this.voteTime = 30;
         this.killTime = 10;
         this.impostorsNumber = 1;
+        this.enabled = enabled;
         this.crew = new ArrayList<>();
         this.impostors = new ArrayList<>();
         this.impostorsAlive = 0;
@@ -619,6 +621,10 @@ public class Arena {
         }
     }
     
+    public List<CrewTask> getTasks(){
+        return tasks;
+    }
+    
     public void putMapsToPlayers(){
         for (Player player : players) {
             ItemStack mapItem = new ItemStack(Material.FILLED_MAP);
@@ -650,7 +656,7 @@ public class Arena {
         yamlSettings.set("Lobby" + ".x", lobby.getX());
         yamlSettings.set("Lobby" + ".y", lobby.getY());
         yamlSettings.set("Lobby" + ".z", lobby.getZ());
-        
+        yamlSettings.set("enabled", enabled);
         List<String> spawnLocations = new ArrayList<>();
         for(Location spawn: playerSpawnPoints){
             spawnLocations.add(Serializer.serializeLocation(spawn));
@@ -717,6 +723,10 @@ public class Arena {
             Logger.getLogger(Arena.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
+    public List<Location> getPlayerSpawnPoints() {
+        return playerSpawnPoints;
+    }
     
     private void teleportToSpawnPoint(Player player){
         player.teleport(playerSpawnPoints.get(players.indexOf(player)));
@@ -755,5 +765,28 @@ public class Arena {
         
         BukkitTask countdown = new VoteStartTimer(timeToVote, this).runTaskTimer(TheImpostor.plugin, 10L, 20L);
         state = ArenaState.VOTING;        
+    }
+    
+    public boolean areComponentsSetted(){
+        return areAllTasksSetted() && areSpawnPointsSetted() && lobby != null;
+    }
+    
+    public boolean areAllTasksSetted(){
+        return tasks.size() >= maxPlayers;
+    }
+    
+    public boolean areSpawnPointsSetted(){
+        return playerSpawnPoints.size() == maxPlayers;
+    }
+    
+    public boolean isEnabled(){
+        return enabled;
+    }
+    
+    public void enable() throws ArenaNotReadyException{
+        if(areComponentsSetted())
+            this.enabled = true;
+        else
+            throw new ArenaNotReadyException(this);
     }
 }

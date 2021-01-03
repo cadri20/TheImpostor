@@ -91,7 +91,8 @@ public class ArenaManager {
                     Location blockLocation = new Location(world, xBlock, yBlock, zBlock);
                     emergencyMeetingBlock = world.getBlockAt(blockLocation);
                 }
-                Arena a = new Arena(Name, maxPlayers, minPlayers, lobby, playerSpawnPoints, tasksList, emergencyMeetingBlock);
+             
+                Arena a = new Arena(Name, maxPlayers, minPlayers, lobby, playerSpawnPoints, tasksList, emergencyMeetingBlock, fc.getBoolean("enabled"));
                 ArenaManager.arenas.add(a);
 
             }
