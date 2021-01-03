@@ -18,6 +18,7 @@ package com.cadri.theimpostor.commands;
 
 import com.cadri.theimpostor.arena.Arena;
 import com.cadri.theimpostor.arena.ArenaManager;
+import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -33,8 +34,12 @@ public class AddSpawn implements SubCommand{
             Player player = (Player) sender;
             Arena arena = ArenaManager.getArena(args[0]);
             if(arena != null){
-                arena.addSpawnLocation(player.getLocation());
-                player.sendMessage("Spawn successfully added!");
+                if(!arena.areSpawnPointsSetted()){
+                    arena.addSpawnLocation(player.getLocation());
+                    player.sendMessage("Spawn successfully added!");                  
+                }else
+                    player.sendMessage(ChatColor.RED + "All spawns are setted, you can't add more!");
+
             }else
                 player.sendMessage(args[0] + "doesn't exist");
            
