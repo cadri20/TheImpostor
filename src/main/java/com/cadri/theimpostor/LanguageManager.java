@@ -20,6 +20,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -58,25 +60,37 @@ public class LanguageManager {
             Logger.getLogger(LanguageManager.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        if(!validateKeys()){
-            TheImpostor.plugin.getLogger().log(Level.WARNING,"Keys from " + languageChoosed + " are not valid" );
+        List<String> invalidKeys = getInvalidKeys();
+        if(invalidKeys == null){
+            TheImpostor.plugin.getLogger().log(Level.WARNING,"Keys from " + languageChoosed + " are incompleted" );
+        }else if(!invalidKeys.isEmpty()){
+            for(String key: invalidKeys){
+                TheImpostor.plugin.getLogger().log(Level.WARNING, "The key " + key + " is invalid");
+            }
         }
     }
     
-    private static boolean validateKeys(){
+    /**
+     * 
+     * @return List of invalidd keys. If they have a different number this return null
+     */
+    public static List<String> getInvalidKeys(){
         MessageKey[] keysInEnum = MessageKey.values();
         Set<String> keys = language.getKeys(false);
+        List<String> invalidKeys = new ArrayList<>();
+        
         if(keysInEnum.length != keys.size())
-            return false;
+            return null;
         
         int i = 0;
         for(String key: keys){
             if(!key.equals(keysInEnum[i].toString()))
-                return false;
+                invalidKeys.add(key);
             i++;
         }
-        return true;
+        return invalidKeys;        
     }
+    
     public static String getTranslation(MessageKey key){
         String translation = language.getString(key.toString());
        
