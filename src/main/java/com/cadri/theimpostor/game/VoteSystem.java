@@ -90,7 +90,7 @@ public class VoteSystem{
         }
         Integer previousCount = votes.put(voted, voteCount + 1);
         if(previousCount != null){ // If the player was in the map
-            voter.sendMessage(LanguageManager.getTranslation(MessageKey.PLAYER_VOTE_FOR, voted.getName()));
+            voter.sendMessage(LanguageManager.getTranslation(MessageKey.PLAYER_VOTE_FOR, voted.getDisplayName()));
             List<Player> voters = votersMap.get(voted);
             if(voters != null)
                 voters.add(voter);

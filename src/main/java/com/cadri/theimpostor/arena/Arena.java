@@ -164,6 +164,7 @@ public class Arena {
         GameUtils.setPlayerVisible(player, this);
         player.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
         playersColor.remove(player);
+        resetDisplayColor(player);
         aliveMap.remove(player);
         if(this.isImpostor(player))
             impostors.remove(player);
@@ -266,6 +267,7 @@ public class Arena {
     public void setPlayerColor(Player player, PlayerColor color){
         playersColor.put(player,color);
         player.getInventory().setArmorContents(color.getArmor());
+        player.setDisplayName(color.getChatColor() + player.getDisplayName() + ChatColor.RESET);
     }
     
     public boolean areColorsSelected(){
@@ -317,11 +319,11 @@ public class Arena {
         }
         String ejectMessage;
         if(isImpostor(mostVoted)){
-            ejectMessage = LanguageManager.getTranslation(MessageKey.IMPOSTOR_EJECTED_MESSAGE, mostVoted.getName());
+            ejectMessage = LanguageManager.getTranslation(MessageKey.IMPOSTOR_EJECTED_MESSAGE, mostVoted.getDisplayName());
             impostorsAlive--;
         }
         else
-            ejectMessage = LanguageManager.getTranslation(MessageKey.CREWMATE_EJECTED_MESSAGE, mostVoted.getName());
+            ejectMessage = LanguageManager.getTranslation(MessageKey.CREWMATE_EJECTED_MESSAGE, mostVoted.getDisplayName());
         
         for(Player player: this.getPlayers()){
             player.sendMessage(ejectMessage);
@@ -554,7 +556,7 @@ public class Arena {
     }
     
     public void resetDisplayColor(Player player){
-        player.setDisplayName(ChatColor.RESET + player.getName());
+        player.setDisplayName(player.getName());
     }
     
     public void stopAllScoreboards(){
