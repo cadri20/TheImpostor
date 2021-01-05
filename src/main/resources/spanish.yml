@@ -1,12 +1,13 @@
 ## YAML Template.
 ---
 arena_created_successfully: '&aLa arena se ha creado exitosamente'
-arena_already_exists: '&cLa arena ya existe'
+arena_already_exists: '&cLa arena %s ya existe'
 arena_ready: '&aYa hay suficientes jugadores!'
-arena_not_exists: '&cLa arena no existe'
-arena_countdown: '&3El juego iniciara en'
+arena_doesnt_exist: '&cLa arena %s no existe'
+arena_countdown: '&3El juego iniciara en %d segundos '
 arena_game_start: '&aEl juego ha comenzado'
-arena_spawn_set: '&aEl spawn ha sido establecido correctamente'
+arena_spawn_added: '&aEl spawn ha sido establecido correctamente'
+all_spawns_setted: '&bTodos los spawns ya han sido establecidos'
 impostor_title: '&cIMPOSTOR'
 impostor_subtitle: '&eSabotea y matalos a todos'
 crewmate_title: '&aCREWMATE'

@@ -61,7 +61,7 @@ public class CreateArena implements SubCommand {
                 }
                 player.sendMessage(LanguageManager.getTranslation(MessageKey.ARENA_CREATED_SUCCESSFULLY));
             } else {
-                player.sendMessage(LanguageManager.getTranslation(MessageKey.ARENA_ALREADY_EXISTS));
+                player.sendMessage(LanguageManager.getTranslation(MessageKey.ARENA_ALREADY_EXISTS, args[0]));
             }
         }
 

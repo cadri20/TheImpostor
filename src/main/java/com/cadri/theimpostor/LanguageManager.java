@@ -82,4 +82,10 @@ public class LanguageManager {
        
         return ChatColor.translateAlternateColorCodes('&', translation);
     }
+    
+    public static String getTranslation(MessageKey key, Object... replacements){
+        String translation = String.format(language.getString(key.toString()), replacements);
+        
+        return ChatColor.translateAlternateColorCodes('&', translation);
+    }
 }

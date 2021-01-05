@@ -44,7 +44,7 @@ public class ArenaTimer extends BukkitRunnable {
             }
             if (counter < 4) {
                 for (Player player : arena.getPlayers()) {
-                    player.sendMessage(LanguageManager.getTranslation(MessageKey.ARENA_COUNTDOWN) + " " + counter);
+                    player.sendMessage(LanguageManager.getTranslation(MessageKey.ARENA_COUNTDOWN, counter));
                 }
             }
             counter--;

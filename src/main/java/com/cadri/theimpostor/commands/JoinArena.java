@@ -49,7 +49,7 @@ public class JoinArena implements SubCommand{
 
                 
             }else{
-                player.sendMessage(LanguageManager.getTranslation(MessageKey.ARENA_NOT_EXISTS));
+                player.sendMessage(LanguageManager.getTranslation(MessageKey.ARENA_DOESNT_EXIST, args[0]));
             }
             
             
