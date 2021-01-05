@@ -14,7 +14,8 @@ import org.bukkit.plugin.java.JavaPlugin;
  */
 public class TheImpostor extends JavaPlugin{
     public static TheImpostor plugin;
-
+    public static String pluginTitle = ChatColor.translateAlternateColorCodes('&', "&6&lTheImpostor &9&lby cadri1");
+    
     public TheImpostor() {
         plugin = this;
     }

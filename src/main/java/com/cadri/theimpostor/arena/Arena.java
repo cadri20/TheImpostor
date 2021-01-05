@@ -21,6 +21,7 @@ import com.cadri.theimpostor.LanguageManager;
 import com.cadri.theimpostor.MessageKey;
 import com.cadri.theimpostor.TheImpostor;
 import com.cadri.theimpostor.game.CrewTask;
+import com.cadri.theimpostor.game.GameScoreboard;
 import com.cadri.theimpostor.game.ItemOptions;
 import com.cadri.theimpostor.game.PlayerColor;
 import com.cadri.theimpostor.game.TaskTimer;
@@ -89,11 +90,11 @@ public class Arena {
     private Map<Player, List<CrewTask>> playerTasks;
     private File fileSettings;
     private FileConfiguration yamlSettings;
-    private Scoreboard board;
-    private Objective objective;
+    //private Scoreboard board;
     private VoteSystem voteSystem = null;
     private Map<Player,TaskTimer> taskTimers = new HashMap<>();
     private Block emergencyMeetingBlock;
+    private GameScoreboard board;
     
     public Arena(String name, int maxPlayers, int minPlayers, Location lobby){
         this(name, maxPlayers, minPlayers, lobby, new ArrayList<>(), new ArrayList<>(), null, false);
@@ -119,11 +120,10 @@ public class Arena {
         this.tasks = tasks;
         this.emergencyMeetingBlock = emergencyMeetingBlock;
         this.playerTasks = new HashMap<>();
-        this.board = Bukkit.getScoreboardManager().getNewScoreboard();
+        this.board = new GameScoreboard(TheImpostor.pluginTitle, ChatColor.WHITE);
         this.fileSettings = new File(TheImpostor.plugin.getDataFolder() + File.separator + name + File.separator + "arena_settings.yml");
         this.yamlSettings = YamlConfiguration.loadConfiguration(fileSettings);
-        objective = board.registerNewObjective("Arena", "dummy", TheImpostor.plugin.getName());
-        
+               
         makeScoreBoard();
     }
 
@@ -136,21 +136,22 @@ public class Arena {
     }
 
     private void makeScoreBoard(){
-        objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-        objective.getScore(ChatColor.GREEN + "Arena: " + name).setScore(1);  
-        objective.getScore(ChatColor.BLUE + "MinPlayers: " + minPlayers).setScore(0);
+        board.put(LanguageManager.getTranslation(MessageKey.ARENA), name);
+        board.put(LanguageManager.getTranslation(MessageKey.MIN_PLAYERS), minPlayers);
+        board.put(LanguageManager.getTranslation(MessageKey.MAX_PLAYERS), maxPlayers);
+        board.put(LanguageManager.getTranslation(MessageKey.PLAYERS_NUMBER), players.size());
     }
     public Scoreboard getBoard() {
-        return board;
+        return board.getScoreboard();
     }
 
     public void addPlayer(Player player) {
         players.add(player);
         playerLocations.put(player, player.getLocation());
-        objective.getScore("Players number: " + players.size()).setScore(2);
+        board.put(LanguageManager.getTranslation(MessageKey.PLAYERS_NUMBER), players.size());
         invStore.put(player, player.getInventory().getContents());
         player.getInventory().clear();
-        player.setScoreboard(board);
+        player.setScoreboard(board.getScoreboard());
         player.getInventory().addItem(ItemOptions.CHOOSE_COLOR.getItem());
         
         if(players.size() == minPlayers)
@@ -161,6 +162,7 @@ public class Arena {
         if (! players.remove(player))
             return false;
         
+        board.put(LanguageManager.getTranslation(MessageKey.PLAYERS_NUMBER), players.size());
         GameUtils.setPlayerVisible(player, this);
         player.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
         playersColor.remove(player);
@@ -221,21 +223,6 @@ public class Arena {
         }
     }
     
-    private void showColorsOnBoard(){
-        for(Player player: players){
-            Objective obj = player.getScoreboard().getObjective(objective.getName());
-            if(obj == null){
-                TheImpostor.plugin.getLogger().log(Level.SEVERE, "Objective" + objective.getName() + " not found");
-                return;
-            }        
-            PlayerColor color = this.getPlayerColor(player);
-            if(color == null){
-                TheImpostor.plugin.getLogger().log(Level.SEVERE, "Color of player " + player.getName() + " not assigned");
-                return;
-            }
-            obj.getScore("Color: " + this.getPlayerColor(player).getName()).setScore(3);
-        }
-    }
     public void setRoles() {
         crew.addAll(players);
         for(int i = 1; i <= impostorsNumber; i++)

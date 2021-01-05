@@ -76,7 +76,12 @@ public enum MessageKey {
     DEADCHAT_PREFIX("deadchat_prefix"),
     
     REMAINING_SPAWNS("remaining_spawns"),
-    REMAINING_TASKS("remaining_tasks");
+    REMAINING_TASKS("remaining_tasks"),
+    
+    PLAYERS_NUMBER("players_number"),
+    ARENA("arena"),
+    MIN_PLAYERS("min_players"),
+    MAX_PLAYERS("max_players");
     
     private String key;
     
