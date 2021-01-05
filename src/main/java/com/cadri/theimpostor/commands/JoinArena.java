@@ -17,7 +17,7 @@
 package com.cadri.theimpostor.commands;
 
 import com.cadri.theimpostor.LanguageManager;
-import com.cadri.theimpostor.MessageKeys;
+import com.cadri.theimpostor.MessageKey;
 import com.cadri.theimpostor.arena.Arena;
 import com.cadri.theimpostor.arena.ArenaManager;
 import com.cadri.theimpostor.arena.ArenaUtils;
@@ -49,7 +49,7 @@ public class JoinArena implements SubCommand{
 
                 
             }else{
-                player.sendMessage(LanguageManager.getTranslation(MessageKeys.ARENA_NOT_EXISTS.key  ));
+                player.sendMessage(LanguageManager.getTranslation(MessageKey.ARENA_NOT_EXISTS));
             }
             
             

@@ -18,7 +18,7 @@ package com.cadri.theimpostor.arena;
 
 import com.cadri.theimpostor.game.GameUtils;
 import com.cadri.theimpostor.LanguageManager;
-import com.cadri.theimpostor.MessageKeys;
+import com.cadri.theimpostor.MessageKey;
 import com.cadri.theimpostor.TheImpostor;
 import com.cadri.theimpostor.game.CrewTask;
 import com.cadri.theimpostor.game.ItemOptions;
@@ -129,7 +129,7 @@ public class Arena {
 
     public void initCountDown() {
         for (Player player : players) {
-            player.sendMessage(LanguageManager.getTranslation(MessageKeys.ARENA_READY.key));
+            player.sendMessage(LanguageManager.getTranslation(MessageKey.ARENA_READY));
         }
         BukkitTask countdown = new ArenaTimer(10, this).runTaskTimer(TheImpostor.plugin, 10L, 20L);
 
@@ -181,7 +181,7 @@ public class Arena {
     }
     public void startGame() {
         for (Player player : this.getPlayers()) {
-            player.sendMessage(LanguageManager.getTranslation(MessageKeys.ARENA_GAME_START.key));
+            player.sendMessage(LanguageManager.getTranslation(MessageKey.ARENA_GAME_START));
         }
         setRoles();
 
@@ -191,14 +191,14 @@ public class Arena {
         }
 
         for (Player impostor : impostors) {
-            String title = LanguageManager.getTranslation(MessageKeys.IMPOSTOR_TITLE.key);
-            String subtitle = LanguageManager.getTranslation(MessageKeys.IMPOSTOR_SUBTITLE.key);
+            String title = LanguageManager.getTranslation(MessageKey.IMPOSTOR_TITLE);
+            String subtitle = LanguageManager.getTranslation(MessageKey.IMPOSTOR_SUBTITLE);
             impostor.sendTitle(title, subtitle, 4, 40, 5);
         }
 
         for (Player crewmate : crew) {
-            String title = LanguageManager.getTranslation(MessageKeys.CREWMATE_TITLE.key);
-            String subtitle = LanguageManager.getTranslation(MessageKeys.CREWMATE_SUBTITLE.key);
+            String title = LanguageManager.getTranslation(MessageKey.CREWMATE_TITLE);
+            String subtitle = LanguageManager.getTranslation(MessageKey.CREWMATE_SUBTITLE);
             crewmate.sendTitle(title, subtitle, 5, 40, 5);
         }
         

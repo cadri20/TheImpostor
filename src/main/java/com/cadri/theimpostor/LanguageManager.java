@@ -64,21 +64,21 @@ public class LanguageManager {
     }
     
     private static boolean validateKeys(){
-        MessageKeys[] keysInEnum = MessageKeys.values();
+        MessageKey[] keysInEnum = MessageKey.values();
         Set<String> keys = language.getKeys(false);
         if(keysInEnum.length != keys.size())
             return false;
         
         int i = 0;
         for(String key: keys){
-            if(!key.equals(keysInEnum[i].key))
+            if(!key.equals(keysInEnum[i].toString()))
                 return false;
             i++;
         }
         return true;
     }
-    public static String getTranslation(String key){
-        String translation = language.getString(key);
+    public static String getTranslation(MessageKey key){
+        String translation = language.getString(key.toString());
        
         return ChatColor.translateAlternateColorCodes('&', translation);
     }

@@ -17,7 +17,7 @@
 package com.cadri.theimpostor.commands;
 
 import com.cadri.theimpostor.LanguageManager;
-import com.cadri.theimpostor.MessageKeys;
+import com.cadri.theimpostor.MessageKey;
 import com.cadri.theimpostor.TheImpostor;
 import com.cadri.theimpostor.arena.Arena;
 import com.cadri.theimpostor.arena.ArenaManager;
@@ -59,9 +59,9 @@ public class CreateArena implements SubCommand {
                     player.sendMessage("Error saving the files");
 
                 }
-                player.sendMessage(LanguageManager.getTranslation(MessageKeys.ARENA_CREATED_SUCCESSFULLY.key));
+                player.sendMessage(LanguageManager.getTranslation(MessageKey.ARENA_CREATED_SUCCESSFULLY));
             } else {
-                player.sendMessage(LanguageManager.getTranslation(MessageKeys.ARENA_ALREADY_EXISTS.key));
+                player.sendMessage(LanguageManager.getTranslation(MessageKey.ARENA_ALREADY_EXISTS));
             }
         }
 

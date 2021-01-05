@@ -20,7 +20,7 @@ package com.cadri.theimpostor;
  *
  * @author cadri
  */
-public enum MessageKeys {
+public enum MessageKey {
     ARENA_CREATED_SUCCESSFULLY("arena_created_successfully"),
     ARENA_ALREADY_EXISTS("arena_already_exists"),
     ARENA_READY("arena_ready"),
@@ -33,10 +33,13 @@ public enum MessageKeys {
     CREWMATE_TITLE("crewmate_title"),
     CREWMATE_SUBTITLE("crewmate_subtitle");
     
-    public String key;
+    private String key;
     
-    private MessageKeys(String key){
+    private MessageKey(String key){
         this.key = key;
     }
     
+    public String toString(){
+        return key;
+    }
 }
