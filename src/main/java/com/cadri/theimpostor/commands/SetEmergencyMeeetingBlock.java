@@ -18,6 +18,7 @@ package com.cadri.theimpostor.commands;
 
 import com.cadri.theimpostor.arena.Arena;
 import com.cadri.theimpostor.arena.ArenaManager;
+import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -33,8 +34,12 @@ public class SetEmergencyMeeetingBlock implements SubCommand{
             Player player = (Player) sender;
             Arena arena = ArenaManager.getArena(args[0]);
             if(arena != null){
-                arena.setEmergencyMeetingBlock(player.getTargetBlockExact(2));
-                player.sendMessage("Emergency meeting block setted successfully");
+                Block blockTargeted = player.getTargetBlockExact(4);
+                if(blockTargeted != null){
+                    arena.setEmergencyMeetingBlock(blockTargeted);
+                    player.sendMessage("Emergency meeting block setted successfully");
+                }else
+                    player.sendMessage("There's been a problem, try to get closer");
             }
             
         }

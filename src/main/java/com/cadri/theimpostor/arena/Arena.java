@@ -768,7 +768,7 @@ public class Arena {
     }
     
     public boolean areComponentsSetted(){
-        return areAllTasksSetted() && areSpawnPointsSetted() && lobby != null;
+        return areAllTasksSetted() && areSpawnPointsSetted() && lobby != null && this.emergencyMeetingBlock != null;
     }
     
     public boolean areAllTasksSetted(){
