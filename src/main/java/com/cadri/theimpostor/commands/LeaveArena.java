@@ -16,6 +16,8 @@
  */
 package com.cadri.theimpostor.commands;
 
+import com.cadri.theimpostor.LanguageManager;
+import com.cadri.theimpostor.MessageKey;
 import com.cadri.theimpostor.arena.Arena;
 import com.cadri.theimpostor.arena.ArenaUtils;
 import org.bukkit.command.CommandSender;
@@ -35,7 +37,7 @@ public class LeaveArena implements SubCommand{
             if(wherePlayerIs != null){
                 wherePlayerIs.removePlayer(player);
             }else{
-                player.sendMessage("You're not in an arena");
+                player.sendMessage(LanguageManager.getTranslation(MessageKey.PLAYER_NOT_IN_ARENA));
             }
         }
     }

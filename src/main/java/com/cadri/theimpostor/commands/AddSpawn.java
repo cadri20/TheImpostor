@@ -43,7 +43,7 @@ public class AddSpawn implements SubCommand{
                     player.sendMessage(LanguageManager.getTranslation(MessageKey.ALL_SPAWNS_SETTED));
 
             }else
-                player.sendMessage(args[0] + "doesn't exist");
+                player.sendMessage(LanguageManager.getTranslation(MessageKey.ARENA_DOESNT_EXIST, args[0]));
            
         }
     }

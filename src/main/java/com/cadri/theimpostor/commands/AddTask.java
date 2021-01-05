@@ -16,6 +16,8 @@
  */
 package com.cadri.theimpostor.commands;
 
+import com.cadri.theimpostor.LanguageManager;
+import com.cadri.theimpostor.MessageKey;
 import com.cadri.theimpostor.arena.Arena;
 import com.cadri.theimpostor.arena.ArenaManager;
 import com.cadri.theimpostor.game.CrewTask;
@@ -35,7 +37,7 @@ public class AddTask implements SubCommand{
             Player player = (Player) sender;
             CrewTask task = new CrewTask(args[1], player.getLocation(), Integer.parseInt(args[2]));
             arena.addTask(task);
-            player.sendMessage("Task created successfully!");
+            player.sendMessage(LanguageManager.getTranslation(MessageKey.TASK_CREATED));
         }
         
     }

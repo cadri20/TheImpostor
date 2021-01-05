@@ -16,6 +16,8 @@
  */
 package com.cadri.theimpostor.game;
 
+import com.cadri.theimpostor.LanguageManager;
+import com.cadri.theimpostor.MessageKey;
 import com.cadri.theimpostor.arena.Arena;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -44,10 +46,10 @@ public class TaskTimer extends BukkitRunnable{
         if(count != task.getTimeToComplete()){
             count++;
             taskProgress.setCurrent(count);
-            player.sendTitle(taskProgress.toString(), task.getName() + " progress", 0, 22, 0);
+            player.sendTitle(taskProgress.toString(), LanguageManager.getTranslation(MessageKey.TASK_PROGRESS, task.getName()), 0, 22, 0);
         }else{
             task.complete();
-            player.sendMessage("You completed " + task.getName());
+            player.sendMessage(LanguageManager.getTranslation(MessageKey.TASK_COMPLETED, task.getName()));
             if(arena.tasksAreCompleted())
                 arena.endGame(false);
             this.cancel();

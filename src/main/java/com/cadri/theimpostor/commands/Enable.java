@@ -16,6 +16,8 @@
  */
 package com.cadri.theimpostor.commands;
 
+import com.cadri.theimpostor.LanguageManager;
+import com.cadri.theimpostor.MessageKey;
 import com.cadri.theimpostor.arena.Arena;
 import com.cadri.theimpostor.arena.ArenaManager;
 import com.cadri.theimpostor.arena.ArenaNotReadyException;
@@ -37,18 +39,18 @@ public class Enable implements SubCommand{
             if(arena != null){
                 try{
                     arena.enable();
-                    player.sendMessage(ChatColor.GREEN + "Arena successfully enabled");
+                    player.sendMessage(LanguageManager.getTranslation(MessageKey.ARENA_ENABLED));
                 }catch(ArenaNotReadyException e){
                     int remainingSpawns = e.getRemainingSpawnsNumber();
                     int remainingTasks = e.getRemainingTasksNumber();
-                    player.sendMessage(ChatColor.RED + "Arena is not ready");
+                    player.sendMessage(LanguageManager.getTranslation(MessageKey.ARENA_NOT_READY));
                     if(remainingSpawns != 0)
-                        player.sendMessage(remainingSpawns + " spawn points left to be setted");
+                        player.sendMessage(LanguageManager.getTranslation(MessageKey.REMAINING_SPAWNS,remainingSpawns));
                     if(remainingTasks > 0)
-                        player.sendMessage(remainingTasks + " tasks left to be setted");
+                        player.sendMessage(LanguageManager.getTranslation(MessageKey.REMAINING_TASKS, remainingTasks));
                 }
             }else{
-                player.sendMessage("Arena " + args[0] + " doesn't exist");
+                player.sendMessage(LanguageManager.getTranslation(MessageKey.ARENA_DOESNT_EXIST, args[0]));
             }
         }
     }

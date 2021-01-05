@@ -29,13 +29,14 @@ import org.bukkit.entity.Player;
  * @author cadri
  */
 public class JoinArena implements SubCommand{
+    @Override
     public void onCommand(CommandSender sender, String[] args) {
         
         if (sender instanceof Player) {
             Player player = (Player) sender;
             
             if(ArenaUtils.whereArenaIs(player) != null){
-                player.sendMessage("You're in an arena!");
+                player.sendMessage(LanguageManager.getTranslation(MessageKey.PLAYER_IN_ARENA));
                 return;
             }
             if (ArenaManager.arenaNames.contains(args[0])) {
@@ -45,7 +46,7 @@ public class JoinArena implements SubCommand{
                     arena.addPlayer(player);
                     player.teleport(arena.getLobby());
                 }else
-                    player.sendMessage("Arena is not enabled");
+                    player.sendMessage(LanguageManager.getTranslation(MessageKey.ARENA_NOT_ENABLED));
 
                 
             }else{

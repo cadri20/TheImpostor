@@ -250,10 +250,10 @@ public class Arena {
         PlayerColor reporterColor = getPlayerColor(reporter);
         for(Player player: players){
             String corpseName = corpseReported.getCorpseName();
-            player.sendMessage(reporterColor.getChatColor() + reporter.getDisplayName() + ChatColor.WHITE +  " reported the corpse of " + getPlayerColor(corpseName).getChatColor() + corpseName);
-            player.sendTitle("Dead body reported!", "Voting started", 20, 70, 20);
+            player.sendMessage(LanguageManager.getTranslation(MessageKey.PLAYER_REPORT_CORPSE, reporterColor.getChatColor() + reporter.getDisplayName() + ChatColor.WHITE,getPlayerColor(corpseName).getChatColor() + corpseName));
+            player.sendTitle(LanguageManager.getTranslation(MessageKey.DEAD_BODY_REPORTED), LanguageManager.getTranslation(MessageKey.VOTE_STARTED), 20, 70, 20);
             teleportToSpawnPoint(player);
-            player.sendMessage("The vote will start in " + timeToVote + " seconds");
+            player.sendMessage(LanguageManager.getTranslation(MessageKey.VOTE_START_TIME, timeToVote));
         }
         for(CorpseData corpse: corpses){
             CorpseAPI.removeCorpse(corpse);
@@ -303,7 +303,7 @@ public class Arena {
         }
         
         for(Player player: players){
-            player.sendMessage(ChatColor.GREEN + "----------Votes----------");
+            player.sendMessage(LanguageManager.getTranslation(MessageKey.VOTES));
             for(Player playerVoted: voteSystem.getPlayersInVote()){               
                 player.sendMessage(voteSystem.getVotersString(playerVoted));
             }            
@@ -311,20 +311,20 @@ public class Arena {
         Player mostVoted = voteSystem.getMostVoted();
         if(mostVoted == null){
             for(Player player: this.getPlayers()){
-                player.sendMessage("No one was ejected");
+                player.sendMessage(LanguageManager.getTranslation(MessageKey.NOBODY_EJECTED));
             }
             return;
         }
         String ejectMessage;
         if(isImpostor(mostVoted)){
-            ejectMessage = "was the impostor";
+            ejectMessage = LanguageManager.getTranslation(MessageKey.IMPOSTOR_EJECTED_MESSAGE, mostVoted.getName());
             impostorsAlive--;
         }
         else
-            ejectMessage = "was not the impostor";
+            ejectMessage = LanguageManager.getTranslation(MessageKey.CREWMATE_EJECTED_MESSAGE, mostVoted.getName());
         
         for(Player player: this.getPlayers()){
-            player.sendMessage("The player " + mostVoted.getName() + " was the most voted and " + ejectMessage);
+            player.sendMessage(ejectMessage);
         }
         
         GameUtils.ejectPlayer(mostVoted, this);
@@ -455,31 +455,33 @@ public class Arena {
     }
     
     public void endGame(boolean impostorsWon){
-  
+        String winnersMessage = LanguageManager.getTranslation(MessageKey.WINNERS);
+        String defeatMessage = LanguageManager.getTranslation(MessageKey.DEFEAT);
+        String winnersListTitle = LanguageManager.getTranslation(MessageKey.WINNERS_LIST_TITLE);
         if(impostorsWon){
             for(Player player: crew){        
-                player.sendTitle(ChatColor.RED + "Defeat", "", 20, 70, 20);
+                player.sendTitle(defeatMessage, "", 20, 70, 20);
             }
             for(Player player: impostors){
-                player.sendTitle(ChatColor.BLUE + "Winners", "", 20,70,20);
+                player.sendTitle(winnersMessage, "", 20,70,20);
             }
             String impostorsString = getImpostorsString();
             for(Player player: players){
-                player.sendMessage(ChatColor.GREEN + "------WINNERS------");
+                player.sendMessage(winnersListTitle);
                 player.sendMessage(impostorsString);
             }
             
         }else{
             for(Player player: crew){
-                player.sendTitle(ChatColor.BLUE + "Winners", "", 20,70,20);
+                player.sendTitle(winnersMessage, "", 20,70,20);
             }
             for(Player player: impostors){        
-                player.sendTitle(ChatColor.RED + "Defeat", "", 20, 70, 20);
+                player.sendTitle(defeatMessage, "", 20, 70, 20);
             }
             
             String crewString = getCrewString();
             for(Player player: players){
-                player.sendMessage(ChatColor.GREEN + "------WINNERS------");
+                player.sendMessage(winnersListTitle);
                 player.sendMessage(crewString);
             }            
         }
@@ -488,7 +490,7 @@ public class Arena {
     }
     
     private String getImpostorsString(){
-        String impostors = ChatColor.RED + "Impostors: ";
+        String impostors = LanguageManager.getTranslation(MessageKey.IMPOSTORS);
         for(Player impostor: this.impostors){
             PlayerColor color = getPlayerColor(impostor);
             impostors += color.getChatColor() + impostor.getName() + " ";
@@ -498,7 +500,7 @@ public class Arena {
     }
     
     private String getCrewString(){
-        String crew = ChatColor.BLUE + "Crew: ";
+        String crew = LanguageManager.getTranslation(MessageKey.CREW);
         for(Player crewmate: this.crew){
             PlayerColor color = getPlayerColor(crewmate);
             crew += color.getChatColor() + crewmate.getName() + " ";
@@ -606,7 +608,7 @@ public class Arena {
     public void setKillFlag(Player impostor, boolean canKill){        
         Boolean previousValue = impostorsKillFlags.put(impostor, canKill);
         if(canKill)
-            impostor.sendMessage("You're able to kill!");
+            impostor.sendMessage(LanguageManager.getTranslation(MessageKey.IMPOSTOR_ABLE_TO_KILL));
         if(previousValue == null)
             TheImpostor.plugin.getLogger().log(Level.SEVERE, "Player is not in impostors map");
     }
@@ -754,10 +756,12 @@ public class Arena {
     
     public void startEmergencyMeeting(Player whoStartedMeeting){
         for(Player player: players){
-            player.sendMessage(whoStartedMeeting.getName() + "started an emergency meeting");
-            player.sendTitle(ChatColor.BLUE + "Emergency Meeting", "Vote talk started", 20, 70, 20);
+            player.sendMessage(LanguageManager.getTranslation(MessageKey.EMERGENCY_MEETING_START, whoStartedMeeting.getName()));
+            String emTitle = LanguageManager.getTranslation(MessageKey.EMERGENCY_MEETING_TITLE);
+            String emSubtitle = LanguageManager.getTranslation(MessageKey.EMERGENCY_MEETING_SUBTITLE);
+            player.sendTitle(emTitle, emSubtitle, 20, 70, 20);
             teleportToSpawnPoint(player);
-            player.sendMessage("The vote will start in " + timeToVote + " seconds");
+            player.sendMessage(LanguageManager.getTranslation(MessageKey.VOTE_START_TIME, timeToVote));
         }
         for(CorpseData corpse: corpses){
             CorpseAPI.removeCorpse(corpse);

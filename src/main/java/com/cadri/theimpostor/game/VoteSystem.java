@@ -16,6 +16,8 @@
  */
 package com.cadri.theimpostor.game;
 
+import com.cadri.theimpostor.LanguageManager;
+import com.cadri.theimpostor.MessageKey;
 import com.cadri.theimpostor.TheImpostor;
 import com.cadri.theimpostor.arena.Arena;
 import java.util.ArrayList;
@@ -44,11 +46,11 @@ public class VoteSystem{
     private HashMap<Player,List<Player>> votersMap = new HashMap<>();
     private boolean tie = false;
     private Arena arena;
-    private String skipVoteDisplayName = ChatColor.DARK_PURPLE + "Skip Vote";
+    private String skipVoteDisplayName = LanguageManager.getTranslation(MessageKey.SKIP_VOTE);
 
     public VoteSystem(List<Player> players, Arena arena) {
         this.arena = arena;
-        inv = Bukkit.createInventory(null, 9, "Vote");
+        inv = Bukkit.createInventory(null, 9, LanguageManager.getTranslation(MessageKey.VOTE));
         for (Player player : players) {
             votes.put(player, 0);
             PlayerColor color = arena.getPlayerColor(player);
@@ -88,7 +90,7 @@ public class VoteSystem{
         }
         Integer previousCount = votes.put(voted, voteCount + 1);
         if(previousCount != null){ // If the player was in the map
-            voter.sendMessage("You voted for " + voted.getName());
+            voter.sendMessage(LanguageManager.getTranslation(MessageKey.PLAYER_VOTE_FOR, voted.getName()));
             List<Player> voters = votersMap.get(voted);
             if(voters != null)
                 voters.add(voter);
