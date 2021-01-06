@@ -82,7 +82,10 @@ public enum MessageKey {
     PLAYERS_NUMBER("players_number"),
     ARENA("arena"),
     MIN_PLAYERS("min_players"),
-    MAX_PLAYERS("max_players");
+    MAX_PLAYERS("max_players"),
+    
+    INVALID_TASKS_NUMBER("invalid_tasks_number"),
+    TASKS_NUMBER_SETTED("tasks_number_setted");
     
     private String key;
     

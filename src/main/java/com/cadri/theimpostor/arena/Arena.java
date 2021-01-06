@@ -81,6 +81,7 @@ public class Arena {
     private int impostorsAlive;
     private int killTime;
     private int impostorsNumber;
+    private int playerTasksNumber;
     private boolean enabled;
     private List<Player> crew;
     private List<Player> impostors;
@@ -99,11 +100,12 @@ public class Arena {
     private Map<Player,TaskTimer> taskTimers = new HashMap<>();
     private Block emergencyMeetingBlock;
     private GameScoreboard board;
-    private BossBar taskProgressBar = Bukkit.createBossBar(LanguageManager.getTranslation(MessageKey.TASK_PROGRESS_BAR), BarColor.GREEN, BarStyle.SOLID);
+    private BossBar taskProgressBar = Bukkit.createBossBar(LanguageManager.getTranslation(MessageKey.TASK_PROGRESS_BAR), BarColor.GREEN, BarStyle.SOLID); 
+    
     public Arena(String name, int maxPlayers, int minPlayers, Location lobby){
-        this(name, maxPlayers, minPlayers, lobby, new ArrayList<>(), new ArrayList<>(), null, false);
+        this(name, maxPlayers, minPlayers, lobby, new ArrayList<>(), new ArrayList<>(), null, false, 0);
     }
-    public Arena(String name, int maxPlayers, int minPlayers, Location lobby, List<Location> spawnLocations, List<CrewTask> tasks, Block emergencyMeetingBlock, boolean enabled) {
+    public Arena(String name, int maxPlayers, int minPlayers, Location lobby, List<Location> spawnLocations, List<CrewTask> tasks, Block emergencyMeetingBlock, boolean enabled, int playerTasksNumber) {
         this.name = name;
         this.maxPlayers = maxPlayers;
         this.minPlayers = minPlayers;
@@ -119,6 +121,7 @@ public class Arena {
         this.crew = new ArrayList<>();
         this.impostors = new ArrayList<>();
         this.impostorsAlive = 0;
+        this.playerTasksNumber = playerTasksNumber;
         this.aliveMap = new HashMap<>();
         this.corpses = new ArrayList<>();
         this.tasks = tasks;
@@ -217,7 +220,7 @@ public class Arena {
         if(! areColorsSelected())
             GameUtils.selectRandomColors(playersColor, players, this);
         
-        playerTasks = GameUtils.assignTasks(players, tasks, tasks.size() - 1);
+        playerTasks = GameUtils.assignTasks(players, tasks, playerTasksNumber);
         putMapsToPlayers();
         //showColorsOnBoard();
         state = ArenaState.IN_GAME;
@@ -669,6 +672,7 @@ public class Arena {
         yamlSettings.set("Lobby" + ".y", lobby.getY());
         yamlSettings.set("Lobby" + ".z", lobby.getZ());
         yamlSettings.set("enabled", enabled);
+        yamlSettings.set("player_tasks_number", playerTasksNumber);
         List<String> spawnLocations = new ArrayList<>();
         for(Location spawn: playerSpawnPoints){
             spawnLocations.add(Serializer.serializeLocation(spawn));
@@ -782,7 +786,7 @@ public class Arena {
     }
     
     public boolean areComponentsSetted(){
-        return areAllTasksSetted() && areSpawnPointsSetted() && lobby != null && this.emergencyMeetingBlock != null;
+        return areAllTasksSetted() && areSpawnPointsSetted() && lobby != null && this.emergencyMeetingBlock != null && playerTasksNumber != 0;
     }
     
     public boolean areAllTasksSetted(){
@@ -829,4 +833,14 @@ public class Arena {
         
         return tasksCompleted;
     }
+
+    public void setPlayerTasksNumber(int playerTasksNumber) {
+        try {
+            this.playerTasksNumber = playerTasksNumber;
+            saveConfig();
+        } catch (IOException ex) {
+            Logger.getLogger(Arena.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
 }

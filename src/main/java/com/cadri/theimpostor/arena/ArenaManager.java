@@ -92,7 +92,7 @@ public class ArenaManager {
                     emergencyMeetingBlock = world.getBlockAt(blockLocation);
                 }
              
-                Arena a = new Arena(Name, maxPlayers, minPlayers, lobby, playerSpawnPoints, tasksList, emergencyMeetingBlock, fc.getBoolean("enabled"));
+                Arena a = new Arena(Name, maxPlayers, minPlayers, lobby, playerSpawnPoints, tasksList, emergencyMeetingBlock, fc.getBoolean("enabled"), fc.getInt("player_tasks_number"));
                 ArenaManager.arenas.add(a);
 
             }
