@@ -802,20 +802,25 @@ public class Arena {
     }
     
     public void enable() throws ArenaNotReadyException{
-        if(areComponentsSetted())
-            this.enabled = true;
+        if(areComponentsSetted()){
+            try {
+                this.enabled = true;
+                saveConfig();
+            } catch (IOException ex) {
+                Logger.getLogger(Arena.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
         else
             throw new ArenaNotReadyException(this);
     }
     
     public double getPercentofTasksCompleted(){
-        double totalTasks = 0;
+        double totalTasks = crew.size() * playerTasksNumber;
         double tasksCompleted = 0;
         
-        for(Player crewmate: crew){
+        for(Player crewmate: crew)
             tasksCompleted += getTasksCompletedNumber(crewmate);
-            totalTasks += getPlayerTasks(crewmate).size();
-        }
+        
         
         return tasksCompleted / totalTasks; 
     }
