@@ -611,6 +611,8 @@ public class Arena {
     }
     
     public void addTask(CrewTask task){
+        if(!isTaskValid(task))
+            throw new IllegalArgumentException("Task invalid");
         tasks.add(task);
         
         try{
@@ -618,6 +620,17 @@ public class Arena {
         }catch(IOException e){
             TheImpostor.plugin.getLogger().log(Level.SEVERE, e.getMessage());
         }
+    }
+    
+    
+    public boolean isTaskValid(CrewTask taskToAdd){
+        for(CrewTask arenaTask: tasks){
+            if(GameUtils.areEquals(taskToAdd.getLocation(), arenaTask.getLocation()))
+                return false;
+        }
+        
+        return true;
+            
     }
     
     public List<CrewTask> getTasks(){

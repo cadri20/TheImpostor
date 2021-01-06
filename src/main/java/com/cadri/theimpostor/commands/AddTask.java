@@ -36,8 +36,13 @@ public class AddTask implements SubCommand{
         if(sender instanceof Player){
             Player player = (Player) sender;
             CrewTask task = new CrewTask(args[1], player.getLocation(), Integer.parseInt(args[2]));
-            arena.addTask(task);
-            player.sendMessage(LanguageManager.getTranslation(MessageKey.TASK_CREATED));
+            try{
+                arena.addTask(task);
+                player.sendMessage(LanguageManager.getTranslation(MessageKey.TASK_CREATED));
+            }catch(IllegalArgumentException e){
+                player.sendMessage(LanguageManager.getTranslation(MessageKey.TASK_SAME_LOCATION));
+            }
+            
         }
         
     }
