@@ -128,7 +128,7 @@ public class Arena {
         this.emergencyMeetingBlock = emergencyMeetingBlock;
         this.playerTasks = new HashMap<>();
         this.board = new GameScoreboard(TheImpostor.pluginTitle, ChatColor.WHITE);
-        this.fileSettings = new File(TheImpostor.plugin.getDataFolder() + File.separator + name + File.separator + "arena_settings.yml");
+        this.fileSettings = new File(TheImpostor.plugin.getDataFolder() + File.separator + "arenas" + File.separator + name + ".yml");
         this.yamlSettings = YamlConfiguration.loadConfiguration(fileSettings);   
         makeScoreBoard();
         taskProgressBar.setProgress(0);
@@ -664,7 +664,7 @@ public class Arena {
     }
     
     public void saveConfig() throws IOException{
-        yamlSettings.set("Name", name);
+        yamlSettings.set("name", name);
         yamlSettings.set("minPlayers", minPlayers);
         yamlSettings.set("maxPlayers", maxPlayers);
         yamlSettings.set("Lobby" + ".world", lobby.getWorld().getName());

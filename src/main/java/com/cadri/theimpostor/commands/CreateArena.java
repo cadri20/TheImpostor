@@ -45,16 +45,11 @@ public class CreateArena implements SubCommand {
 
         if (sender instanceof Player) {
             Player player = (Player) sender;
-            if (!ArenaManager.arenaNames.contains(args[0])) {
+            if (!ArenaManager.getArenaNames().contains(args[0])) {
                 Arena arena = new Arena(args[0], Integer.parseInt(args[1]), Integer.parseInt(args[2]), player.getLocation());
-                ArenaManager.arenas.add(arena);
-                ArenaManager.arenaNames.add(arena.getName());
-                File arenaNamesFile = new File(TheImpostor.plugin.getDataFolder() + File.separator + "arenas.yml");
-                YamlConfiguration fcn = YamlConfiguration.loadConfiguration(arenaNamesFile);
-                fcn.set("arena-list", ArenaManager.arenaNames);                
+                ArenaManager.arenas.add(arena);               
                 try {
                     arena.saveConfig();
-                    fcn.save(arenaNamesFile);
                 } catch (IOException e) {
                     player.sendMessage("Error saving the files");
 

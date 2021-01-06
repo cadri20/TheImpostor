@@ -39,7 +39,7 @@ public class JoinArena implements SubCommand{
                 player.sendMessage(LanguageManager.getTranslation(MessageKey.PLAYER_IN_ARENA));
                 return;
             }
-            if (ArenaManager.arenaNames.contains(args[0])) {
+            if (ArenaManager.getArenaNames().contains(args[0])) {
                 Arena arena = ArenaManager.getArena(args[0]);
                 
                 if(arena.isEnabled()){

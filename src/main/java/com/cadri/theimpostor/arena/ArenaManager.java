@@ -20,6 +20,8 @@ import com.cadri.theimpostor.TheImpostor;
 import com.cadri.theimpostor.game.CrewTask;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import org.bukkit.Bukkit;
@@ -36,20 +38,22 @@ import org.bukkit.entity.Player;
  */
 public class ArenaManager {
 
-    public static File arenaNamesFile = new File(TheImpostor.plugin.getDataFolder(), "arenas.yml");
-    public static YamlConfiguration fc = YamlConfiguration.loadConfiguration(arenaNamesFile);
+    public static File arenasDirectory = new File(TheImpostor.plugin.getDataFolder(), "arenas");
+    public static YamlConfiguration fc = YamlConfiguration.loadConfiguration(arenasDirectory);
     public static List<Arena> arenas = new ArrayList<>();
-    public static List<String> arenaNames = fc.getStringList("arena-list");
 
     public static void loadArenas() {
-        for (String s : ArenaManager.arenaNames) {
-            File arena = new File(TheImpostor.plugin.getDataFolder() + File.separator + s + File.separator + "arena_settings.yml");
-            YamlConfiguration fc = YamlConfiguration.loadConfiguration(arena);
-            String Name = fc.getString("Name");
+        
+        if(!arenasDirectory.exists())
+            return;
+        
+        for (File arenaFile : arenasDirectory.listFiles()) {
+            YamlConfiguration fc = YamlConfiguration.loadConfiguration(arenaFile);
+            String name = fc.getString("name");
             int minPlayers = fc.getInt("minPlayers");
             int maxPlayers = fc.getInt("maxPlayers");
             if (fc.getString("Lobby") == null) {
-                TheImpostor.plugin.getLogger().log(Level.INFO, "La arena " + s + " no tiene lobby");
+                TheImpostor.plugin.getLogger().log(Level.INFO, "La arena " + name + " no tiene lobby");
             } else {
                 String World = fc.getString("Lobby" + ".world");
                 World lobbyWorld = Bukkit.getWorld(World);
@@ -92,12 +96,12 @@ public class ArenaManager {
                     emergencyMeetingBlock = world.getBlockAt(blockLocation);
                 }
              
-                Arena a = new Arena(Name, maxPlayers, minPlayers, lobby, playerSpawnPoints, tasksList, emergencyMeetingBlock, fc.getBoolean("enabled"), fc.getInt("player_tasks_number"));
+                Arena a = new Arena(name, maxPlayers, minPlayers, lobby, playerSpawnPoints, tasksList, emergencyMeetingBlock, fc.getBoolean("enabled"), fc.getInt("player_tasks_number"));
                 ArenaManager.arenas.add(a);
 
             }
 
-            TheImpostor.plugin.getLogger().log(Level.INFO, "La arena" + s + "ha sido cargada");
+            TheImpostor.plugin.getLogger().log(Level.INFO, "The arena " + name + " has been loaded");
         }
     }
 
@@ -127,5 +131,14 @@ public class ArenaManager {
         for(Arena arena: arenas){
             arena.removeAllPlayers();
         }
+    }
+    
+    public static List<String> getArenaNames(){
+        List<String> arenaNames = new ArrayList<>();
+        for(Arena arena: arenas){
+            arenaNames.add(arena.getName());
+        }
+        
+        return arenaNames;
     }
 }
