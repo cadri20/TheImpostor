@@ -31,6 +31,7 @@ import com.cadri.theimpostor.game.VoteTimer;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -45,6 +46,9 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarStyle;
+import org.bukkit.boss.BossBar;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -95,7 +99,7 @@ public class Arena {
     private Map<Player,TaskTimer> taskTimers = new HashMap<>();
     private Block emergencyMeetingBlock;
     private GameScoreboard board;
-    
+    private BossBar taskProgressBar = Bukkit.createBossBar(LanguageManager.getTranslation(MessageKey.TASK_PROGRESS_BAR), BarColor.GREEN, BarStyle.SOLID);
     public Arena(String name, int maxPlayers, int minPlayers, Location lobby){
         this(name, maxPlayers, minPlayers, lobby, new ArrayList<>(), new ArrayList<>(), null, false);
     }
@@ -122,9 +126,9 @@ public class Arena {
         this.playerTasks = new HashMap<>();
         this.board = new GameScoreboard(TheImpostor.pluginTitle, ChatColor.WHITE);
         this.fileSettings = new File(TheImpostor.plugin.getDataFolder() + File.separator + name + File.separator + "arena_settings.yml");
-        this.yamlSettings = YamlConfiguration.loadConfiguration(fileSettings);
-               
+        this.yamlSettings = YamlConfiguration.loadConfiguration(fileSettings);   
         makeScoreBoard();
+        taskProgressBar.setProgress(0);
     }
 
     public void initCountDown() {
@@ -176,6 +180,7 @@ public class Arena {
         playerLocations.remove(player);
         resetInventory(player);
         invStore.remove(player);
+        taskProgressBar.removePlayer(player);
         return true;
     }
 
@@ -203,6 +208,7 @@ public class Arena {
             String title = LanguageManager.getTranslation(MessageKey.CREWMATE_TITLE);
             String subtitle = LanguageManager.getTranslation(MessageKey.CREWMATE_SUBTITLE);
             crewmate.sendTitle(title, subtitle, 5, 40, 5);
+            taskProgressBar.addPlayer(crewmate);
         }
         
         GameUtils.setInventoryImpostors(impostors);
@@ -475,6 +481,7 @@ public class Arena {
             }            
         }
         removeAllPlayers();
+        taskProgressBar.setProgress(0);
         state = ArenaState.WAITING_FOR_PLAYERS;
     }
     
@@ -528,6 +535,7 @@ public class Arena {
         aliveMap.clear();
         playerLocations.clear();
         invStore.clear();
+        taskProgressBar.removeAll();
     }
     
     public void setVisibleAllPlayers(){
@@ -781,5 +789,31 @@ public class Arena {
             this.enabled = true;
         else
             throw new ArenaNotReadyException(this);
+    }
+    
+    public double getPercentofTasksCompleted(){
+        double totalTasks = 0;
+        double tasksCompleted = 0;
+        
+        for(Player crewmate: crew){
+            tasksCompleted += getTasksCompletedNumber(crewmate);
+            totalTasks += getPlayerTasks(crewmate).size();
+        }
+        
+        return tasksCompleted / totalTasks; 
+    }
+    
+    public void updateTasksProgressBar(){
+        taskProgressBar.setProgress(getPercentofTasksCompleted());
+    }
+    
+    public int getTasksCompletedNumber(Player crewmate){
+        int tasksCompleted = 0;
+        for(CrewTask task: getPlayerTasks(crewmate)){
+            if(task.isCompleted())
+                tasksCompleted++;
+        }
+        
+        return tasksCompleted;
     }
 }

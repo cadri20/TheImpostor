@@ -50,6 +50,7 @@ public class TaskTimer extends BukkitRunnable{
         }else{
             task.complete();
             player.sendMessage(LanguageManager.getTranslation(MessageKey.TASK_COMPLETED, task.getName()));
+            arena.updateTasksProgressBar();
             if(arena.tasksAreCompleted())
                 arena.endGame(false);
             this.cancel();

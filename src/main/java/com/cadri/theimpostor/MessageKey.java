@@ -46,7 +46,7 @@ public enum MessageKey {
     TASK_CREATED("task_created"),
     TASK_COMPLETED("task_completed"),
     TASK_PROGRESS("task_progress"),
-    
+    TASK_PROGRESS_BAR("task_progress_bar"),
     VOTE("vote"),
     VOTES("votes"),
     SKIP_VOTE("skip_vote"),
