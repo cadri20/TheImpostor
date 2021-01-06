@@ -42,6 +42,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -160,6 +161,7 @@ public class Arena {
         player.getInventory().clear();
         player.setScoreboard(board.getScoreboard());
         player.getInventory().addItem(ItemOptions.CHOOSE_COLOR.getItem());
+        player.setGameMode(GameMode.ADVENTURE);        
         
         if(players.size() == minPlayers)
             this.initCountDown();
@@ -180,6 +182,7 @@ public class Arena {
         else
             crew.remove(player);
         player.teleport(playerLocations.get(player));
+        player.setGameMode(GameMode.SURVIVAL);
         playerLocations.remove(player);
         resetInventory(player);
         invStore.remove(player);
@@ -525,6 +528,7 @@ public class Arena {
     }
     
     public void removeAllPlayers(){
+        resetGamemodePlayers();
         teleportAllToEndLocation();
         resetAllInventories();
         stopAllScoreboards();
@@ -539,6 +543,12 @@ public class Arena {
         playerLocations.clear();
         invStore.clear();
         taskProgressBar.removeAll();
+    }
+    
+    private void resetGamemodePlayers(){
+        for(Player player: players){
+            player.setGameMode(GameMode.SURVIVAL);
+        }
     }
     
     public void setVisibleAllPlayers(){

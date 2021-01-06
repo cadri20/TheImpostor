@@ -42,9 +42,10 @@ public class CreateArena implements SubCommand {
 
     @Override
     public void onCommand(CommandSender sender, String[] args) {
-
+ 
         if (sender instanceof Player) {
             Player player = (Player) sender;
+            
             if (!ArenaManager.getArenaNames().contains(args[0])) {
                 Arena arena = new Arena(args[0], Integer.parseInt(args[1]), Integer.parseInt(args[2]), player.getLocation());
                 ArenaManager.arenas.add(arena);               
