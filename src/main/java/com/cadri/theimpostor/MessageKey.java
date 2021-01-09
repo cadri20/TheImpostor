@@ -40,14 +40,13 @@ public enum MessageKey {
     IMPOSTOR_SUBTITLE("impostor_subtitle"),
     CREWMATE_TITLE("crewmate_title"),
     CREWMATE_SUBTITLE("crewmate_subtitle"),
-    EMERGENCY_MEETING_BLOCK_CREATED("emergency_meeting_block_created"),
-    EMERGENCY_MEETING_BLOCK_PROBLEM("emergency_meeting_block_problem"),
     
     TASK_CREATED("task_created"),
     TASK_COMPLETED("task_completed"),
     TASK_PROGRESS("task_progress"),
     TASK_PROGRESS_BAR("task_progress_bar"),
     TASK_SAME_LOCATION("task_same_location"),
+    TASKS_NUMBER_NOT_SET("tasks_number_not_set"),
     VOTE("vote"),
     VOTES("votes"),
     SKIP_VOTE("skip_vote"),
@@ -61,6 +60,9 @@ public enum MessageKey {
     EMERGENCY_MEETING_START("emergency_meeting_start"),
     EMERGENCY_MEETING_TITLE("emergency_meeting_title"),
     EMERGENCY_MEETING_SUBTITLE("emergency_meeting_subtitle"),
+    EMERGENCY_MEETING_BLOCK_CREATED("emergency_meeting_block_created"),
+    EMERGENCY_MEETING_BLOCK_PROBLEM("emergency_meeting_block_problem"),
+    EMERGENCY_MEETING_BLOCK_NOT_SET("emergency_meeting_block_not_set"),
     
     IMPOSTOR_ABLE_TO_KILL("impostor_able_to_kill"),
     NOBODY_EJECTED("nobody_ejected"),
@@ -92,7 +94,8 @@ public enum MessageKey {
     SABOTAGE_ADVERTISEMENT("sabotage_advertisement"),
     SABOTAGE_FIXED("sabotage_fixed"),
     SABOTAGE_BOARD_ADVERTISEMENT("sabotage_board_advertisement"),
-    CANT_SABOTAGE("cant_sabotage");
+    CANT_SABOTAGE("cant_sabotage"),
+    SABOTAGES_NOT_SET("sabotages_not_set");
     private String key;
     
     private MessageKey(String key){

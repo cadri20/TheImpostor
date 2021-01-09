@@ -796,6 +796,10 @@ public class Arena {
         }
     }
     
+    public boolean isEmergencyMeetingBlockSet(){
+        return emergencyMeetingBlock != null;
+    }
+    
     public boolean isEmergencyMeetingBlock(Block block){
         if(emergencyMeetingBlock == null)
             return false;
@@ -825,7 +829,7 @@ public class Arena {
     }
     
     public boolean areComponentsSetted(){
-        return areAllTasksSetted() && areSpawnPointsSetted() && lobby != null && this.emergencyMeetingBlock != null && playerTasksNumber != 0;
+        return areAllTasksSetted() && areSpawnPointsSetted() && lobby != null && this.emergencyMeetingBlock != null && playerTasksNumber > 0;
     }
     
     public boolean areAllTasksSetted(){
@@ -886,7 +890,11 @@ public class Arena {
             Logger.getLogger(Arena.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
+    
+    public int getPlayerTasksNumber(){
+        return playerTasksNumber;
+    }
+    
     public List<SabotageComponent> getSabotages() {
         return sabotages;
     }

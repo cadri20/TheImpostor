@@ -41,13 +41,8 @@ public class Enable implements SubCommand{
                     arena.enable();
                     player.sendMessage(LanguageManager.getTranslation(MessageKey.ARENA_ENABLED));
                 }catch(ArenaNotReadyException e){
-                    int remainingSpawns = e.getRemainingSpawnsNumber();
-                    int remainingTasks = e.getRemainingTasksNumber();
                     player.sendMessage(LanguageManager.getTranslation(MessageKey.ARENA_NOT_READY));
-                    if(remainingSpawns != 0)
-                        player.sendMessage(LanguageManager.getTranslation(MessageKey.REMAINING_SPAWNS,remainingSpawns));
-                    if(remainingTasks > 0)
-                        player.sendMessage(LanguageManager.getTranslation(MessageKey.REMAINING_TASKS, remainingTasks));
+                    player.sendMessage(e.getCauses());
                 }
             }else{
                 player.sendMessage(LanguageManager.getTranslation(MessageKey.ARENA_DOESNT_EXIST, args[0]));

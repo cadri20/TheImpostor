@@ -16,22 +16,50 @@
  */
 package com.cadri.theimpostor.arena;
 
+import com.cadri.theimpostor.LanguageManager;
+import com.cadri.theimpostor.MessageKey;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  *
  * @author cadri
  */
 public class ArenaNotReadyException extends RuntimeException{
-    private Arena arena;   
+    private final int remainingSpawns;
+    private final int remainingTasks;
+    private final boolean areSabotagesSet;
+    private final boolean isEmergencyBlockSet;
+    private final boolean areTasksNumberSet;
 
     public ArenaNotReadyException(Arena arena){
-        this.arena = arena;
+        this.remainingSpawns = arena.getMaxPlayers() - arena.getPlayerSpawnPoints().size();
+        this.remainingTasks = arena.getMaxPlayers() - arena.getTasks().size();
+        this.areSabotagesSet = !arena.getSabotages().isEmpty();
+        this.isEmergencyBlockSet = arena.isEmergencyMeetingBlockSet();
+        this.areTasksNumberSet = arena.getPlayerTasksNumber() > 0;
     }
     public int getRemainingTasksNumber(){
-        return arena.getMaxPlayers() - arena.getTasks().size();
+        return remainingTasks;
     }
     
     public int getRemainingSpawnsNumber(){
-        return arena.getMaxPlayers() - arena.getPlayerSpawnPoints().size();
+        return remainingSpawns;
     }
     
+    public String[] getCauses(){
+        List<String> causes = new ArrayList<>();
+     
+        if(remainingSpawns != 0)
+            causes.add(LanguageManager.getTranslation(MessageKey.REMAINING_SPAWNS, remainingSpawns));
+        if(remainingTasks != 0)
+            causes.add(LanguageManager.getTranslation(MessageKey.REMAINING_TASKS, remainingTasks));
+        if(!areSabotagesSet)
+            causes.add(LanguageManager.getTranslation(MessageKey.SABOTAGES_NOT_SET));
+        if(!isEmergencyBlockSet)
+            causes.add(LanguageManager.getTranslation(MessageKey.EMERGENCY_MEETING_BLOCK_NOT_SET));
+        if(!areTasksNumberSet)
+            causes.add(LanguageManager.getTranslation(MessageKey.TASKS_NUMBER_NOT_SET));
+        return causes.toArray(new String[0]);
+    }
 }

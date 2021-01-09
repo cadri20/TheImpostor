@@ -38,7 +38,7 @@ public class SetTasksNumber implements SubCommand{
             return;
         }
         int tasksNumber = Integer.parseInt(args[1]);
-        if(tasksNumber > 0){
+        if(tasksNumber > 0 && tasksNumber <= arena.getTasks().size()){
             arena.setPlayerTasksNumber(tasksNumber);
             sender.sendMessage(LanguageManager.getTranslation(MessageKey.TASKS_NUMBER_SETTED));
         }else
