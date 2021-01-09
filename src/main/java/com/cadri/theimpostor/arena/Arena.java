@@ -24,6 +24,7 @@ import com.cadri.theimpostor.game.CrewTask;
 import com.cadri.theimpostor.game.GameScoreboard;
 import com.cadri.theimpostor.game.ItemOptions;
 import com.cadri.theimpostor.game.PlayerColor;
+import com.cadri.theimpostor.game.SabotageComponent;
 import com.cadri.theimpostor.game.TaskTimer;
 import com.cadri.theimpostor.game.VoteStartTimer;
 import com.cadri.theimpostor.game.VoteSystem;
@@ -81,6 +82,7 @@ public class Arena {
     private int voteTime;
     private int impostorsAlive;
     private int killTime;
+    private int sabotageTime;
     private int impostorsNumber;
     private int playerTasksNumber;
     private boolean enabled;
@@ -91,8 +93,10 @@ public class Arena {
     private Map<Player,Location> playerLocations = new HashMap<>();
     private Map<Player,ItemStack[]> invStore = new HashMap<>();
     private Map<Player,Boolean> impostorsKillFlags = new HashMap<>(); 
+    private Map<Player,Boolean> impostorsSabotageFlags = new HashMap<>();
     private List<CorpseData> corpses;
     private List<CrewTask> tasks;
+    private List<SabotageComponent> sabotages;
     private Map<Player, List<CrewTask>> playerTasks;
     private File fileSettings;
     private FileConfiguration yamlSettings;
@@ -104,9 +108,9 @@ public class Arena {
     private BossBar taskProgressBar = Bukkit.createBossBar(LanguageManager.getTranslation(MessageKey.TASK_PROGRESS_BAR), BarColor.GREEN, BarStyle.SOLID); 
     
     public Arena(String name, int maxPlayers, int minPlayers, Location lobby){
-        this(name, maxPlayers, minPlayers, lobby, new ArrayList<>(), new ArrayList<>(), null, false, 0);
+        this(name, maxPlayers, minPlayers, lobby, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), null, false, 0);
     }
-    public Arena(String name, int maxPlayers, int minPlayers, Location lobby, List<Location> spawnLocations, List<CrewTask> tasks, Block emergencyMeetingBlock, boolean enabled, int playerTasksNumber) {
+    public Arena(String name, int maxPlayers, int minPlayers, Location lobby, List<Location> spawnLocations, List<CrewTask> tasks, List<SabotageComponent> sabotages, Block emergencyMeetingBlock, boolean enabled, int playerTasksNumber) {
         this.name = name;
         this.maxPlayers = maxPlayers;
         this.minPlayers = minPlayers;
@@ -117,6 +121,7 @@ public class Arena {
         this.timeToVote = 30;
         this.voteTime = 30;
         this.killTime = 10;
+        this.sabotageTime = 10;
         this.impostorsNumber = 1;
         this.enabled = enabled;
         this.crew = new ArrayList<>();
@@ -126,6 +131,7 @@ public class Arena {
         this.aliveMap = new HashMap<>();
         this.corpses = new ArrayList<>();
         this.tasks = tasks;
+        this.sabotages = sabotages;
         this.emergencyMeetingBlock = emergencyMeetingBlock;
         this.playerTasks = new HashMap<>();
         this.board = new GameScoreboard(TheImpostor.pluginTitle, ChatColor.WHITE);
@@ -149,8 +155,9 @@ public class Arena {
         board.put(LanguageManager.getTranslation(MessageKey.MAX_PLAYERS), maxPlayers);
         board.put(LanguageManager.getTranslation(MessageKey.PLAYERS_NUMBER), players.size());
     }
-    public Scoreboard getBoard() {
-        return board.getScoreboard();
+    
+    public GameScoreboard getBoard() {
+        return board;
     }
 
     public void addPlayer(Player player) {
@@ -243,6 +250,7 @@ public class Arena {
         
         for(Player impostor: impostors){
             impostorsKillFlags.put(impostor, true);
+            impostorsSabotageFlags.put(impostor, true);
         }
     }
 
@@ -635,6 +643,14 @@ public class Arena {
         }
     }
     
+    public void addSabotageComponent(SabotageComponent sabotage){
+        try {
+            sabotages.add(sabotage);
+            saveConfig();
+        } catch (IOException ex) {
+            Logger.getLogger(Arena.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
     
     public boolean isTaskValid(CrewTask taskToAdd){
         for(CrewTask arenaTask: tasks){
@@ -656,7 +672,7 @@ public class Arena {
             MapView view = Bukkit.createMap(lobby.getWorld());
             int centerX = lobby.getBlockX();
             int centerZ = lobby.getBlockZ();
-            GameUtils.putTaskMarkers(view, getPlayerTasks(player), centerX, centerZ);
+            GameUtils.putMarkers(view, getPlayerTasks(player), sabotages, centerX, centerZ);
             view.setScale(MapView.Scale.CLOSE);
             view.setCenterX(centerX);
             view.setCenterZ(centerZ);
@@ -707,6 +723,14 @@ public class Arena {
             yamlSettings.set(key + ".location.z", loc.getZ());
             
             yamlSettings.set(key + ".time_to_complete", task.getTimeToComplete());
+        }
+        
+        for(SabotageComponent sabotage: sabotages){
+            String sabotageName = sabotage.getName();
+            String key = "sabotages." + sabotageName;
+           
+            yamlSettings.set(key + ".block_location", Serializer.serializeLocation(sabotage.getBlock().getLocation()));
+            yamlSettings.set(key + ".time", sabotage.getTime());
         }
         
         yamlSettings.save(fileSettings);
@@ -857,5 +881,59 @@ public class Arena {
             Logger.getLogger(Arena.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
+    public List<SabotageComponent> getSabotages() {
+        return sabotages;
+    }
     
+    public SabotageComponent getSabotage(ItemStack item){
+        for(SabotageComponent sabotage: sabotages){
+            if(item.equals(sabotage.getItem()))
+                return sabotage;
+        }
+        
+        return null;
+    }
+    
+    public SabotageComponent getSabotage(Block sabotageBlock){
+        for(SabotageComponent sabotage: sabotages){
+            if(sabotage.getBlock().equals(sabotageBlock))
+                return sabotage;
+        }
+        
+        return null;
+    }
+    
+    public void sabotage(SabotageComponent sabotageChoosen){
+        if (!sabotageChoosen.isSabotaged()) {
+            sabotageChoosen.setIsSabotaged(true);
+            sabotageChoosen.startTimer(this);
+            for(Player player: players){
+                player.sendMessage(LanguageManager.getTranslation(MessageKey.SABOTAGE_ADVERTISEMENT, sabotageChoosen.getName()));
+            }
+        }               
+    }
+    
+    public void fixSabotage(SabotageComponent sabotage){
+        if(sabotage.isSabotaged()){
+            sabotage.setIsSabotaged(false);
+            sabotage.stopTimer();
+            board.remove(LanguageManager.getTranslation(MessageKey.SABOTAGE_BOARD_ADVERTISEMENT, sabotage.getName()));
+            for(Player player: players){
+                player.sendMessage(LanguageManager.getTranslation(MessageKey.SABOTAGE_FIXED, sabotage.getName()));
+            }
+        }
+    }
+    
+    public void setSabotageFlag(Player impostor, boolean canSabotage){
+        impostorsSabotageFlags.put(impostor, canSabotage);
+    }
+    
+    public boolean canSabotage(Player impostor){
+        return impostorsSabotageFlags.get(impostor);
+    }
+    
+    public int getSabotageTime(){
+        return sabotageTime;
+    }
 }

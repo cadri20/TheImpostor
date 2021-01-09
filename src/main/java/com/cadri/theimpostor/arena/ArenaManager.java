@@ -18,6 +18,7 @@ package com.cadri.theimpostor.arena;
 
 import com.cadri.theimpostor.TheImpostor;
 import com.cadri.theimpostor.game.CrewTask;
+import com.cadri.theimpostor.game.SabotageComponent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -86,6 +87,19 @@ public class ArenaManager {
                     }
                 }
                 
+                List<SabotageComponent> sabotagesList = new ArrayList<>();
+                ConfigurationSection sabotagesSection = fc.getConfigurationSection("sabotages");
+                if(sabotagesSection != null){
+                    for(String sabotageName: sabotagesSection.getKeys(false)){
+                        String sabotagePath = "sabotages." + sabotageName;
+                        
+                        Location blockLoc = Serializer.getLocation(fc.getString(sabotagePath + ".block_location"));
+                        Block sabotageBlock = blockLoc.getBlock();
+                        int sabotageTime = fc.getInt(sabotagePath + ".time");
+                        sabotagesList.add(new SabotageComponent(sabotageName, sabotageBlock, sabotageTime));
+                    }
+                    
+                }
                 Block emergencyMeetingBlock = null;
                 if(fc.get("emergency_meeting_block_location") != null){
                     World world = Bukkit.getWorld(fc.getString("emergency_meeting_block_location.world"));
@@ -95,8 +109,9 @@ public class ArenaManager {
                     Location blockLocation = new Location(world, xBlock, yBlock, zBlock);
                     emergencyMeetingBlock = world.getBlockAt(blockLocation);
                 }
+                
              
-                Arena a = new Arena(name, maxPlayers, minPlayers, lobby, playerSpawnPoints, tasksList, emergencyMeetingBlock, fc.getBoolean("enabled"), fc.getInt("player_tasks_number"));
+                Arena a = new Arena(name, maxPlayers, minPlayers, lobby, playerSpawnPoints, tasksList, sabotagesList, emergencyMeetingBlock, fc.getBoolean("enabled"), fc.getInt("player_tasks_number"));
                 ArenaManager.arenas.add(a);
 
             }

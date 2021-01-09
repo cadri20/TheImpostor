@@ -85,8 +85,14 @@ public enum MessageKey {
     MAX_PLAYERS("max_players"),
     
     INVALID_TASKS_NUMBER("invalid_tasks_number"),
-    TASKS_NUMBER_SETTED("tasks_number_setted");
+    TASKS_NUMBER_SETTED("tasks_number_setted"),
     
+    SABOTAGE_CREATED("sabotage_created"),
+    SABOTAGE_GUI_TITLE("sabotage_gui_title"),
+    SABOTAGE_ADVERTISEMENT("sabotage_advertisement"),
+    SABOTAGE_FIXED("sabotage_fixed"),
+    SABOTAGE_BOARD_ADVERTISEMENT("sabotage_board_advertisement"),
+    CANT_SABOTAGE("cant_sabotage");
     private String key;
     
     private MessageKey(String key){

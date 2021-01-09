@@ -16,6 +16,8 @@
  */
 package com.cadri.theimpostor.game;
 
+import com.cadri.theimpostor.LanguageManager;
+import com.cadri.theimpostor.MessageKey;
 import com.cadri.theimpostor.TheImpostor;
 import com.cadri.theimpostor.arena.Arena;
 import com.sun.prism.paint.Color;
@@ -32,12 +34,16 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.MapMeta;
 import org.bukkit.map.MapCanvas;
 import org.bukkit.map.MapCursor;
 import org.bukkit.map.MapCursor.Type;
+import org.bukkit.map.MapCursorCollection;
 import org.bukkit.map.MapRenderer;
 import org.bukkit.map.MapView;
 
@@ -58,6 +64,7 @@ public class GameUtils {
         for (Player impostor : impostors) {
             PlayerInventory impostorInventory = impostor.getInventory();
             impostorInventory.setItem(0, ItemOptions.KILL_PLAYER.getItem());
+            impostorInventory.setItem(1, ItemOptions.SABOTAGE.getItem());
         }
     }
 
@@ -144,29 +151,30 @@ public class GameUtils {
         return tasksMap;
     }
     
-    public static void putTaskMarkers(MapView mapView, List<CrewTask> taskList, int centerX, int centerY){
+    public static void putMarkers(MapView mapView, List<CrewTask> taskList, List<SabotageComponent> sabotages, int centerX, int centerY){
         mapView.addRenderer(new MapRenderer() {
-            boolean done = false;
             @Override
             public void render(MapView mv, MapCanvas mc, Player player) {
+                MapCursorCollection cursors = new MapCursorCollection();
                 
-                if (!done) {
-                    for (CrewTask task : taskList) {
+                for (CrewTask task : taskList) {
+                    if (!task.isCompleted()) {
                         Location loc = task.getLocation();
                         MapCursor cursor = new MapCursor((byte) (loc.getBlockX() - centerX), (byte) (loc.getBlockZ() - centerY), (byte) 8, Type.GREEN_POINTER, true);
-                        mc.getCursors().addCursor(cursor);
+                        cursors.addCursor(cursor);
                         task.setMapCursor(cursor);
                     }
-                    done = true;
-                }else{
-                    for(CrewTask task: taskList){
-                        boolean wasRemoved = false;
-                        if(task.isCompleted())
-                            wasRemoved = mc.getCursors().removeCursor(task.getMapCursor());
+                }               
+                                
+                for(SabotageComponent sabotage: sabotages){
+                    if(sabotage.isSabotaged()){
+                        Block sabotageBlock = sabotage.getBlock();
+                        MapCursor sabotageCursor = new MapCursor((byte) (sabotageBlock.getX() - centerX), (byte) (sabotageBlock.getZ() - centerY), (byte) 8, Type.RED_POINTER, true);
+                        cursors.addCursor(sabotageCursor);             
                     }
                 }
                 
-                
+                mc.setCursors(cursors);
             }
         });
     }
@@ -192,6 +200,15 @@ public class GameUtils {
         }
         
         return newTaskList;
+    }
+    
+    public static Inventory getSabotagesGUI(List<SabotageComponent> sabotages){
+        Inventory sabotagesGUI = Bukkit.createInventory(null, 9, LanguageManager.getTranslation(MessageKey.SABOTAGE_GUI_TITLE));
+        for(SabotageComponent sabotage: sabotages){
+            sabotagesGUI.addItem(sabotage.getItem());
+        }
+        
+        return sabotagesGUI;
     }
     
 }

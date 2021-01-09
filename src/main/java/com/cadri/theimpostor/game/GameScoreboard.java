@@ -59,6 +59,15 @@ public class GameScoreboard {
         
     }
     
+    public void remove(String key){
+        Object valueRemoved = map.remove(key);
+        if(valueRemoved != null){
+            String score = scoreFormat(key, valueRemoved);
+            board.resetScores(score);
+        }
+        
+    }
+    
     public Scoreboard getScoreboard(){
         return board;
     }
