@@ -78,11 +78,11 @@ public class Arena {
     private Location lobby;
     private List<Location> playerSpawnPoints;
     public ArenaState state;
-    private int timeToVote;
-    private int voteTime;
+    private int discussionTime;
+    private int votingTime;
     private int impostorsAlive;
-    private int killTime;
-    private int sabotageTime;
+    private int killCooldown;
+    private int sabotageCooldown;
     private int impostorsNumber;
     private int playerTasksNumber;
     private boolean enabled;
@@ -108,9 +108,9 @@ public class Arena {
     private BossBar taskProgressBar = Bukkit.createBossBar(LanguageManager.getTranslation(MessageKey.TASK_PROGRESS_BAR), BarColor.GREEN, BarStyle.SOLID); 
     
     public Arena(String name, int maxPlayers, int minPlayers, Location lobby){
-        this(name, maxPlayers, minPlayers, lobby, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), null, false, 0);
+        this(name, maxPlayers, minPlayers, 1, 30, 30, 20, 20, lobby, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), null, false, 0);
     }
-    public Arena(String name, int maxPlayers, int minPlayers, Location lobby, List<Location> spawnLocations, List<CrewTask> tasks, List<SabotageComponent> sabotages, Block emergencyMeetingBlock, boolean enabled, int playerTasksNumber) {
+    public Arena(String name, int maxPlayers, int minPlayers, int impostorsNumber, int discussionTime, int votingTime, int killCooldown, int sabotageCooldown, Location lobby, List<Location> spawnLocations, List<CrewTask> tasks, List<SabotageComponent> sabotages, Block emergencyMeetingBlock, boolean enabled, int playerTasksNumber) {
         this.name = name;
         this.maxPlayers = maxPlayers;
         this.minPlayers = minPlayers;
@@ -118,11 +118,11 @@ public class Arena {
         this.lobby = lobby;
         this.playerSpawnPoints = spawnLocations;
         this.state = ArenaState.WAITING_FOR_PLAYERS;
-        this.timeToVote = 30;
-        this.voteTime = 30;
-        this.killTime = 10;
-        this.sabotageTime = 10;
-        this.impostorsNumber = 1;
+        this.impostorsNumber = impostorsNumber;
+        this.discussionTime = discussionTime;
+        this.votingTime = votingTime;
+        this.killCooldown = killCooldown;
+        this.sabotageCooldown = sabotageCooldown;
         this.enabled = enabled;
         this.crew = new ArrayList<>();
         this.impostors = new ArrayList<>();
@@ -261,13 +261,13 @@ public class Arena {
             player.sendMessage(LanguageManager.getTranslation(MessageKey.PLAYER_REPORT_CORPSE, reporterColor.getChatColor() + reporter.getDisplayName() + ChatColor.WHITE,getPlayerColor(corpseName).getChatColor() + corpseName));
             player.sendTitle(LanguageManager.getTranslation(MessageKey.DEAD_BODY_REPORTED), LanguageManager.getTranslation(MessageKey.VOTE_STARTED), 20, 70, 20);
             teleportToSpawnPoint(player);
-            player.sendMessage(LanguageManager.getTranslation(MessageKey.VOTE_START_TIME, timeToVote));
+            player.sendMessage(LanguageManager.getTranslation(MessageKey.VOTE_START_TIME, discussionTime));
         }
         for(CorpseData corpse: corpses){
             CorpseAPI.removeCorpse(corpse);
         }
         
-        BukkitTask countdown = new VoteStartTimer(timeToVote, this).runTaskTimer(TheImpostor.plugin, 10L, 20L);
+        BukkitTask countdown = new VoteStartTimer(discussionTime, this).runTaskTimer(TheImpostor.plugin, 10L, 20L);
         state = ArenaState.VOTING;
     }
     
@@ -298,7 +298,7 @@ public class Arena {
             TheImpostor.plugin.getLogger().log(Level.SEVERE, "Error");
         }
         
-        BukkitTask task = new VoteTimer(this.voteTime, this).runTaskTimer(TheImpostor.plugin, 10L, 20L);
+        BukkitTask task = new VoteTimer(this.votingTime, this).runTaskTimer(TheImpostor.plugin, 10L, 20L);
     }
     
     public void stopVote(){
@@ -614,7 +614,7 @@ public class Arena {
     }
     
     public int getKillTime(){
-        return killTime;
+        return killCooldown;
     }
     public boolean canKill(Player player){
         if(!isImpostor(player))
@@ -698,6 +698,11 @@ public class Arena {
         yamlSettings.set("Lobby" + ".y", lobby.getY());
         yamlSettings.set("Lobby" + ".z", lobby.getZ());
         yamlSettings.set("enabled", enabled);
+        yamlSettings.set("impostors", impostorsNumber);
+        yamlSettings.set("discussion_time", discussionTime);
+        yamlSettings.set("voting_time", votingTime);
+        yamlSettings.set("kill_cooldown", killCooldown);
+        yamlSettings.set("sabotage_cooldown", sabotageCooldown);
         yamlSettings.set("player_tasks_number", playerTasksNumber);
         List<String> spawnLocations = new ArrayList<>();
         for(Location spawn: playerSpawnPoints){
@@ -809,13 +814,13 @@ public class Arena {
             String emSubtitle = LanguageManager.getTranslation(MessageKey.EMERGENCY_MEETING_SUBTITLE);
             player.sendTitle(emTitle, emSubtitle, 20, 70, 20);
             teleportToSpawnPoint(player);
-            player.sendMessage(LanguageManager.getTranslation(MessageKey.VOTE_START_TIME, timeToVote));
+            player.sendMessage(LanguageManager.getTranslation(MessageKey.VOTE_START_TIME, discussionTime));
         }
         for(CorpseData corpse: corpses){
             CorpseAPI.removeCorpse(corpse);
         }
         
-        BukkitTask countdown = new VoteStartTimer(timeToVote, this).runTaskTimer(TheImpostor.plugin, 10L, 20L);
+        BukkitTask countdown = new VoteStartTimer(discussionTime, this).runTaskTimer(TheImpostor.plugin, 10L, 20L);
         state = ArenaState.VOTING;        
     }
     
@@ -934,6 +939,6 @@ public class Arena {
     }
     
     public int getSabotageTime(){
-        return sabotageTime;
+        return sabotageCooldown;
     }
 }

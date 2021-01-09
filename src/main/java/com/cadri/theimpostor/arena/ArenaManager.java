@@ -110,8 +110,12 @@ public class ArenaManager {
                     emergencyMeetingBlock = world.getBlockAt(blockLocation);
                 }
                 
-             
-                Arena a = new Arena(name, maxPlayers, minPlayers, lobby, playerSpawnPoints, tasksList, sabotagesList, emergencyMeetingBlock, fc.getBoolean("enabled"), fc.getInt("player_tasks_number"));
+                int impostors = fc.getInt("impostors");
+                int discussionTime = fc.getInt("discussion_time");
+                int votingTime = fc.getInt("voting_time");
+                int killCooldown = fc.getInt("kill_cooldown");
+                int sabotageCooldown = fc.getInt("sabotage_cooldown");
+                Arena a = new Arena(name, maxPlayers, minPlayers, impostors, discussionTime, votingTime, killCooldown, sabotageCooldown, lobby, playerSpawnPoints, tasksList, sabotagesList, emergencyMeetingBlock, fc.getBoolean("enabled"), fc.getInt("player_tasks_number"));
                 ArenaManager.arenas.add(a);
 
             }
