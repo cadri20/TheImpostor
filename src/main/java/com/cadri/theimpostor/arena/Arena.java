@@ -18,16 +18,21 @@ package com.cadri.theimpostor.arena;
 
 import com.cadri.theimpostor.game.GameUtils;
 import com.cadri.theimpostor.LanguageManager;
-import com.cadri.theimpostor.MessageKeys;
+import com.cadri.theimpostor.MessageKey;
 import com.cadri.theimpostor.TheImpostor;
+import com.cadri.theimpostor.game.CrewTask;
+import com.cadri.theimpostor.game.GameScoreboard;
 import com.cadri.theimpostor.game.ItemOptions;
 import com.cadri.theimpostor.game.PlayerColor;
+import com.cadri.theimpostor.game.SabotageComponent;
+import com.cadri.theimpostor.game.TaskTimer;
 import com.cadri.theimpostor.game.VoteStartTimer;
 import com.cadri.theimpostor.game.VoteSystem;
 import com.cadri.theimpostor.game.VoteTimer;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -38,17 +43,27 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarStyle;
+import org.bukkit.boss.BossBar;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.MapMeta;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 import org.golde.bukkit.corpsereborn.CorpseAPI.CorpseAPI;
 import org.golde.bukkit.corpsereborn.nms.Corpses.CorpseData;
+import org.bukkit.map.MapView;
 
 /**
  *
@@ -61,13 +76,16 @@ public class Arena {
     private int minPlayers;
     private List<Player> players;
     private Location lobby;
-    private Location spawn;
-    private boolean started;
-    private int timeToVote;
-    private int voteTime;
+    private List<Location> playerSpawnPoints;
+    public ArenaState state;
+    private int discussionTime;
+    private int votingTime;
     private int impostorsAlive;
-    private int killTime;
+    private int killCooldown;
+    private int sabotageCooldown;
     private int impostorsNumber;
+    private int playerTasksNumber;
+    private boolean enabled;
     private List<Player> crew;
     private List<Player> impostors;
     private Map<Player,Boolean> aliveMap;
@@ -75,73 +93,82 @@ public class Arena {
     private Map<Player,Location> playerLocations = new HashMap<>();
     private Map<Player,ItemStack[]> invStore = new HashMap<>();
     private Map<Player,Boolean> impostorsKillFlags = new HashMap<>(); 
+    private Map<Player,Boolean> impostorsSabotageFlags = new HashMap<>();
     private List<CorpseData> corpses;
-
+    private List<CrewTask> tasks;
+    private List<SabotageComponent> sabotages;
+    private Map<Player, List<CrewTask>> playerTasks;
     private File fileSettings;
     private FileConfiguration yamlSettings;
-    private Scoreboard board;
-    private Objective objective;
+    //private Scoreboard board;
     private VoteSystem voteSystem = null;
+    private Map<Player,TaskTimer> taskTimers = new HashMap<>();
+    private Block emergencyMeetingBlock;
+    private GameScoreboard board;
+    private BossBar taskProgressBar = Bukkit.createBossBar(LanguageManager.getTranslation(MessageKey.TASK_PROGRESS_BAR), BarColor.GREEN, BarStyle.SOLID); 
     
-    public Arena(String name, Location lobby) {
-        this(name, 1, 10, lobby, null); 
-        
+    public Arena(String name, int maxPlayers, int minPlayers, Location lobby){
+        this(name, maxPlayers, minPlayers, 1, 30, 30, 20, 20, lobby, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), null, false, 0);
     }
-/*
-    public Arena(String name, int maxPlayers, int minPlayers, Location lobby) {
-        this(name, maxPlayers, minPlayers, lobby, null);
-    }
-*/
-    public Arena(String name, int maxPlayers, int minPlayers, Location lobby, Location spawn) {
+    public Arena(String name, int maxPlayers, int minPlayers, int impostorsNumber, int discussionTime, int votingTime, int killCooldown, int sabotageCooldown, Location lobby, List<Location> spawnLocations, List<CrewTask> tasks, List<SabotageComponent> sabotages, Block emergencyMeetingBlock, boolean enabled, int playerTasksNumber) {
         this.name = name;
         this.maxPlayers = maxPlayers;
         this.minPlayers = minPlayers;
         this.players = new ArrayList<>();
         this.lobby = lobby;
-        this.spawn = spawn;
-        this.started = false;
-        this.timeToVote = 30;
-        this.voteTime = 30;
-        this.killTime = 10;
-        this.impostorsNumber = 1;
+        this.playerSpawnPoints = spawnLocations;
+        this.state = ArenaState.WAITING_FOR_PLAYERS;
+        this.impostorsNumber = impostorsNumber;
+        this.discussionTime = discussionTime;
+        this.votingTime = votingTime;
+        this.killCooldown = killCooldown;
+        this.sabotageCooldown = sabotageCooldown;
+        this.enabled = enabled;
         this.crew = new ArrayList<>();
         this.impostors = new ArrayList<>();
         this.impostorsAlive = 0;
+        this.playerTasksNumber = playerTasksNumber;
         this.aliveMap = new HashMap<>();
         this.corpses = new ArrayList<>();
-        this.board = Bukkit.getScoreboardManager().getNewScoreboard();
-        this.fileSettings = new File(TheImpostor.plugin.getDataFolder() + File.separator + name + File.separator + "arena_settings.yml");
-        this.yamlSettings = YamlConfiguration.loadConfiguration(fileSettings);
-        objective = board.registerNewObjective("Arena", "dummy", TheImpostor.plugin.getName());
-        
+        this.tasks = tasks;
+        this.sabotages = sabotages;
+        this.emergencyMeetingBlock = emergencyMeetingBlock;
+        this.playerTasks = new HashMap<>();
+        this.board = new GameScoreboard(TheImpostor.pluginTitle, ChatColor.WHITE);
+        this.fileSettings = new File(TheImpostor.plugin.getDataFolder() + File.separator + "arenas" + File.separator + name + ".yml");
+        this.yamlSettings = YamlConfiguration.loadConfiguration(fileSettings);   
         makeScoreBoard();
+        taskProgressBar.setProgress(0);
     }
 
     public void initCountDown() {
         for (Player player : players) {
-            player.sendMessage(LanguageManager.getTranslation(MessageKeys.ARENA_READY.key));
+            player.sendMessage(LanguageManager.getTranslation(MessageKey.ARENA_READY));
         }
         BukkitTask countdown = new ArenaTimer(10, this).runTaskTimer(TheImpostor.plugin, 10L, 20L);
 
     }
 
     private void makeScoreBoard(){
-        objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-        objective.getScore(ChatColor.GREEN + "Arena: " + name).setScore(1);  
-        objective.getScore(ChatColor.BLUE + "MinPlayers: " + minPlayers).setScore(0);
+        board.put(LanguageManager.getTranslation(MessageKey.ARENA), name);
+        board.put(LanguageManager.getTranslation(MessageKey.MIN_PLAYERS), minPlayers);
+        board.put(LanguageManager.getTranslation(MessageKey.MAX_PLAYERS), maxPlayers);
+        board.put(LanguageManager.getTranslation(MessageKey.PLAYERS_NUMBER), players.size());
     }
-    public Scoreboard getBoard() {
+    
+    public GameScoreboard getBoard() {
         return board;
     }
 
     public void addPlayer(Player player) {
         players.add(player);
         playerLocations.put(player, player.getLocation());
-        objective.getScore("Players number: " + players.size()).setScore(2);
+        board.put(LanguageManager.getTranslation(MessageKey.PLAYERS_NUMBER), players.size());
         invStore.put(player, player.getInventory().getContents());
         player.getInventory().clear();
-        player.setScoreboard(board);
+        player.setScoreboard(board.getScoreboard());
         player.getInventory().addItem(ItemOptions.CHOOSE_COLOR.getItem());
+        player.setGameMode(GameMode.ADVENTURE);        
         
         if(players.size() == minPlayers)
             this.initCountDown();
@@ -151,18 +178,22 @@ public class Arena {
         if (! players.remove(player))
             return false;
         
+        board.put(LanguageManager.getTranslation(MessageKey.PLAYERS_NUMBER), players.size());
         GameUtils.setPlayerVisible(player, this);
         player.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
         playersColor.remove(player);
+        resetDisplayColor(player);
         aliveMap.remove(player);
         if(this.isImpostor(player))
             impostors.remove(player);
         else
             crew.remove(player);
         player.teleport(playerLocations.get(player));
+        player.setGameMode(GameMode.SURVIVAL);
         playerLocations.remove(player);
         resetInventory(player);
         invStore.remove(player);
+        taskProgressBar.removePlayer(player);
         return true;
     }
 
@@ -171,31 +202,26 @@ public class Arena {
     }
     public void startGame() {
         for (Player player : this.getPlayers()) {
-            player.sendMessage(LanguageManager.getTranslation(MessageKeys.ARENA_GAME_START.key));
+            player.sendMessage(LanguageManager.getTranslation(MessageKey.ARENA_GAME_START));
         }
         setRoles();
-        try{
+
         for (Player player : players) {
-            player.teleport(spawn);
+            teleportToSpawnPoint(player);
             player.getInventory().remove(ItemOptions.CHOOSE_COLOR.getItem());
         }
-        }catch(IllegalArgumentException e){
-            if(spawn == null){
-                TheImpostor.plugin.getLogger().log(Level.SEVERE,"Error, spawn is null");
-            }else{
-            TheImpostor.plugin.getLogger().log(Level.SEVERE,"Location spawn error: " + String.format("X: %d Y: %d Z: %d", spawn.getX(), spawn.getY(), spawn.getZ()));
-            }
-        }
+
         for (Player impostor : impostors) {
-            String title = LanguageManager.getTranslation(MessageKeys.IMPOSTOR_TITLE.key);
-            String subtitle = LanguageManager.getTranslation(MessageKeys.IMPOSTOR_SUBTITLE.key);
+            String title = LanguageManager.getTranslation(MessageKey.IMPOSTOR_TITLE);
+            String subtitle = LanguageManager.getTranslation(MessageKey.IMPOSTOR_SUBTITLE);
             impostor.sendTitle(title, subtitle, 4, 40, 5);
         }
 
         for (Player crewmate : crew) {
-            String title = LanguageManager.getTranslation(MessageKeys.CREWMATE_TITLE.key);
-            String subtitle = LanguageManager.getTranslation(MessageKeys.CREWMATE_SUBTITLE.key);
+            String title = LanguageManager.getTranslation(MessageKey.CREWMATE_TITLE);
+            String subtitle = LanguageManager.getTranslation(MessageKey.CREWMATE_SUBTITLE);
             crewmate.sendTitle(title, subtitle, 5, 40, 5);
+            taskProgressBar.addPlayer(crewmate);
         }
         
         GameUtils.setInventoryImpostors(impostors);
@@ -204,8 +230,10 @@ public class Arena {
         if(! areColorsSelected())
             GameUtils.selectRandomColors(playersColor, players, this);
         
+        playerTasks = GameUtils.assignTasks(players, tasks, playerTasksNumber);
+        putMapsToPlayers();
         //showColorsOnBoard();
-        started = true;
+        state = ArenaState.IN_GAME;
     }
 
     private void setAliveAll(){
@@ -214,21 +242,6 @@ public class Arena {
         }
     }
     
-    private void showColorsOnBoard(){
-        for(Player player: players){
-            Objective obj = player.getScoreboard().getObjective(objective.getName());
-            if(obj == null){
-                TheImpostor.plugin.getLogger().log(Level.SEVERE, "Objective" + objective.getName() + " not found");
-                return;
-            }        
-            PlayerColor color = this.getPlayerColor(player);
-            if(color == null){
-                TheImpostor.plugin.getLogger().log(Level.SEVERE, "Color of player " + player.getName() + " not assigned");
-                return;
-            }
-            obj.getScore("Color: " + this.getPlayerColor(player).getName()).setScore(3);
-        }
-    }
     public void setRoles() {
         crew.addAll(players);
         for(int i = 1; i <= impostorsNumber; i++)
@@ -237,6 +250,7 @@ public class Arena {
         
         for(Player impostor: impostors){
             impostorsKillFlags.put(impostor, true);
+            impostorsSabotageFlags.put(impostor, true);
         }
     }
 
@@ -244,22 +258,23 @@ public class Arena {
         PlayerColor reporterColor = getPlayerColor(reporter);
         for(Player player: players){
             String corpseName = corpseReported.getCorpseName();
-            player.sendMessage(reporterColor.getChatColor() + reporter.getDisplayName() + ChatColor.WHITE +  " reported the corpse of " + getPlayerColor(corpseName).getChatColor() + corpseName);
-            player.sendTitle("Dead body reported!", "Voting started", 20, 70, 20);
-            player.teleport(spawn);
-            player.sendMessage("The vote will start in " + timeToVote + " seconds");
+            player.sendMessage(LanguageManager.getTranslation(MessageKey.PLAYER_REPORT_CORPSE, reporterColor.getChatColor() + reporter.getDisplayName() + ChatColor.WHITE,getPlayerColor(corpseName).getChatColor() + corpseName));
+            player.sendTitle(LanguageManager.getTranslation(MessageKey.DEAD_BODY_REPORTED), LanguageManager.getTranslation(MessageKey.VOTE_STARTED), 20, 70, 20);
+            teleportToSpawnPoint(player);
+            player.sendMessage(LanguageManager.getTranslation(MessageKey.VOTE_START_TIME, discussionTime));
         }
         for(CorpseData corpse: corpses){
             CorpseAPI.removeCorpse(corpse);
         }
         
-        BukkitTask countdown = new VoteStartTimer(timeToVote, this).runTaskTimer(TheImpostor.plugin, 10L, 20L);
-        
+        BukkitTask countdown = new VoteStartTimer(discussionTime, this).runTaskTimer(TheImpostor.plugin, 10L, 20L);
+        state = ArenaState.VOTING;
     }
     
     public void setPlayerColor(Player player, PlayerColor color){
         playersColor.put(player,color);
         player.getInventory().setArmorContents(color.getArmor());
+        player.setDisplayName(color.getChatColor() + player.getDisplayName() + ChatColor.RESET);
     }
     
     public boolean areColorsSelected(){
@@ -283,10 +298,11 @@ public class Arena {
             TheImpostor.plugin.getLogger().log(Level.SEVERE, "Error");
         }
         
-        BukkitTask task = new VoteTimer(this.voteTime, this).runTaskTimer(TheImpostor.plugin, 10L, 20L);
+        BukkitTask task = new VoteTimer(this.votingTime, this).runTaskTimer(TheImpostor.plugin, 10L, 20L);
     }
     
     public void stopVote(){
+        state = ArenaState.IN_GAME;
         for(Player player: players)
             player.closeInventory();
         
@@ -296,7 +312,7 @@ public class Arena {
         }
         
         for(Player player: players){
-            player.sendMessage(ChatColor.GREEN + "----------Votes----------");
+            player.sendMessage(LanguageManager.getTranslation(MessageKey.VOTES));
             for(Player playerVoted: voteSystem.getPlayersInVote()){               
                 player.sendMessage(voteSystem.getVotersString(playerVoted));
             }            
@@ -304,25 +320,26 @@ public class Arena {
         Player mostVoted = voteSystem.getMostVoted();
         if(mostVoted == null){
             for(Player player: this.getPlayers()){
-                player.sendMessage("No one was ejected");
+                player.sendMessage(LanguageManager.getTranslation(MessageKey.NOBODY_EJECTED));
             }
             return;
         }
         String ejectMessage;
         if(isImpostor(mostVoted)){
-            ejectMessage = "was the impostor";
+            ejectMessage = LanguageManager.getTranslation(MessageKey.IMPOSTOR_EJECTED_MESSAGE, mostVoted.getDisplayName());
             impostorsAlive--;
         }
         else
-            ejectMessage = "was not the impostor";
+            ejectMessage = LanguageManager.getTranslation(MessageKey.CREWMATE_EJECTED_MESSAGE, mostVoted.getDisplayName());
         
         for(Player player: this.getPlayers()){
-            player.sendMessage("The player " + mostVoted.getName() + " was the most voted and " + ejectMessage);
+            player.sendMessage(ejectMessage);
         }
         
         GameUtils.ejectPlayer(mostVoted, this);
         if(this.noImpostorsRemaining())
             endGame(false);
+        
     }
     
     public boolean isImpostor(Player player){
@@ -376,25 +393,6 @@ public class Arena {
 
     public void setLobby(Location lobby) {
         this.lobby = lobby;
-    }
-
-    public void setSpawn(Location spawn) {
-        this.spawn = spawn;
-
-        this.yamlSettings.set("spawn.world", spawn.getWorld().getName());
-        this.yamlSettings.set("spawn.x", spawn.getX());
-        this.yamlSettings.set("spawn.y", spawn.getY());
-        this.yamlSettings.set("spawn.z", spawn.getZ());
-
-        try {
-            yamlSettings.save(fileSettings);
-        } catch (IOException ex) {
-            Logger.getLogger(Arena.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
-    public Location getSpawn() {
-        return spawn;
     }
 
     public VoteSystem getVoteSystem() {
@@ -466,40 +464,43 @@ public class Arena {
     }
     
     public void endGame(boolean impostorsWon){
-  
+        String winnersMessage = LanguageManager.getTranslation(MessageKey.WINNERS);
+        String defeatMessage = LanguageManager.getTranslation(MessageKey.DEFEAT);
+        String winnersListTitle = LanguageManager.getTranslation(MessageKey.WINNERS_LIST_TITLE);
         if(impostorsWon){
             for(Player player: crew){        
-                player.sendTitle(ChatColor.RED + "Defeat", "", 20, 70, 20);
+                player.sendTitle(defeatMessage, "", 20, 70, 20);
             }
             for(Player player: impostors){
-                player.sendTitle(ChatColor.BLUE + "Winners", "", 20,70,20);
+                player.sendTitle(winnersMessage, "", 20,70,20);
             }
             String impostorsString = getImpostorsString();
             for(Player player: players){
-                player.sendMessage(ChatColor.GREEN + "------WINNERS------");
+                player.sendMessage(winnersListTitle);
                 player.sendMessage(impostorsString);
             }
             
         }else{
             for(Player player: crew){
-                player.sendTitle(ChatColor.BLUE + "Winners", "", 20,70,20);
+                player.sendTitle(winnersMessage, "", 20,70,20);
             }
             for(Player player: impostors){        
-                player.sendTitle(ChatColor.RED + "Defeat", "", 20, 70, 20);
+                player.sendTitle(defeatMessage, "", 20, 70, 20);
             }
             
             String crewString = getCrewString();
             for(Player player: players){
-                player.sendMessage(ChatColor.GREEN + "------WINNERS------");
+                player.sendMessage(winnersListTitle);
                 player.sendMessage(crewString);
             }            
         }
         removeAllPlayers();
-        started = false;
+        taskProgressBar.setProgress(0);
+        state = ArenaState.WAITING_FOR_PLAYERS;
     }
     
     private String getImpostorsString(){
-        String impostors = ChatColor.RED + "Impostors: ";
+        String impostors = LanguageManager.getTranslation(MessageKey.IMPOSTORS);
         for(Player impostor: this.impostors){
             PlayerColor color = getPlayerColor(impostor);
             impostors += color.getChatColor() + impostor.getName() + " ";
@@ -509,7 +510,7 @@ public class Arena {
     }
     
     private String getCrewString(){
-        String crew = ChatColor.BLUE + "Crew: ";
+        String crew = LanguageManager.getTranslation(MessageKey.CREW);
         for(Player crewmate: this.crew){
             PlayerColor color = getPlayerColor(crewmate);
             crew += color.getChatColor() + crewmate.getName() + " ";
@@ -535,6 +536,7 @@ public class Arena {
     }
     
     public void removeAllPlayers(){
+        resetGamemodePlayers();
         teleportAllToEndLocation();
         resetAllInventories();
         stopAllScoreboards();
@@ -548,6 +550,13 @@ public class Arena {
         aliveMap.clear();
         playerLocations.clear();
         invStore.clear();
+        taskProgressBar.removeAll();
+    }
+    
+    private void resetGamemodePlayers(){
+        for(Player player: players){
+            player.setGameMode(GameMode.SURVIVAL);
+        }
     }
     
     public void setVisibleAllPlayers(){
@@ -563,7 +572,7 @@ public class Arena {
     }
     
     public void resetDisplayColor(Player player){
-        player.setDisplayName(ChatColor.RESET + player.getName());
+        player.setDisplayName(player.getName());
     }
     
     public void stopAllScoreboards(){
@@ -601,11 +610,11 @@ public class Arena {
     }
     
     public boolean started(){
-        return started;
+        return state != ArenaState.WAITING_FOR_PLAYERS;
     }
     
     public int getKillTime(){
-        return killTime;
+        return killCooldown;
     }
     public boolean canKill(Player player){
         if(!isImpostor(player))
@@ -617,8 +626,327 @@ public class Arena {
     public void setKillFlag(Player impostor, boolean canKill){        
         Boolean previousValue = impostorsKillFlags.put(impostor, canKill);
         if(canKill)
-            impostor.sendMessage("You're able to kill!");
+            impostor.sendMessage(LanguageManager.getTranslation(MessageKey.IMPOSTOR_ABLE_TO_KILL));
         if(previousValue == null)
             TheImpostor.plugin.getLogger().log(Level.SEVERE, "Player is not in impostors map");
+    }
+    
+    public void addTask(CrewTask task){
+        if(!isTaskValid(task))
+            throw new IllegalArgumentException("Task invalid");
+        tasks.add(task);
+        
+        try{
+        saveConfig();
+        }catch(IOException e){
+            TheImpostor.plugin.getLogger().log(Level.SEVERE, e.getMessage());
+        }
+    }
+    
+    public void addSabotageComponent(SabotageComponent sabotage){
+        try {
+            sabotages.add(sabotage);
+            saveConfig();
+        } catch (IOException ex) {
+            Logger.getLogger(Arena.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public boolean isTaskValid(CrewTask taskToAdd){
+        for(CrewTask arenaTask: tasks){
+            if(GameUtils.areEquals(taskToAdd.getLocation(), arenaTask.getLocation()))
+                return false;
+        }
+        
+        return true;
+            
+    }
+    
+    public List<CrewTask> getTasks(){
+        return tasks;
+    }
+    
+    public void putMapsToPlayers(){
+        for (Player player : players) {
+            ItemStack mapItem = new ItemStack(Material.FILLED_MAP);
+            MapView view = Bukkit.createMap(lobby.getWorld());
+            int centerX = lobby.getBlockX();
+            int centerZ = lobby.getBlockZ();
+            GameUtils.putMarkers(view, getPlayerTasks(player), sabotages, centerX, centerZ);
+            view.setScale(MapView.Scale.CLOSE);
+            view.setCenterX(centerX);
+            view.setCenterZ(centerZ);
+            view.setTrackingPosition(true);
+            MapMeta mapMeta = (MapMeta) mapItem.getItemMeta();
+            mapMeta.setMapView(view);
+            mapItem.setItemMeta(mapMeta);
+            player.getInventory().addItem(mapItem);
+        }
+        
+    }
+    
+    public List<CrewTask> getPlayerTasks(Player player){
+        return playerTasks.get(player);
+    }
+    
+    public void saveConfig() throws IOException{
+        yamlSettings.set("name", name);
+        yamlSettings.set("minPlayers", minPlayers);
+        yamlSettings.set("maxPlayers", maxPlayers);
+        yamlSettings.set("Lobby" + ".world", lobby.getWorld().getName());
+        yamlSettings.set("Lobby" + ".x", lobby.getX());
+        yamlSettings.set("Lobby" + ".y", lobby.getY());
+        yamlSettings.set("Lobby" + ".z", lobby.getZ());
+        yamlSettings.set("enabled", enabled);
+        yamlSettings.set("impostors", impostorsNumber);
+        yamlSettings.set("discussion_time", discussionTime);
+        yamlSettings.set("voting_time", votingTime);
+        yamlSettings.set("kill_cooldown", killCooldown);
+        yamlSettings.set("sabotage_cooldown", sabotageCooldown);
+        yamlSettings.set("player_tasks_number", playerTasksNumber);
+        List<String> spawnLocations = new ArrayList<>();
+        for(Location spawn: playerSpawnPoints){
+            spawnLocations.add(Serializer.serializeLocation(spawn));
+        }
+        yamlSettings.set("player_spawn_points", spawnLocations);
+        
+        if(emergencyMeetingBlock != null){
+            Location embLoc = emergencyMeetingBlock.getLocation();
+            yamlSettings.set("emergency_meeting_block_location.world", embLoc.getWorld().getName());
+            yamlSettings.set("emergency_meeting_block_location.x", embLoc.getX());
+            yamlSettings.set("emergency_meeting_block_location.y", embLoc.getY());
+            yamlSettings.set("emergency_meeting_block_location.z", embLoc.getZ());
+        }
+        for(CrewTask task: tasks){
+            String taskName = task.getName();
+            String key = "tasks." + taskName;
+            
+            Location loc = task.getLocation();
+            yamlSettings.set(key + ".location.world", loc.getWorld().getName());
+            yamlSettings.set(key + ".location.x", loc.getX());
+            yamlSettings.set(key + ".location.y", loc.getY());
+            yamlSettings.set(key + ".location.z", loc.getZ());
+            
+            yamlSettings.set(key + ".time_to_complete", task.getTimeToComplete());
+        }
+        
+        for(SabotageComponent sabotage: sabotages){
+            String sabotageName = sabotage.getName();
+            String key = "sabotages." + sabotageName;
+           
+            yamlSettings.set(key + ".block_location", Serializer.serializeLocation(sabotage.getBlock().getLocation()));
+            yamlSettings.set(key + ".time", sabotage.getTime());
+        }
+        
+        yamlSettings.save(fileSettings);
+    }
+    
+    public void addTaskTimer(Player player, TaskTimer timer){
+        taskTimers.put(player, timer);
+    }
+    
+    public TaskTimer removeTaskTimer(Player player){
+        return taskTimers.remove(player);
+    }
+    
+    public TaskTimer getCurrentTaskTimer(Player player){
+        return taskTimers.get(player);
+    }
+    
+    public boolean isCompletingATask(Player player){
+        return taskTimers.containsKey(player);
+    }
+    
+    public boolean tasksAreCompleted(){
+        for(Entry<Player,List<CrewTask>> entry: playerTasks.entrySet()){
+            if(isImpostor(entry.getKey()))
+                continue;
+            for(CrewTask task: entry.getValue()){
+                if(!task.isCompleted())
+                    return false;
+            }
+        }
+        
+        return true;
+    }
+    
+    public void addSpawnLocation(Location spawn){
+        try {
+            playerSpawnPoints.add(spawn);
+            saveConfig();
+        } catch (IOException ex) {
+            Logger.getLogger(Arena.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public List<Location> getPlayerSpawnPoints() {
+        return playerSpawnPoints;
+    }
+    
+    private void teleportToSpawnPoint(Player player){
+        player.teleport(playerSpawnPoints.get(players.indexOf(player)));
+    }
+
+    public void setEmergencyMeetingBlock(Block emergencyMeetingBlock) {
+        try {
+            this.emergencyMeetingBlock = emergencyMeetingBlock;
+            saveConfig();
+        } catch (IOException ex) {
+            Logger.getLogger(Arena.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public boolean isEmergencyMeetingBlockSet(){
+        return emergencyMeetingBlock != null;
+    }
+    
+    public boolean isEmergencyMeetingBlock(Block block){
+        if(emergencyMeetingBlock == null)
+            return false;
+        
+        return block.equals(emergencyMeetingBlock);
+    }
+    
+    public World getWorld(){
+        return playerSpawnPoints.get(0).getWorld();
+    }
+    
+    public void startEmergencyMeeting(Player whoStartedMeeting){
+        for(Player player: players){
+            player.sendMessage(LanguageManager.getTranslation(MessageKey.EMERGENCY_MEETING_START, whoStartedMeeting.getName()));
+            String emTitle = LanguageManager.getTranslation(MessageKey.EMERGENCY_MEETING_TITLE);
+            String emSubtitle = LanguageManager.getTranslation(MessageKey.EMERGENCY_MEETING_SUBTITLE);
+            player.sendTitle(emTitle, emSubtitle, 20, 70, 20);
+            teleportToSpawnPoint(player);
+            player.sendMessage(LanguageManager.getTranslation(MessageKey.VOTE_START_TIME, discussionTime));
+        }
+        for(CorpseData corpse: corpses){
+            CorpseAPI.removeCorpse(corpse);
+        }
+        
+        BukkitTask countdown = new VoteStartTimer(discussionTime, this).runTaskTimer(TheImpostor.plugin, 10L, 20L);
+        state = ArenaState.VOTING;        
+    }
+    
+    public boolean areComponentsSetted(){
+        return areAllTasksSetted() && areSpawnPointsSetted() && lobby != null && this.emergencyMeetingBlock != null && playerTasksNumber > 0;
+    }
+    
+    public boolean areAllTasksSetted(){
+        return tasks.size() >= maxPlayers;
+    }
+    
+    public boolean areSpawnPointsSetted(){
+        return playerSpawnPoints.size() == maxPlayers;
+    }
+    
+    public boolean isEnabled(){
+        return enabled;
+    }
+    
+    public void enable() throws ArenaNotReadyException{
+        if(areComponentsSetted()){
+            try {
+                this.enabled = true;
+                saveConfig();
+            } catch (IOException ex) {
+                Logger.getLogger(Arena.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        else
+            throw new ArenaNotReadyException(this);
+    }
+    
+    public double getPercentofTasksCompleted(){
+        double totalTasks = crew.size() * playerTasksNumber;
+        double tasksCompleted = 0;
+        
+        for(Player crewmate: crew)
+            tasksCompleted += getTasksCompletedNumber(crewmate);
+        
+        
+        return tasksCompleted / totalTasks; 
+    }
+    
+    public void updateTasksProgressBar(){
+        taskProgressBar.setProgress(getPercentofTasksCompleted());
+    }
+    
+    public int getTasksCompletedNumber(Player crewmate){
+        int tasksCompleted = 0;
+        for(CrewTask task: getPlayerTasks(crewmate)){
+            if(task.isCompleted())
+                tasksCompleted++;
+        }
+        
+        return tasksCompleted;
+    }
+
+    public void setPlayerTasksNumber(int playerTasksNumber) {
+        try {
+            this.playerTasksNumber = playerTasksNumber;
+            saveConfig();
+        } catch (IOException ex) {
+            Logger.getLogger(Arena.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public int getPlayerTasksNumber(){
+        return playerTasksNumber;
+    }
+    
+    public List<SabotageComponent> getSabotages() {
+        return sabotages;
+    }
+    
+    public SabotageComponent getSabotage(ItemStack item){
+        for(SabotageComponent sabotage: sabotages){
+            if(item.equals(sabotage.getItem()))
+                return sabotage;
+        }
+        
+        return null;
+    }
+    
+    public SabotageComponent getSabotage(Block sabotageBlock){
+        for(SabotageComponent sabotage: sabotages){
+            if(sabotage.getBlock().equals(sabotageBlock))
+                return sabotage;
+        }
+        
+        return null;
+    }
+    
+    public void sabotage(SabotageComponent sabotageChoosen){
+        if (!sabotageChoosen.isSabotaged()) {
+            sabotageChoosen.setIsSabotaged(true);
+            sabotageChoosen.startTimer(this);
+            for(Player player: players){
+                player.sendMessage(LanguageManager.getTranslation(MessageKey.SABOTAGE_ADVERTISEMENT, sabotageChoosen.getName()));
+            }
+        }               
+    }
+    
+    public void fixSabotage(SabotageComponent sabotage){
+        if(sabotage.isSabotaged()){
+            sabotage.setIsSabotaged(false);
+            sabotage.stopTimer();
+            board.remove(LanguageManager.getTranslation(MessageKey.SABOTAGE_BOARD_ADVERTISEMENT, sabotage.getName()));
+            for(Player player: players){
+                player.sendMessage(LanguageManager.getTranslation(MessageKey.SABOTAGE_FIXED, sabotage.getName()));
+            }
+        }
+    }
+    
+    public void setSabotageFlag(Player impostor, boolean canSabotage){
+        impostorsSabotageFlags.put(impostor, canSabotage);
+    }
+    
+    public boolean canSabotage(Player impostor){
+        return impostorsSabotageFlags.get(impostor);
+    }
+    
+    public int getSabotageTime(){
+        return sabotageCooldown;
     }
 }

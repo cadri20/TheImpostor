@@ -27,12 +27,13 @@ import org.bukkit.inventory.meta.ItemMeta;
  */
 public enum ItemOptions {
     CHOOSE_COLOR("Choose color","Your color in game",Material.GREEN_WOOL),
-    KILL_PLAYER("Kill Player", "Right click with this to a player to kill him",Material.RED_WOOL);
+    KILL_PLAYER("Kill Player", "Right click with this to a player to kill him",Material.RED_WOOL),
+    SABOTAGE("Sabotage", "Sabotage the ship", Material.GREEN_WOOL);
     
     private String name;
     private String description;
     private Material material;
-    ItemStack item;
+    private ItemStack item;
 
     private ItemOptions(String name, String description, Material material) {
         this.name = name;

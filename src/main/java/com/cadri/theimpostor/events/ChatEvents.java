@@ -16,6 +16,8 @@
  */
 package com.cadri.theimpostor.events;
 
+import com.cadri.theimpostor.LanguageManager;
+import com.cadri.theimpostor.MessageKey;
 import com.cadri.theimpostor.arena.Arena;
 import com.cadri.theimpostor.arena.ArenaUtils;
 import java.util.Set;
@@ -30,7 +32,7 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
  * @author cadri
  */
 public class ChatEvents implements Listener{
-    String deadChatPrefix = ChatColor.DARK_GRAY + "[Dead Chat]";
+    String deadChatPrefix = LanguageManager.getTranslation(MessageKey.DEADCHAT_PREFIX);
     
     @EventHandler
     public void onPlayerChat(AsyncPlayerChatEvent evt){

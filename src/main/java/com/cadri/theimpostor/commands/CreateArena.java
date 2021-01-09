@@ -17,12 +17,13 @@
 package com.cadri.theimpostor.commands;
 
 import com.cadri.theimpostor.LanguageManager;
-import com.cadri.theimpostor.MessageKeys;
+import com.cadri.theimpostor.MessageKey;
 import com.cadri.theimpostor.TheImpostor;
 import com.cadri.theimpostor.arena.Arena;
 import com.cadri.theimpostor.arena.ArenaManager;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
@@ -41,39 +42,22 @@ public class CreateArena implements SubCommand {
 
     @Override
     public void onCommand(CommandSender sender, String[] args) {
-
+ 
         if (sender instanceof Player) {
             Player player = (Player) sender;
-            if (!ArenaManager.arenaNames.contains(args[0])) {
-                Arena arena = new Arena(args[0], Integer.parseInt(args[1]), Integer.parseInt(args[2]), player.getLocation(), player.getLocation());
-                ArenaManager.arenas.add(arena);
-                ArenaManager.arenaNames.add(arena.getName());
-                File a = new File(TheImpostor.plugin.getDataFolder() + File.separator + arena.getName() + File.separator + "arena_settings.yml");
-                YamlConfiguration fc = YamlConfiguration.loadConfiguration(a);
-                File ArenaNames = new File(TheImpostor.plugin.getDataFolder() + File.separator + "arenas.yml");
-                YamlConfiguration fcn = YamlConfiguration.loadConfiguration(ArenaNames);
-                fc.set("Name", arena.getName());
-                fc.set("minPlayers", arena.getMinPlayers());
-                fc.set("maxPlayers", arena.getMaxPlayers());
-                fc.set("Lobby" + ".world", player.getLocation().getWorld().getName());
-                fc.set("Lobby" + ".x", player.getLocation().getX());
-                fc.set("Lobby" + ".y", player.getLocation().getY());
-                fc.set("Lobby" + ".z", player.getLocation().getZ());
-                fc.set("spawn.world", player.getLocation().getWorld().getName());
-                fc.set("spawn.x", player.getLocation().getX());
-                fc.set("spawn.y", player.getLocation().getY());
-                fc.set("spawn.z", player.getLocation().getZ());
-                fcn.set("arena-list", ArenaManager.arenaNames);
+            
+            if (!ArenaManager.getArenaNames().contains(args[0])) {
+                Arena arena = new Arena(args[0], Integer.parseInt(args[1]), Integer.parseInt(args[2]), player.getLocation());
+                ArenaManager.arenas.add(arena);               
                 try {
-                    fc.save(a);
-                    fcn.save(ArenaNames);
+                    arena.saveConfig();
                 } catch (IOException e) {
                     player.sendMessage("Error saving the files");
 
                 }
-                player.sendMessage(LanguageManager.getTranslation(MessageKeys.ARENA_CREATED_SUCCESSFULLY.key));
+                player.sendMessage(LanguageManager.getTranslation(MessageKey.ARENA_CREATED_SUCCESSFULLY));
             } else {
-                player.sendMessage(LanguageManager.getTranslation(MessageKeys.ARENA_ALREADY_EXISTS.key));
+                player.sendMessage(LanguageManager.getTranslation(MessageKey.ARENA_ALREADY_EXISTS, args[0]));
             }
         }
 

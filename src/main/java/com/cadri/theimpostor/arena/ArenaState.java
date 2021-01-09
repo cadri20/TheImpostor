@@ -14,29 +14,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.cadri.theimpostor;
+package com.cadri.theimpostor.arena;
 
 /**
  *
  * @author cadri
  */
-public enum MessageKeys {
-    ARENA_CREATED_SUCCESSFULLY("arena_created_successfully"),
-    ARENA_ALREADY_EXISTS("arena_already_exists"),
-    ARENA_READY("arena_ready"),
-    ARENA_NOT_EXISTS("arena_not_exists"),
-    ARENA_COUNTDOWN("arena_countdown"),
-    ARENA_GAME_START("arena_game_start"),
-    ARENA_SPAWN_SET("arena_spawn_set"),
-    IMPOSTOR_TITLE("impostor_title"),
-    IMPOSTOR_SUBTITLE("impostor_subtitle"),
-    CREWMATE_TITLE("crewmate_title"),
-    CREWMATE_SUBTITLE("crewmate_subtitle");
-    
-    public String key;
-    
-    private MessageKeys(String key){
-        this.key = key;
-    }
-    
+public enum ArenaState {
+    WAITING_FOR_PLAYERS, IN_GAME, VOTING;
 }

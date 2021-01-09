@@ -17,13 +17,19 @@
 package com.cadri.theimpostor.arena;
 
 import com.cadri.theimpostor.TheImpostor;
+import com.cadri.theimpostor.game.CrewTask;
+import com.cadri.theimpostor.game.SabotageComponent;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
@@ -33,22 +39,22 @@ import org.bukkit.entity.Player;
  */
 public class ArenaManager {
 
-    public static File arenaNamesFile = new File(TheImpostor.plugin.getDataFolder(), "arenas.yml");
-    public static YamlConfiguration fc = YamlConfiguration.loadConfiguration(arenaNamesFile);
+    public static File arenasDirectory = new File(TheImpostor.plugin.getDataFolder(), "arenas");
+    public static YamlConfiguration fc = YamlConfiguration.loadConfiguration(arenasDirectory);
     public static List<Arena> arenas = new ArrayList<>();
-    public static List<String> arenaNames = fc.getStringList("arena-list");
 
     public static void loadArenas() {
-        for (String s : ArenaManager.arenaNames) {
-            File arena = new File(TheImpostor.plugin.getDataFolder() + File.separator + s + File.separator + "arena_settings.yml");
-            YamlConfiguration fc = YamlConfiguration.loadConfiguration(arena);
-            String Name = fc.getString("Name");
+        
+        if(!arenasDirectory.exists())
+            return;
+        
+        for (File arenaFile : arenasDirectory.listFiles()) {
+            YamlConfiguration fc = YamlConfiguration.loadConfiguration(arenaFile);
+            String name = fc.getString("name");
             int minPlayers = fc.getInt("minPlayers");
             int maxPlayers = fc.getInt("maxPlayers");
             if (fc.getString("Lobby") == null) {
-                Arena a = new Arena(Name, null);
-                ArenaManager.arenas.add(a);
-                TheImpostor.plugin.getLogger().log(Level.INFO, "La arena " + s + " no tiene lobby");
+                TheImpostor.plugin.getLogger().log(Level.INFO, "La arena " + name + " no tiene lobby");
             } else {
                 String World = fc.getString("Lobby" + ".world");
                 World lobbyWorld = Bukkit.getWorld(World);
@@ -56,24 +62,74 @@ public class ArenaManager {
                 Double y = fc.getDouble("Lobby" + ".y");
                 Double z = fc.getDouble("Lobby" + ".z");
                 Location lobby = new Location(lobbyWorld, x, y, z);
+                                
+                List<Location> playerSpawnPoints = new ArrayList<>();
+                for(String stringLocation: fc.getStringList("player_spawn_points")){
+                    playerSpawnPoints.add(Serializer.getLocation(stringLocation));
+                }
                 
-                World spawnWorld = Bukkit.getWorld(fc.getString("spawn.world"));
-                Double spawnX = fc.getDouble("spawn.x");
-                Double spawnY = fc.getDouble("spawn.y");
-                Double spawnZ = fc.getDouble("spawn.z");
+                List<CrewTask> tasksList = new ArrayList<>();
                 
-                Location spawn = new Location(spawnWorld, spawnX, spawnY, spawnZ);
-                Arena a = new Arena(Name, maxPlayers, minPlayers, lobby, spawn);
+                ConfigurationSection tasksSection = fc.getConfigurationSection("tasks");
+                if (tasksSection != null) {
+                    for (String taskName : tasksSection.getKeys(false)) {
+                        String taskPath = "tasks." + taskName + ".";
+
+                        World world = Bukkit.getWorld(fc.getString(taskPath + "location.world"));
+                        double locX = fc.getDouble(taskPath + "location.x");
+                        double locY = fc.getDouble(taskPath + "location.y");
+                        double locZ = fc.getDouble(taskPath + "location.z");
+                        Location loc = new Location(world, locX, locY, locZ);
+
+                        int time = fc.getInt("tasks." + taskName + ".time_to_complete");
+                        CrewTask task = new CrewTask(taskName, loc, time);
+                        tasksList.add(task);
+                    }
+                }
+                
+                List<SabotageComponent> sabotagesList = new ArrayList<>();
+                ConfigurationSection sabotagesSection = fc.getConfigurationSection("sabotages");
+                if(sabotagesSection != null){
+                    for(String sabotageName: sabotagesSection.getKeys(false)){
+                        String sabotagePath = "sabotages." + sabotageName;
+                        
+                        Location blockLoc = Serializer.getLocation(fc.getString(sabotagePath + ".block_location"));
+                        Block sabotageBlock = blockLoc.getBlock();
+                        int sabotageTime = fc.getInt(sabotagePath + ".time");
+                        sabotagesList.add(new SabotageComponent(sabotageName, sabotageBlock, sabotageTime));
+                    }
+                    
+                }
+                Block emergencyMeetingBlock = null;
+                if(fc.get("emergency_meeting_block_location") != null){
+                    World world = Bukkit.getWorld(fc.getString("emergency_meeting_block_location.world"));
+                    double xBlock = fc.getDouble("emergency_meeting_block_location.x");
+                    double yBlock = fc.getDouble("emergency_meeting_block_location.y");
+                    double zBlock = fc.getDouble("emergency_meeting_block_location.z");
+                    Location blockLocation = new Location(world, xBlock, yBlock, zBlock);
+                    emergencyMeetingBlock = world.getBlockAt(blockLocation);
+                }
+                
+                int impostors = fc.getInt("impostors");
+                int discussionTime = fc.getInt("discussion_time");
+                int votingTime = fc.getInt("voting_time");
+                int killCooldown = fc.getInt("kill_cooldown");
+                int sabotageCooldown = fc.getInt("sabotage_cooldown");
+                Arena a = new Arena(name, maxPlayers, minPlayers, impostors, discussionTime, votingTime, killCooldown, sabotageCooldown, lobby, playerSpawnPoints, tasksList, sabotagesList, emergencyMeetingBlock, fc.getBoolean("enabled"), fc.getInt("player_tasks_number"));
                 ArenaManager.arenas.add(a);
 
             }
 
-            TheImpostor.plugin.getLogger().log(Level.INFO, "La arena" + s + "ha sido cargada");
+            TheImpostor.plugin.getLogger().log(Level.INFO, "The arena " + name + " has been loaded");
         }
     }
 
     public static Arena getArena(String arena) {
         for (Arena a : arenas) {
+            if(a.getName() == null){
+                TheImpostor.plugin.getLogger().log(Level.SEVERE, "Arena name is null");
+                return null;
+            }
             if (a.getName().equals(arena)) {
                 return a;
             }
@@ -94,5 +150,14 @@ public class ArenaManager {
         for(Arena arena: arenas){
             arena.removeAllPlayers();
         }
+    }
+    
+    public static List<String> getArenaNames(){
+        List<String> arenaNames = new ArrayList<>();
+        for(Arena arena: arenas){
+            arenaNames.add(arena.getName());
+        }
+        
+        return arenaNames;
     }
 }

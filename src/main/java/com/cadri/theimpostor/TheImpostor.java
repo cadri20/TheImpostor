@@ -14,7 +14,8 @@ import org.bukkit.plugin.java.JavaPlugin;
  */
 public class TheImpostor extends JavaPlugin{
     public static TheImpostor plugin;
-
+    public static String pluginTitle = ChatColor.translateAlternateColorCodes('&', "&6&lTheImpostor &9&lby cadri1");
+    
     public TheImpostor() {
         plugin = this;
     }
@@ -23,7 +24,7 @@ public class TheImpostor extends JavaPlugin{
     @Override
     public void onEnable() {
         saveDefaultConfig();
-        this.getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "The plugin has been Enabled");
+   
         this.getCommand(CommandManager.mainCommand).setExecutor(new CommandManager());
         CommandManager.loadCommands();
         LanguageManager.loadLanguage();
@@ -32,6 +33,7 @@ public class TheImpostor extends JavaPlugin{
         this.getServer().getPluginManager().registerEvents(new ArenaEvents(), plugin);
         this.getServer().getPluginManager().registerEvents(new ChatEvents(), plugin);
         this.getServer().getPluginManager().registerEvents(new ServerEvents(), plugin);
+        this.getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "The plugin has been Enabled");
     }
 
     @Override

@@ -26,33 +26,37 @@ import org.bukkit.scheduler.BukkitRunnable;
  *
  * @author cadri
  */
-public class VoteStartTimer extends BukkitRunnable{
-
-    private int counter;
+public class TaskTimer extends BukkitRunnable{
+    private int count;
+    private CrewTask task;
+    private ProgressBar taskProgress;
+    private Player player;
     private Arena arena;
-
-    public VoteStartTimer(int time, Arena arena) {
-        this.counter = time;
+    
+    public TaskTimer(CrewTask task, Player player, Arena arena) {
+        this.count = 0;
+        this.player = player;
+        this.task = task;
+        this.taskProgress = new ProgressBar(task.getTimeToComplete(), 6);
         this.arena = arena;
     }
     
     @Override
     public void run() {
-        if(counter > 0){
-            for(Player player: arena.getPlayers()){
-                player.setLevel(counter);
-            }
-            
-            if(counter < 4){
-                for(Player player: arena.getPlayers()){
-                    player.sendMessage(LanguageManager.getTranslation(MessageKey.VOTE_START_TIME, counter));
-                }
-            }
-            counter--;
+        if(count != task.getTimeToComplete()){
+            count++;
+            taskProgress.setCurrent(count);
+            player.sendTitle(taskProgress.toString(), LanguageManager.getTranslation(MessageKey.TASK_PROGRESS, task.getName()), 0, 22, 0);
         }else{
-            arena.startVoting();
+            task.complete();
+            player.sendMessage(LanguageManager.getTranslation(MessageKey.TASK_COMPLETED, task.getName()));
+            arena.updateTasksProgressBar();
+            if(arena.tasksAreCompleted())
+                arena.endGame(false);
             this.cancel();
         }
+        
+        
     }
     
 }

@@ -16,15 +16,23 @@
  */
 package com.cadri.theimpostor.events;
 
+import com.cadri.theimpostor.LanguageManager;
+import com.cadri.theimpostor.MessageKey;
 import com.cadri.theimpostor.TheImpostor;
 import com.cadri.theimpostor.arena.Arena;
+import com.cadri.theimpostor.arena.ArenaState;
 import com.cadri.theimpostor.arena.ArenaUtils;
+import com.cadri.theimpostor.game.CrewTask;
 import com.cadri.theimpostor.game.GameUtils;
 import com.cadri.theimpostor.game.ItemOptions;
 import com.cadri.theimpostor.game.PlayerColor;
+import com.cadri.theimpostor.game.SabotageComponent;
+import com.cadri.theimpostor.game.TaskTimer;
 import com.cadri.theimpostor.game.VoteSystem;
 import com.google.common.util.concurrent.AbstractScheduledService.Scheduler;
+import java.util.List;
 import java.util.logging.Level;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
@@ -37,6 +45,7 @@ import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -44,6 +53,8 @@ import org.bukkit.scheduler.BukkitScheduler;
 import org.golde.bukkit.corpsereborn.CorpseAPI.CorpseAPI;
 import org.golde.bukkit.corpsereborn.CorpseAPI.events.CorpseClickEvent;
 import org.golde.bukkit.corpsereborn.nms.Corpses.CorpseData;
+import org.bukkit.Bukkit;
+import org.bukkit.block.Block;
 
 /**
  *
@@ -108,14 +119,33 @@ public class ArenaEvents implements Listener {
             return;
         
         Action action = evt.getAction();
-        if(action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK){
-            if( !evt.getItem().equals(ItemOptions.CHOOSE_COLOR.getItem()) )
-                return;
-            
-            player.openInventory(GameUtils.getGUIChoiceColors(arena));
-            evt.setCancelled(true);
+        if (action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK) {
+            ItemStack item = evt.getItem();
+            Block clickedBlock = evt.getClickedBlock();
+
+            if (item != null) {
+                if (item.equals(ItemOptions.CHOOSE_COLOR.getItem())) {
+                    player.openInventory(GameUtils.getGUIChoiceColors(arena));
+                    evt.setCancelled(true);
+                } else if (item != null && item.equals(ItemOptions.SABOTAGE.getItem())) {
+                    if(arena.canSabotage(player)){
+                        player.openInventory(GameUtils.getSabotagesGUI(arena.getSabotages()));
+                    }else
+                        player.sendMessage(LanguageManager.getTranslation(MessageKey.CANT_SABOTAGE));
+                    evt.setCancelled(true);
+                }
+            } else if (clickedBlock != null) {
+                SabotageComponent sabotage = arena.getSabotage(clickedBlock);
+                if (arena.isEmergencyMeetingBlock(clickedBlock)) {
+                    if (arena.started()) {
+                        arena.startEmergencyMeeting(player);
+                    }
+                } else if (sabotage != null) {
+                    arena.fixSabotage(sabotage);
+                }
+            }
         }
-            
+
     }
     
     @EventHandler
@@ -152,7 +182,6 @@ public class ArenaEvents implements Listener {
                 }
             }
         }
-            
         
         
         PlayerColor playerColor = PlayerColor.getPlayerColor(itemClicked);
@@ -165,6 +194,20 @@ public class ArenaEvents implements Listener {
             return;
         }
       
+        SabotageComponent sabotageChoosen = arena.getSabotage(itemClicked);
+        if(sabotageChoosen != null){
+            if(!sabotageChoosen.isSabotaged()){
+                arena.sabotage(sabotageChoosen);
+                arena.setSabotageFlag(player, false);
+                Bukkit.getScheduler().runTaskLater(TheImpostor.plugin, () -> {
+                    arena.setSabotageFlag(player, true);
+                }, arena.getSabotageTime() * 20);
+
+            }
+            player.closeInventory();
+            evt.setCancelled(true);       
+
+        }
     }
     
     @EventHandler
@@ -196,5 +239,42 @@ public class ArenaEvents implements Listener {
         if(ItemOptions.isItemOption(itemDropped.getItemStack()))
             evt.setCancelled(true);
     }
+    
+    @EventHandler
+    public void onPlayerMove(PlayerMoveEvent evt){
+        Player player = evt.getPlayer();
+        Arena arena = ArenaUtils.whereArenaIs(player);
+        if(arena == null || !arena.started())
+            return;
+        
+        if(arena.state == ArenaState.VOTING){
+            evt.setCancelled(true);
+        }
+        
+        if(arena.isImpostor(player))
+            return;
+        
+        List<CrewTask> playerTasks = arena.getPlayerTasks(player);
+        Location locTo = evt.getTo();
+        Location locFrom = evt.getFrom();
+        if(GameUtils.areEquals(locTo, locFrom)) //This avoid run the event when the player does minimal moves
+            return;
+        
+        CrewTask taskAtPlayerPositionTo = GameUtils.getTaskByLocation(evt.getTo(),playerTasks);
+        CrewTask taskAtPlayerPositionFrom = GameUtils.getTaskByLocation(evt.getFrom(),playerTasks);
+        
+        if(taskAtPlayerPositionTo != null){ // Player is entering 
+            if (!taskAtPlayerPositionTo.isCompleted()) {
+                TaskTimer timer = new TaskTimer(taskAtPlayerPositionTo, player, arena);
+                timer.runTaskTimer(TheImpostor.plugin, 10L, 20L);
+                arena.addTaskTimer(player, timer);
+            }
+        }else{
+            if(taskAtPlayerPositionFrom != null && !taskAtPlayerPositionFrom.isCompleted()){ //Player is going out
+                arena.removeTaskTimer(player).cancel(); //Stop the timer
+            }
+        }
+    }
+    
     
 }

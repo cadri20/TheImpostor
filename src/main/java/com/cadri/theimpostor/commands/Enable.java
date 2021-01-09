@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 cadri
+ * Copyright (C) 2021 cadri
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,8 @@ import com.cadri.theimpostor.LanguageManager;
 import com.cadri.theimpostor.MessageKey;
 import com.cadri.theimpostor.arena.Arena;
 import com.cadri.theimpostor.arena.ArenaManager;
-import com.cadri.theimpostor.arena.ArenaUtils;
+import com.cadri.theimpostor.arena.ArenaNotReadyException;
+import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -28,36 +29,25 @@ import org.bukkit.entity.Player;
  *
  * @author cadri
  */
-public class JoinArena implements SubCommand{
+public class Enable implements SubCommand{
+
     @Override
     public void onCommand(CommandSender sender, String[] args) {
-        
-        if (sender instanceof Player) {
+        if(sender instanceof Player){
             Player player = (Player) sender;
-            
-            if(ArenaUtils.whereArenaIs(player) != null){
-                player.sendMessage(LanguageManager.getTranslation(MessageKey.PLAYER_IN_ARENA));
-                return;
-            }
-            if (ArenaManager.getArenaNames().contains(args[0])) {
-                Arena arena = ArenaManager.getArena(args[0]);
-                
-                if(arena.isEnabled()){
-                    arena.addPlayer(player);
-                    player.teleport(arena.getLobby());
-                }else
-                    player.sendMessage(LanguageManager.getTranslation(MessageKey.ARENA_NOT_ENABLED));
-
-                
+            Arena arena = ArenaManager.getArena(args[0]);
+            if(arena != null){
+                try{
+                    arena.enable();
+                    player.sendMessage(LanguageManager.getTranslation(MessageKey.ARENA_ENABLED));
+                }catch(ArenaNotReadyException e){
+                    player.sendMessage(LanguageManager.getTranslation(MessageKey.ARENA_NOT_READY));
+                    player.sendMessage(e.getCauses());
+                }
             }else{
                 player.sendMessage(LanguageManager.getTranslation(MessageKey.ARENA_DOESNT_EXIST, args[0]));
             }
-            
-            
         }
-        
-        
-            
-    }   
-
+    }
+    
 }

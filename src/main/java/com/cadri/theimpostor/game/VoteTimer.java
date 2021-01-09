@@ -16,6 +16,8 @@
  */
 package com.cadri.theimpostor.game;
 
+import com.cadri.theimpostor.LanguageManager;
+import com.cadri.theimpostor.MessageKey;
 import com.cadri.theimpostor.arena.Arena;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -42,7 +44,7 @@ public class VoteTimer extends BukkitRunnable{
             
             if(counter < 4){
                 for(Player player: arena.getPlayers()){
-                    player.sendMessage("The vote will finish in " + counter);
+                    player.sendMessage(LanguageManager.getTranslation(MessageKey.VOTE_FINISH_TIME, counter));
                 }
             }
             counter--;

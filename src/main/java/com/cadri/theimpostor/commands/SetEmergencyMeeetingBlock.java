@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 cadri
+ * Copyright (C) 2021 cadri
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,12 +17,10 @@
 package com.cadri.theimpostor.commands;
 
 import com.cadri.theimpostor.LanguageManager;
-import com.cadri.theimpostor.MessageKeys;
-import com.cadri.theimpostor.TheImpostor;
+import com.cadri.theimpostor.MessageKey;
 import com.cadri.theimpostor.arena.Arena;
 import com.cadri.theimpostor.arena.ArenaManager;
-import java.util.logging.Level;
-import org.bukkit.ChatColor;
+import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -30,35 +28,22 @@ import org.bukkit.entity.Player;
  *
  * @author cadri
  */
-public class SetSpawn implements SubCommand{
+public class SetEmergencyMeeetingBlock implements SubCommand{
 
     @Override
     public void onCommand(CommandSender sender, String[] args) {
-        String arenaName = args[0];
-        
         if(sender instanceof Player){
             Player player = (Player) sender;
-            Arena arenaFound = null;
+            Arena arena = ArenaManager.getArena(args[0]);
+            if(arena != null){
+                Block blockTargeted = player.getTargetBlockExact(4);
+                if(blockTargeted != null){
+                    arena.setEmergencyMeetingBlock(blockTargeted);
+                    player.sendMessage(LanguageManager.getTranslation(MessageKey.EMERGENCY_MEETING_BLOCK_CREATED));
+                }else
+                    player.sendMessage(LanguageManager.getTranslation(MessageKey.EMERGENCY_MEETING_BLOCK_PROBLEM));
+            }
             
-            for(Arena arena: ArenaManager.arenas){
-                if(arena == null){
-                    TheImpostor.plugin.getLogger().log(Level.SEVERE,"Arenas contains a null!");
-                    return; 
-                }
-                if(arena.getName() == null){
-                    TheImpostor.plugin.getLogger().log(Level.SEVERE,"One arena name is null");
-                    return;
-                }
-                if(arena.getName().equals(arenaName))
-                    arenaFound = arena;
-            }
-            if(arenaFound != null){
-                arenaFound.setSpawn(player.getLocation());
-                
-                player.sendMessage(LanguageManager.getTranslation(MessageKeys.ARENA_SPAWN_SET.key));
-            }else{
-                player.sendMessage(ChatColor.RED + "La arena no existe");
-            }
         }
     }
     

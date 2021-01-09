@@ -14,45 +14,37 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.cadri.theimpostor.game;
+package com.cadri.theimpostor.commands;
 
 import com.cadri.theimpostor.LanguageManager;
 import com.cadri.theimpostor.MessageKey;
 import com.cadri.theimpostor.arena.Arena;
+import com.cadri.theimpostor.arena.ArenaManager;
+import com.cadri.theimpostor.game.CrewTask;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 
 /**
  *
  * @author cadri
  */
-public class VoteStartTimer extends BukkitRunnable{
+public class AddTask implements SubCommand{
 
-    private int counter;
-    private Arena arena;
-
-    public VoteStartTimer(int time, Arena arena) {
-        this.counter = time;
-        this.arena = arena;
-    }
-    
     @Override
-    public void run() {
-        if(counter > 0){
-            for(Player player: arena.getPlayers()){
-                player.setLevel(counter);
+    public void onCommand(CommandSender sender, String[] args) {
+        Arena arena = ArenaManager.getArena(args[0]);
+        if(sender instanceof Player){
+            Player player = (Player) sender;
+            CrewTask task = new CrewTask(args[1], player.getLocation(), Integer.parseInt(args[2]));
+            try{
+                arena.addTask(task);
+                player.sendMessage(LanguageManager.getTranslation(MessageKey.TASK_CREATED));
+            }catch(IllegalArgumentException e){
+                player.sendMessage(LanguageManager.getTranslation(MessageKey.TASK_SAME_LOCATION));
             }
             
-            if(counter < 4){
-                for(Player player: arena.getPlayers()){
-                    player.sendMessage(LanguageManager.getTranslation(MessageKey.VOTE_START_TIME, counter));
-                }
-            }
-            counter--;
-        }else{
-            arena.startVoting();
-            this.cancel();
         }
+        
     }
     
 }

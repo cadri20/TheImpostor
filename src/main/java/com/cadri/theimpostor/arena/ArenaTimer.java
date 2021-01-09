@@ -17,7 +17,7 @@
 package com.cadri.theimpostor.arena;
 
 import com.cadri.theimpostor.LanguageManager;
-import com.cadri.theimpostor.MessageKeys;
+import com.cadri.theimpostor.MessageKey;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -44,7 +44,7 @@ public class ArenaTimer extends BukkitRunnable {
             }
             if (counter < 4) {
                 for (Player player : arena.getPlayers()) {
-                    player.sendMessage(LanguageManager.getTranslation(MessageKeys.ARENA_COUNTDOWN.key) + " " + counter);
+                    player.sendMessage(LanguageManager.getTranslation(MessageKey.ARENA_COUNTDOWN, counter));
                 }
             }
             counter--;

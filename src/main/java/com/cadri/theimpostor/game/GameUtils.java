@@ -16,16 +16,36 @@
  */
 package com.cadri.theimpostor.game;
 
+import com.cadri.theimpostor.LanguageManager;
+import com.cadri.theimpostor.MessageKey;
 import com.cadri.theimpostor.TheImpostor;
 import com.cadri.theimpostor.arena.Arena;
+import com.sun.prism.paint.Color;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.Stack;
+import java.util.logging.Level;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.MapMeta;
+import org.bukkit.map.MapCanvas;
+import org.bukkit.map.MapCursor;
+import org.bukkit.map.MapCursor.Type;
+import org.bukkit.map.MapCursorCollection;
+import org.bukkit.map.MapRenderer;
+import org.bukkit.map.MapView;
 
 /**
  *
@@ -33,7 +53,6 @@ import org.bukkit.inventory.PlayerInventory;
  */
 public class GameUtils {
     private static Random random = new Random();
-    
     
     public static Player chooseImpostor(List<Player> players) {
         int index = random.nextInt(players.size());
@@ -45,6 +64,7 @@ public class GameUtils {
         for (Player impostor : impostors) {
             PlayerInventory impostorInventory = impostor.getInventory();
             impostorInventory.setItem(0, ItemOptions.KILL_PLAYER.getItem());
+            impostorInventory.setItem(1, ItemOptions.SABOTAGE.getItem());
         }
     }
 
@@ -115,4 +135,80 @@ public class GameUtils {
     public static boolean isColorSelected(PlayerColor color, Arena arena){
         return arena.getPlayer(color) != null;
     }
+    
+    public static Map<Player,List<CrewTask>> assignTasks(List<Player> players, List<CrewTask> tasks, int tasksNumber){
+        Map<Player,List<CrewTask>> tasksMap = new HashMap<>();
+        for(Player player: players){
+            List<CrewTask> playerTasks = copyTaskList(tasks);
+            int tasksToRemove = tasks.size() - tasksNumber;
+            for(int i = 1; i <= tasksToRemove; i++){
+                playerTasks.remove(random.nextInt(playerTasks.size()));
+            }
+            
+            tasksMap.put(player, playerTasks);
+        }
+        
+        return tasksMap;
+    }
+    
+    public static void putMarkers(MapView mapView, List<CrewTask> taskList, List<SabotageComponent> sabotages, int centerX, int centerY){
+        mapView.addRenderer(new MapRenderer() {
+            @Override
+            public void render(MapView mv, MapCanvas mc, Player player) {
+                MapCursorCollection cursors = new MapCursorCollection();
+                
+                for (CrewTask task : taskList) {
+                    if (!task.isCompleted()) {
+                        Location loc = task.getLocation();
+                        MapCursor cursor = new MapCursor((byte) (loc.getBlockX() - centerX), (byte) (loc.getBlockZ() - centerY), (byte) 8, Type.GREEN_POINTER, true);
+                        cursors.addCursor(cursor);
+                        task.setMapCursor(cursor);
+                    }
+                }               
+                                
+                for(SabotageComponent sabotage: sabotages){
+                    if(sabotage.isSabotaged()){
+                        Block sabotageBlock = sabotage.getBlock();
+                        MapCursor sabotageCursor = new MapCursor((byte) (sabotageBlock.getX() - centerX), (byte) (sabotageBlock.getZ() - centerY), (byte) 8, Type.RED_POINTER, true);
+                        cursors.addCursor(sabotageCursor);             
+                    }
+                }
+                
+                mc.setCursors(cursors);
+            }
+        });
+    }
+    
+    public static CrewTask getTaskByLocation(Location location, List<CrewTask> tasks){
+        for(CrewTask task: tasks){
+            Location loc = task.getLocation();
+            if(areEquals(loc, location))
+                return task;
+        }
+        return null;
+    }
+    
+    public static boolean areEquals(Location loc1, Location loc2){
+        return loc1.getBlockX() == loc2.getBlockX() && loc1.getBlockY() == loc2.getBlockY() && loc1.getBlockZ() == loc2.getBlockZ();
+    }
+    
+    public static List<CrewTask> copyTaskList(List<CrewTask> taskList){
+        List<CrewTask> newTaskList = new ArrayList<CrewTask>();
+        for(CrewTask task: taskList){
+            CrewTask taskCopy = new CrewTask(task.getName(), task.getLocation(), task.getTimeToComplete());
+            newTaskList.add(taskCopy);
+        }
+        
+        return newTaskList;
+    }
+    
+    public static Inventory getSabotagesGUI(List<SabotageComponent> sabotages){
+        Inventory sabotagesGUI = Bukkit.createInventory(null, 9, LanguageManager.getTranslation(MessageKey.SABOTAGE_GUI_TITLE));
+        for(SabotageComponent sabotage: sabotages){
+            sabotagesGUI.addItem(sabotage.getItem());
+        }
+        
+        return sabotagesGUI;
+    }
+    
 }
