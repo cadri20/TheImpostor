@@ -16,28 +16,14 @@
  */
 package com.cadri.theimpostor.commands;
 
-import com.cadri.theimpostor.LanguageManager;
-import com.cadri.theimpostor.MessageKey;
 import com.cadri.theimpostor.arena.Arena;
-import com.cadri.theimpostor.arena.ArenaManager;
-import com.cadri.theimpostor.game.PlayerColor;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 /**
  *
  * @author cadri
  */
-public class SetTasksNumber implements SetupArenaCommand{
-
-    @Override
-    public void onCommand(Player player, Arena arena, String[] args) {
-        int tasksNumber = Integer.parseInt(args[0]);
-        if(tasksNumber > 0 && tasksNumber <= arena.getTasks().size()){
-            arena.setPlayerTasksNumber(tasksNumber);
-            player.sendMessage(LanguageManager.getTranslation(MessageKey.TASKS_NUMBER_SETTED));
-        }else
-            player.sendMessage(LanguageManager.getTranslation(MessageKey.INVALID_TASKS_NUMBER));
-    }
-    
+public interface SetupArenaCommand {
+   
+    public void onCommand(Player player, Arena arena, String[] args);
 }

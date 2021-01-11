@@ -95,7 +95,9 @@ public enum MessageKey {
     SABOTAGE_FIXED("sabotage_fixed"),
     SABOTAGE_BOARD_ADVERTISEMENT("sabotage_board_advertisement"),
     CANT_SABOTAGE("cant_sabotage"),
-    SABOTAGES_NOT_SET("sabotages_not_set");
+    SABOTAGES_NOT_SET("sabotages_not_set"),
+    
+    INVALID_COMMAND("invalid_command");
     private String key;
     
     private MessageKey(String key){

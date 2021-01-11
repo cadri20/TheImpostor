@@ -29,23 +29,17 @@ import org.bukkit.entity.Player;
  *
  * @author cadri
  */
-public class AddSabotage implements SubCommand{
+public class AddSabotage implements SetupArenaCommand{
 
     @Override
-    public void onCommand(CommandSender sender, String[] args) {
-        if(sender instanceof Player){
-            Player player = (Player) sender;
-            Arena arena = ArenaManager.getArena(args[0]);
-            if(arena != null){
-                String sabotageName = args[1];
-                int time = Integer.parseInt(args[2]);
-                Block sabotageBlock = player.getTargetBlockExact(4);
-                arena.addSabotageComponent(new SabotageComponent(sabotageName, sabotageBlock, time));
-                player.sendMessage(LanguageManager.getTranslation(MessageKey.SABOTAGE_CREATED));
-            }else{
-                player.sendMessage(LanguageManager.getTranslation(MessageKey.ARENA_DOESNT_EXIST, args[0]));
-            }
-        }
+    public void onCommand(Player player, Arena arena, String[] args) {
+
+        String sabotageName = args[0];
+        int time = Integer.parseInt(args[1]);
+        Block sabotageBlock = player.getTargetBlockExact(4);
+        arena.addSabotageComponent(new SabotageComponent(sabotageName, sabotageBlock, time));
+        player.sendMessage(LanguageManager.getTranslation(MessageKey.SABOTAGE_CREATED));
+        
     }
     
 }

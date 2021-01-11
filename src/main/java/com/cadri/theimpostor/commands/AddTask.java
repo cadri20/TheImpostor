@@ -28,21 +28,16 @@ import org.bukkit.entity.Player;
  *
  * @author cadri
  */
-public class AddTask implements SubCommand{
+public class AddTask implements SetupArenaCommand{
 
     @Override
-    public void onCommand(CommandSender sender, String[] args) {
-        Arena arena = ArenaManager.getArena(args[0]);
-        if(sender instanceof Player){
-            Player player = (Player) sender;
-            CrewTask task = new CrewTask(args[1], player.getLocation(), Integer.parseInt(args[2]));
-            try{
-                arena.addTask(task);
-                player.sendMessage(LanguageManager.getTranslation(MessageKey.TASK_CREATED));
-            }catch(IllegalArgumentException e){
-                player.sendMessage(LanguageManager.getTranslation(MessageKey.TASK_SAME_LOCATION));
-            }
-            
+    public void onCommand(Player player, Arena arena, String[] args) {
+        CrewTask task = new CrewTask(args[0], player.getLocation(), Integer.parseInt(args[1]));
+        try {
+            arena.addTask(task);
+            player.sendMessage(LanguageManager.getTranslation(MessageKey.TASK_CREATED));
+        } catch (IllegalArgumentException e) {
+            player.sendMessage(LanguageManager.getTranslation(MessageKey.TASK_SAME_LOCATION));
         }
         
     }

@@ -29,8 +29,10 @@ import org.bukkit.command.CommandSender;
 public class CommandManager implements CommandExecutor{
     public static String mainCommand = "theimpostor";
     public static HashMap<String,SubCommand> commands = new HashMap<>();
+    
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String string, String[] args) {
+
         if(cmd.getName().equalsIgnoreCase(mainCommand)){
             commands.get(args[0]).onCommand(sender, Arrays.copyOfRange(args, 1, args.length));
             return true;
@@ -43,12 +45,11 @@ public class CommandManager implements CommandExecutor{
         commands.put("join", new JoinArena());
         commands.put("create", new CreateArena());
         commands.put("leave", new LeaveArena());
-        commands.put("addtask", new AddTask());
-        commands.put("addspawn", new AddSpawn());
-        commands.put("setemb", new SetEmergencyMeeetingBlock());
         commands.put("enable", new Enable());
-        commands.put("settasksnumber", new SetTasksNumber());
-        commands.put("addsabotage", new AddSabotage());
+        
+        SetupArena setupArena = new SetupArena();
+        setupArena.loadSubCommands();
+        commands.put("setup", setupArena);
     }
     
 }
