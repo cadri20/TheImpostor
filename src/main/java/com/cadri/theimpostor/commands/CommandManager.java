@@ -16,6 +16,8 @@
  */
 package com.cadri.theimpostor.commands;
 
+import com.cadri.theimpostor.LanguageManager;
+import com.cadri.theimpostor.MessageKey;
 import com.cadri.theimpostor.TheImpostor;
 import java.util.Arrays;
 import java.util.Collections;
@@ -41,7 +43,12 @@ public class CommandManager implements CommandExecutor, TabCompleter{
     public boolean onCommand(CommandSender sender, Command cmd, String string, String[] args) {
 
         if(cmd.getName().equalsIgnoreCase(mainCommand)){
-            commands.get(args[0]).onCommand(sender, Arrays.copyOfRange(args, 1, args.length));
+            SubCommand command = commands.get(args[0]);
+            if(command == null){
+                sender.sendMessage(LanguageManager.getTranslation(MessageKey.INVALID_COMMAND));
+                return false;
+            }
+            command.onCommand(sender, Arrays.copyOfRange(args, 1, args.length));
             return true;
         }
         return false;

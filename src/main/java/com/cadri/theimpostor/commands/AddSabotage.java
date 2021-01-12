@@ -36,11 +36,20 @@ public class AddSabotage implements SetupArenaCommand{
 
     @Override
     public void onCommand(Player player, Arena arena, String[] args) {
-
+        if(args.length != 2){
+            player.sendMessage(LanguageManager.getTranslation(MessageKey.INVALID_ARGUMENTS_NUMBER));
+            return;
+        }
         String sabotageName = args[0];
-        int time = Integer.parseInt(args[1]);
+        int cooldown = 0;
+        try{
+            cooldown = Integer.parseInt(args[1]);
+        }catch(NumberFormatException e){
+            player.sendMessage(LanguageManager.getTranslation(MessageKey.ARGUMENT_NOT_NUMBER));
+            return;
+        }
         Block sabotageBlock = player.getTargetBlockExact(4);
-        arena.addSabotageComponent(new SabotageComponent(sabotageName, sabotageBlock, time));
+        arena.addSabotageComponent(new SabotageComponent(sabotageName, sabotageBlock, cooldown));
         player.sendMessage(LanguageManager.getTranslation(MessageKey.SABOTAGE_CREATED));
         
     }

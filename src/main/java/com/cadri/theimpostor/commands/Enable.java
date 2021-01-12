@@ -36,6 +36,11 @@ public class Enable implements SubCommand{
 
     @Override
     public void onCommand(CommandSender sender, String[] args) {
+        if(args.length != 1){
+            sender.sendMessage(LanguageManager.getTranslation(MessageKey.INVALID_ARGUMENTS_NUMBER));
+            return;
+        }
+        
         if(sender instanceof Player){
             Player player = (Player) sender;
             Arena arena = ArenaManager.getArena(args[0]);

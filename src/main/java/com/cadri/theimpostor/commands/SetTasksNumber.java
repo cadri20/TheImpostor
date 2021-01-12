@@ -35,7 +35,18 @@ public class SetTasksNumber implements SetupArenaCommand{
 
     @Override
     public void onCommand(Player player, Arena arena, String[] args) {
-        int tasksNumber = Integer.parseInt(args[0]);
+        if(args.length != 1){
+            player.sendMessage(LanguageManager.getTranslation(MessageKey.INVALID_ARGUMENTS_NUMBER));
+            return;
+        }
+            
+        int tasksNumber = 0;
+        try{
+            tasksNumber = Integer.parseInt(args[0]);
+        }catch(NumberFormatException e){
+            player.sendMessage(LanguageManager.getTranslation(MessageKey.ARGUMENT_NOT_NUMBER));
+            return;
+        }
         if(tasksNumber > 0 && tasksNumber <= arena.getTasks().size()){
             arena.setPlayerTasksNumber(tasksNumber);
             player.sendMessage(LanguageManager.getTranslation(MessageKey.TASKS_NUMBER_SETTED));

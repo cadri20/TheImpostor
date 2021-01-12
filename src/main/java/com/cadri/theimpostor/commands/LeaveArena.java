@@ -35,6 +35,7 @@ public class LeaveArena implements SubCommand{
 
     @Override
     public void onCommand(CommandSender sender, String[] args) {
+        
         if(sender instanceof Player){
             Player player = (Player) sender;
             Arena wherePlayerIs = ArenaUtils.whereArenaIs(player);

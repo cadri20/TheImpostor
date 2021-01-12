@@ -97,7 +97,10 @@ public enum MessageKey {
     CANT_SABOTAGE("cant_sabotage"),
     SABOTAGES_NOT_SET("sabotages_not_set"),
     
-    INVALID_COMMAND("invalid_command");
+    INVALID_COMMAND("invalid_command"),
+    INVALID_ARGUMENTS_NUMBER("invalid_arguments_number"),
+    INVALID_ARENA_NAME("invalid_arena_name"),
+    ARGUMENT_NOT_NUMBER("argument_not_number");
     private String key;
     
     private MessageKey(String key){

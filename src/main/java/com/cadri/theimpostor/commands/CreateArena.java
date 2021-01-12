@@ -45,12 +45,31 @@ public class CreateArena implements SubCommand {
 
     @Override
     public void onCommand(CommandSender sender, String[] args) {
- 
+
         if (sender instanceof Player) {
+            
+            if(args.length != 3){
+                sender.sendMessage(LanguageManager.getTranslation(MessageKey.INVALID_ARGUMENTS_NUMBER));
+                return;
+            }
+            String arenaName = args[0];
+            if(arenaName.startsWith(" ") || arenaName.isEmpty()){
+                sender.sendMessage(LanguageManager.getTranslation(MessageKey.INVALID_ARENA_NAME));
+                return;
+            }
+            int maxPlayers = 0;
+            int minPlayers = 0;
+            try{
+                maxPlayers = Integer.parseInt(args[1]);
+                minPlayers = Integer.parseInt(args[2]);
+            }catch(NumberFormatException e){
+                sender.sendMessage(LanguageManager.getTranslation(MessageKey.ARGUMENT_NOT_NUMBER));
+                return;
+            }
             Player player = (Player) sender;
             
             if (!ArenaManager.getArenaNames().contains(args[0])) {
-                Arena arena = new Arena(args[0], Integer.parseInt(args[1]), Integer.parseInt(args[2]), player.getLocation());
+                Arena arena = new Arena(arenaName, maxPlayers, minPlayers, player.getLocation());
                 ArenaManager.arenas.add(arena);               
                 try {
                     arena.saveConfig();

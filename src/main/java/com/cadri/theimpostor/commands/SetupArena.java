@@ -49,6 +49,10 @@ public class SetupArena implements SubCommand{
     
     @Override
     public void onCommand(CommandSender sender, String[] args) {
+        if(args.length < 2){
+            sender.sendMessage(LanguageManager.getTranslation(MessageKey.INVALID_ARGUMENTS_NUMBER));
+            return;
+        }
         if(sender instanceof Player){
             Player player = (Player) sender;
             Arena arena = ArenaManager.getArena(args[0]);
@@ -57,7 +61,7 @@ public class SetupArena implements SubCommand{
             }else{
                 SetupArenaCommand command = commands.get(args[1]);
                 if(command == null)
-                    player.sendMessage(LanguageManager.getTranslation(MessageKey.INVALID_COMMAND, args[1]));
+                    player.sendMessage(LanguageManager.getTranslation(MessageKey.INVALID_COMMAND));
                 else{
                     command.onCommand(player, arena, Arrays.copyOfRange(args, 2, args.length));
                 }

@@ -35,7 +35,19 @@ public class AddTask implements SetupArenaCommand{
 
     @Override
     public void onCommand(Player player, Arena arena, String[] args) {
-        CrewTask task = new CrewTask(args[0], player.getLocation(), Integer.parseInt(args[1]));
+        if(args.length != 2){
+            player.sendMessage(LanguageManager.getTranslation(MessageKey.INVALID_ARGUMENTS_NUMBER));
+            return;
+        }
+        
+        int taskDuration = 0;
+        try{
+            taskDuration = Integer.parseInt(args[1]);
+        }catch(NumberFormatException e){
+            player.sendMessage(LanguageManager.getTranslation(MessageKey.ARGUMENT_NOT_NUMBER));
+            return;
+        }
+        CrewTask task = new CrewTask(args[0], player.getLocation(), taskDuration);
         try {
             arena.addTask(task);
             player.sendMessage(LanguageManager.getTranslation(MessageKey.TASK_CREATED));
