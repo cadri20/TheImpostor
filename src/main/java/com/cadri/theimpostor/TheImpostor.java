@@ -25,7 +25,8 @@ public class TheImpostor extends JavaPlugin{
     public void onEnable() {
         saveDefaultConfig();
    
-        this.getCommand(CommandManager.mainCommand).setExecutor(new CommandManager());
+        getCommand(CommandManager.mainCommand).setExecutor(new CommandManager());
+        getCommand(CommandManager.mainCommand).setTabCompleter(new CommandManager());
         CommandManager.loadCommands();
         LanguageManager.loadLanguage();
         ArenaManager.loadArenas();

@@ -17,6 +17,7 @@
 package com.cadri.theimpostor.commands;
 
 import com.cadri.theimpostor.arena.Arena;
+import java.util.List;
 import org.bukkit.entity.Player;
 
 /**
@@ -26,4 +27,5 @@ import org.bukkit.entity.Player;
 public interface SetupArenaCommand {
    
     public void onCommand(Player player, Arena arena, String[] args);
+    public List<String> onTabComplete(String[] args, Arena arena);
 }

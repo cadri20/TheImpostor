@@ -18,9 +18,14 @@ package com.cadri.theimpostor.commands;
 
 import com.cadri.theimpostor.LanguageManager;
 import com.cadri.theimpostor.MessageKey;
+import com.cadri.theimpostor.TheImpostor;
 import com.cadri.theimpostor.arena.Arena;
 import com.cadri.theimpostor.arena.ArenaManager;
 import com.cadri.theimpostor.arena.ArenaUtils;
+import java.util.Collections;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.stream.Collectors;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -59,5 +64,13 @@ public class JoinArena implements SubCommand{
         
             
     }   
+
+    @Override
+    public List<String> onTabComplete(String[] args) {
+        if(args.length == 1)
+            return ArenaManager.getArenaNames().stream().filter(arenaName -> arenaName.startsWith(args[0])).collect(Collectors.toList());
+        
+        return Collections.emptyList();
+    }
 
 }

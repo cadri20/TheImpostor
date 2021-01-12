@@ -21,6 +21,9 @@ import com.cadri.theimpostor.MessageKey;
 import com.cadri.theimpostor.arena.Arena;
 import com.cadri.theimpostor.arena.ArenaManager;
 import com.cadri.theimpostor.arena.ArenaNotReadyException;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -48,6 +51,14 @@ public class Enable implements SubCommand{
                 player.sendMessage(LanguageManager.getTranslation(MessageKey.ARENA_DOESNT_EXIST, args[0]));
             }
         }
+    }
+
+    @Override
+    public List<String> onTabComplete(String[] args) {
+       if(args.length == 1)
+           return ArenaManager.getArenaNames().stream().filter(arenaName -> arenaName.startsWith(args[0])).collect(Collectors.toList());
+       
+       return Collections.emptyList();
     }
     
 }

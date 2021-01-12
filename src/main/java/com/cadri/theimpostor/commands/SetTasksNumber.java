@@ -21,6 +21,9 @@ import com.cadri.theimpostor.MessageKey;
 import com.cadri.theimpostor.arena.Arena;
 import com.cadri.theimpostor.arena.ArenaManager;
 import com.cadri.theimpostor.game.PlayerColor;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -38,6 +41,16 @@ public class SetTasksNumber implements SetupArenaCommand{
             player.sendMessage(LanguageManager.getTranslation(MessageKey.TASKS_NUMBER_SETTED));
         }else
             player.sendMessage(LanguageManager.getTranslation(MessageKey.INVALID_TASKS_NUMBER));
+    }
+
+    @Override
+    public List<String> onTabComplete(String[] args, Arena arena) {
+        if(args.length == 1){
+            String tasksNumberLimit = String.format("<[1-%d]>", arena.getTasks().size());
+            return Arrays.asList(tasksNumberLimit);
+        }
+        
+        return Collections.emptyList();
     }
     
 }

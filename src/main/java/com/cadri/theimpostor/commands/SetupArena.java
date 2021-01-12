@@ -18,12 +18,18 @@ package com.cadri.theimpostor.commands;
 
 import com.cadri.theimpostor.LanguageManager;
 import com.cadri.theimpostor.MessageKey;
+import com.cadri.theimpostor.TheImpostor;
 import com.cadri.theimpostor.arena.Arena;
 import com.cadri.theimpostor.arena.ArenaManager;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.stream.Collectors;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
 /**
@@ -58,6 +64,26 @@ public class SetupArena implements SubCommand{
             }
             
         }
+    }
+
+    @Override
+    public List<String> onTabComplete(String[] args) {
+        if(args.length == 1)
+            return ArenaManager.getArenaNames().stream().filter(arenaName -> arenaName.startsWith(args[0])).collect(Collectors.toList());
+        else if(args.length == 2){
+            if(ArenaManager.getArenaNames().contains(args[0])){
+                List<String> cmdsFiltered = commands.keySet().stream().filter(cmd -> cmd.startsWith(args[1])).collect(Collectors.toList());
+                return cmdsFiltered;
+            }
+        }else if(args.length >= 3){
+            SetupArenaCommand setupCommand = commands.get(args[1]);
+            Arena arena = ArenaManager.getArena(args[0]);
+            if(setupCommand != null && arena != null){
+                return setupCommand.onTabComplete(Arrays.copyOfRange(args, 2, args.length), arena);
+            }
+        }
+
+        return Collections.emptyList();
     }
     
     

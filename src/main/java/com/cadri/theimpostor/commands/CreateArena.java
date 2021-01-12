@@ -24,6 +24,9 @@ import com.cadri.theimpostor.arena.ArenaManager;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
@@ -61,5 +64,21 @@ public class CreateArena implements SubCommand {
             }
         }
 
+    }
+
+    @Override
+    public List<String> onTabComplete(String[] args) {
+        switch (args.length) {
+            case 1:
+                return Arrays.asList("<arenaname>");
+            case 2:
+                return Arrays.asList("<maxplayers>");
+            case 3:
+                return Arrays.asList("<minplayers>");
+            default:
+                break;
+        }
+        
+        return Collections.emptyList();
     }
 }

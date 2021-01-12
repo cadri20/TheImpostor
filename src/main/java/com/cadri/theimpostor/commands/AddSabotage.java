@@ -21,6 +21,9 @@ import com.cadri.theimpostor.MessageKey;
 import com.cadri.theimpostor.arena.Arena;
 import com.cadri.theimpostor.arena.ArenaManager;
 import com.cadri.theimpostor.game.SabotageComponent;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -40,6 +43,16 @@ public class AddSabotage implements SetupArenaCommand{
         arena.addSabotageComponent(new SabotageComponent(sabotageName, sabotageBlock, time));
         player.sendMessage(LanguageManager.getTranslation(MessageKey.SABOTAGE_CREATED));
         
+    }
+
+    @Override
+    public List<String> onTabComplete(String[] args, Arena arena) {
+        if(args.length == 1)
+            return Arrays.asList("<name>");
+        else if(args.length == 2)
+            return Arrays.asList("<cooldown>");
+        
+        return Collections.emptyList();
     }
     
 }

@@ -16,12 +16,14 @@
  */
 package com.cadri.theimpostor.commands;
 
+import java.util.List;
 import org.bukkit.command.CommandSender;
 
 /**
  *
  * @author cadri
  */
-public interface SubCommand {
+public interface SubCommand{
     public void onCommand(CommandSender sender, String[] args);
+    public List<String> onTabComplete(String[] args);
 }

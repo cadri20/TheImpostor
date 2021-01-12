@@ -20,6 +20,8 @@ import com.cadri.theimpostor.LanguageManager;
 import com.cadri.theimpostor.MessageKey;
 import com.cadri.theimpostor.arena.Arena;
 import com.cadri.theimpostor.arena.ArenaManager;
+import java.util.Collections;
+import java.util.List;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -40,6 +42,11 @@ public class SetEmergencyMeeetingBlock implements SetupArenaCommand{
             player.sendMessage(LanguageManager.getTranslation(MessageKey.EMERGENCY_MEETING_BLOCK_PROBLEM));
         }
 
+    }
+
+    @Override
+    public List<String> onTabComplete(String[] args, Arena arena) {
+        return Collections.emptyList();
     }
     
 }

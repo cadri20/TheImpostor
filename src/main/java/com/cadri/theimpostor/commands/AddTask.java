@@ -21,6 +21,9 @@ import com.cadri.theimpostor.MessageKey;
 import com.cadri.theimpostor.arena.Arena;
 import com.cadri.theimpostor.arena.ArenaManager;
 import com.cadri.theimpostor.game.CrewTask;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -40,6 +43,16 @@ public class AddTask implements SetupArenaCommand{
             player.sendMessage(LanguageManager.getTranslation(MessageKey.TASK_SAME_LOCATION));
         }
         
+    }
+
+    @Override
+    public List<String> onTabComplete(String[] args, Arena arena) {
+        if(args.length == 1){
+            return Arrays.asList("<taskname>");
+        }else if(args.length == 2)
+            return Arrays.asList("<duration>");
+        
+        return Collections.emptyList();
     }
     
 }

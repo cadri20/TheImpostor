@@ -16,17 +16,24 @@
  */
 package com.cadri.theimpostor.commands;
 
+import com.cadri.theimpostor.TheImpostor;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
+import java.util.function.Predicate;
+import java.util.logging.Level;
+import java.util.stream.Collectors;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 
 /**
  *
  * @author cadri
  */
-public class CommandManager implements CommandExecutor{
+public class CommandManager implements CommandExecutor, TabCompleter{
     public static String mainCommand = "theimpostor";
     public static HashMap<String,SubCommand> commands = new HashMap<>();
     
@@ -51,5 +58,22 @@ public class CommandManager implements CommandExecutor{
         setupArena.loadSubCommands();
         commands.put("setup", setupArena);
     }
+
+    @Override
+    public List<String> onTabComplete(CommandSender cs, Command cmnd, String string, String[] args) {
+        if(args.length == 1){
+            List<String> commandsFiltered = commands.keySet().stream().filter(command -> command.startsWith(args[0])).collect(Collectors.toList());
+            return commandsFiltered;
+        }else if(args.length >= 2){
+            SubCommand subCommand = commands.get(args[0]);
+            if(subCommand != null)
+                return commands.get(args[0]).onTabComplete(Arrays.copyOfRange(args, 1, args.length));
+            
+        }
+        
+        
+        return Collections.emptyList();
+    }
+    
     
 }
