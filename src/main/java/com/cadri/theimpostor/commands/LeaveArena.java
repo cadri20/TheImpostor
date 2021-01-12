@@ -47,10 +47,7 @@ public class LeaveArena implements SubCommand{
     }
 
     @Override
-    public List<String> onTabComplete(String[] args) {
-        if(args.length == 1)
-            return ArenaManager.getArenaNames().stream().filter(arenaName -> arenaName.startsWith(args[0])).collect(Collectors.toList());
-        
+    public List<String> onTabComplete(String[] args) {        
         return Collections.emptyList();
     }
     
