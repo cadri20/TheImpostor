@@ -86,7 +86,7 @@ public class GameUtils {
                    
                 }
             }else{
-                playerInArena.sendMessage("You're not in arena");
+                playerInArena.sendMessage(LanguageManager.getTranslation(MessageKey.PLAYER_NOT_IN_ARENA));
             }
 
         }
@@ -108,7 +108,7 @@ public class GameUtils {
     
     public static Inventory getGUIChoiceColors(Arena arena){
         PlayerColor[] playerColors = PlayerColor.values();
-        Inventory guiColors = Bukkit.createInventory(null, 9, "Choose a color");
+        Inventory guiColors = Bukkit.createInventory(null, 9, LanguageManager.getTranslation(MessageKey.CHOOSE_COLOR));
         for(PlayerColor color: playerColors){
             if(!isColorSelected(color, arena))
                 guiColors.addItem(color.getItem());

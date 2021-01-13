@@ -33,9 +33,18 @@ public enum MessageKey {
     ARENA_NOT_READY("arena_not_ready"),
     ALL_SPAWNS_SETTED("all_spawns_setted"),
     
+    CHOOSE_COLOR("choose_color"),
+    BLUE_COLOR("blue_color"),
+    RED_COLOR("red_color"),
+    YELLOW_COLOR("yellow_color"),
+    GREEN_COLOR("green_color"),
+    COLOR_CHOOSEN("color_choosen"),
+    
     PLAYER_IN_ARENA("player_in_arena"),
     PLAYER_NOT_IN_ARENA("player_not_in_arena"),
     PLAYER_VOTE_FOR("player_vote_for"),
+    PLAYER_KILLED_TITLE("player_killed_title"),
+    PLAYER_KILLED_SUBTITLE("player_killed_subtitle"),
     IMPOSTOR_TITLE("impostor_title"),
     IMPOSTOR_SUBTITLE("impostor_subtitle"),
     CREWMATE_TITLE("crewmate_title"),
@@ -53,6 +62,7 @@ public enum MessageKey {
     VOTE_START_TIME("vote_start_time"),
     VOTE_FINISH_TIME("vote_finish_time"),
     VOTE_STARTED("vote_started"),
+    VOTE_SKIPPED("vote_skipped"),
     
     DEAD_BODY_REPORTED("dead_body_reported"),
     PLAYER_REPORT_CORPSE("player_report_corpse"),
@@ -65,6 +75,7 @@ public enum MessageKey {
     EMERGENCY_MEETING_BLOCK_NOT_SET("emergency_meeting_block_not_set"),
     
     IMPOSTOR_ABLE_TO_KILL("impostor_able_to_kill"),
+    IMPOSTOR_KILL_COOLDOWN("impostor_kill_cooldown"),
     NOBODY_EJECTED("nobody_ejected"),
     
     WINNERS("winners"),

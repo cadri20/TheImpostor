@@ -78,7 +78,9 @@ public class ArenaEvents implements Listener {
         ItemStack itemInHand = killer.getInventory().getItemInMainHand();
         
         if(itemInHand.equals(ItemOptions.KILL_PLAYER.getItem()) && arena.canKill(killer)){
-            killed.sendTitle("You've been killed", "Make tasks", 20, 70, 20);
+            String title = LanguageManager.getTranslation(MessageKey.PLAYER_KILLED_TITLE);
+            String subtitle = LanguageManager.getTranslation(MessageKey.PLAYER_KILLED_SUBTITLE);
+            killed.sendTitle(title, subtitle, 20, 70, 20);
             GameUtils.makePhantom(killed, arena);
             CorpseData corpse = CorpseAPI.spawnCorpse(killed, killed.getLocation());
             arena.addCorpse(corpse);
@@ -89,7 +91,7 @@ public class ArenaEvents implements Listener {
                 if(arena.started())
                     arena.setKillFlag(killer, true);                                
             }, killTime * 20);
-            killer.sendMessage("Now you have to wait " + killTime + " seconds before killing again");
+            killer.sendMessage(LanguageManager.getTranslation(MessageKey.IMPOSTOR_KILL_COOLDOWN, killTime));
         }
 
     }
@@ -165,7 +167,7 @@ public class ArenaEvents implements Listener {
             if(evt.getInventory().equals(vs.getInventory())){ //If player selected skip vote
                 if(itemClicked.getItemMeta().getDisplayName().equals(vs.getSkipVoteText())){
                     vs.skipVote(player);
-                    player.sendMessage("You've skipped the vote");
+                    player.sendMessage(LanguageManager.getTranslation(MessageKey.VOTE_SKIPPED));
                     player.closeInventory();
                     evt.setCancelled(true);
                     return;
@@ -188,7 +190,7 @@ public class ArenaEvents implements Listener {
         if(playerColor != null){
 
             arena.setPlayerColor(player, playerColor);
-            player.sendMessage("You chose " + playerColor.getName());
+            player.sendMessage(LanguageManager.getTranslation(MessageKey.COLOR_CHOOSEN, playerColor.getChatColor() + playerColor.getName()));
             player.closeInventory();  
             evt.setCancelled(true);
             return;

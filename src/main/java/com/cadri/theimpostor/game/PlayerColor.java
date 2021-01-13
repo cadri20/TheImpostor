@@ -16,6 +16,8 @@
  */
 package com.cadri.theimpostor.game;
 
+import com.cadri.theimpostor.LanguageManager;
+import com.cadri.theimpostor.MessageKey;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -28,10 +30,10 @@ import org.bukkit.inventory.meta.LeatherArmorMeta;
  * @author cadri
  */
 public enum PlayerColor {
-    RED("Red", ChatColor.RED, Material.RED_WOOL, Color.RED),
-    BLUE("Blue",ChatColor.BLUE,Material.BLUE_WOOL, Color.BLUE),
-    YELLOW("Yellow", ChatColor.YELLOW,Material.YELLOW_WOOL, Color.YELLOW),
-    GREEN("Green", ChatColor.GREEN, Material.GREEN_WOOL, Color.GREEN);
+    RED(LanguageManager.getTranslation(MessageKey.RED_COLOR), ChatColor.RED, Material.RED_WOOL, Color.RED),
+    BLUE(LanguageManager.getTranslation(MessageKey.BLUE_COLOR),ChatColor.BLUE,Material.BLUE_WOOL, Color.BLUE),
+    YELLOW(LanguageManager.getTranslation(MessageKey.YELLOW_COLOR), ChatColor.YELLOW,Material.YELLOW_WOOL, Color.YELLOW),
+    GREEN(LanguageManager.getTranslation(MessageKey.GREEN_COLOR), ChatColor.GREEN, Material.GREEN_WOOL, Color.GREEN);
     
     private String name;
     private ChatColor chatColor;
