@@ -32,8 +32,8 @@ import org.bukkit.entity.Player;
  *
  * @author cadri
  */
-public class Enable implements SubCommand{
-
+public class Enable implements SubCommand, AdminCommand{
+    String usage = "&6/imp enable &b<arena>";
     @Override
     public void onCommand(CommandSender sender, String[] args) {
         if(args.length != 1){
@@ -66,4 +66,13 @@ public class Enable implements SubCommand{
        return Collections.emptyList();
     }
     
+    @Override
+    public String getUsage(){
+        return usage;
+    }
+    
+    @Override
+    public String getDescription(){
+        return LanguageManager.getTranslation(MessageKey.ENABLE_COMMAND_DESCRIPTION);
+    }
 }

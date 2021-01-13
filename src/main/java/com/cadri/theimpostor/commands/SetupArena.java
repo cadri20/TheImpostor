@@ -36,8 +36,9 @@ import org.bukkit.entity.Player;
  *
  * @author cadri
  */
-public class SetupArena implements SubCommand{
+public class SetupArena implements SubCommand, AdminCommand{
     private Map<String, SetupArenaCommand> commands = new HashMap<>();
+    private String usage = "&6c/imp setup &b<arena>";
     
     public void loadSubCommands(){
         commands.put("addspawn", new AddSpawn());
@@ -89,6 +90,14 @@ public class SetupArena implements SubCommand{
 
         return Collections.emptyList();
     }
+
+    @Override
+    public String getUsage() {
+        return usage;
+    }
     
-    
+    @Override
+    public String getDescription(){
+        return LanguageManager.getTranslation(MessageKey.SETUP_COMMAND_DESCRIPTION);
+    }
 }

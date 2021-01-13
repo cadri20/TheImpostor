@@ -34,6 +34,7 @@ import org.bukkit.entity.Player;
  * @author cadri
  */
 public class JoinArena implements SubCommand{
+    private String usage = "&6/imp join &b<arena>";
     @Override
     public void onCommand(CommandSender sender, String[] args) {
         if(args.length != 1){
@@ -76,4 +77,13 @@ public class JoinArena implements SubCommand{
         return Collections.emptyList();
     }
 
+    @Override
+    public String getUsage() {
+        return usage;
+    }
+
+    @Override
+    public String getDescription(){
+        return LanguageManager.getTranslation(MessageKey.JOIN_COMMAND_DESCRIPTION);
+    }
 }

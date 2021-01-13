@@ -41,8 +41,8 @@ import org.bukkit.entity.Player;
  *
  * @author cadri
  */
-public class CreateArena implements SubCommand {
-
+public class CreateArena implements SubCommand, AdminCommand {
+    private String usage = "&6/imp create &b<arenaname> &b<maxplayers> &b<minplayers>";
     @Override
     public void onCommand(CommandSender sender, String[] args) {
 
@@ -99,5 +99,15 @@ public class CreateArena implements SubCommand {
         }
         
         return Collections.emptyList();
+    }
+
+    @Override
+    public String getUsage() {
+        return usage;
+    }
+
+    @Override
+    public String getDescription() {
+        return LanguageManager.getTranslation(MessageKey.CREATE_COMMAND_DESCRIPTION);
     }
 }

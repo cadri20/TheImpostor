@@ -32,7 +32,7 @@ import org.bukkit.entity.Player;
  * @author cadri
  */
 public class LeaveArena implements SubCommand{
-
+    private String usage = "&6/imp leave &b<arena>";
     @Override
     public void onCommand(CommandSender sender, String[] args) {
         
@@ -50,6 +50,16 @@ public class LeaveArena implements SubCommand{
     @Override
     public List<String> onTabComplete(String[] args) {        
         return Collections.emptyList();
+    }
+
+    @Override
+    public String getUsage() {
+        return usage;
+    }
+    
+    @Override
+    public String getDescription(){
+        return LanguageManager.getTranslation(MessageKey.LEAVE_COMMAND_DESCRIPTION);
     }
     
 }

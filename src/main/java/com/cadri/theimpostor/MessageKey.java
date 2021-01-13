@@ -100,7 +100,14 @@ public enum MessageKey {
     INVALID_COMMAND("invalid_command"),
     INVALID_ARGUMENTS_NUMBER("invalid_arguments_number"),
     INVALID_ARENA_NAME("invalid_arena_name"),
-    ARGUMENT_NOT_NUMBER("argument_not_number");
+    ARGUMENT_NOT_NUMBER("argument_not_number"),
+    
+    HELP_COMMAND_HEADER("help_command_header"),
+    CREATE_COMMAND_DESCRIPTION("create_command_description"),
+    ENABLE_COMMAND_DESCRIPTION("enable_command_description"),
+    JOIN_COMMAND_DESCRIPTION("join_command_description"),
+    LEAVE_COMMAND_DESCRIPTION("leave_command_description"),
+    SETUP_COMMAND_DESCRIPTION("setup_command_description");
     private String key;
     
     private MessageKey(String key){
