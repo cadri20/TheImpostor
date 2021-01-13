@@ -107,7 +107,9 @@ public enum MessageKey {
     ENABLE_COMMAND_DESCRIPTION("enable_command_description"),
     JOIN_COMMAND_DESCRIPTION("join_command_description"),
     LEAVE_COMMAND_DESCRIPTION("leave_command_description"),
-    SETUP_COMMAND_DESCRIPTION("setup_command_description");
+    SETUP_COMMAND_DESCRIPTION("setup_command_description"),
+    
+    COMMAND_USE_NOT_ALLOWED("command_use_not_allowed");
     private String key;
     
     private MessageKey(String key){

@@ -38,7 +38,7 @@ import org.bukkit.entity.Player;
  */
 public class SetupArena implements SubCommand, AdminCommand{
     private Map<String, SetupArenaCommand> commands = new HashMap<>();
-    private String usage = "&6c/imp setup &b<arena>";
+    private String usage = "&6/imp setup &b<arena>";
     
     public void loadSubCommands(){
         commands.put("addspawn", new AddSpawn());
@@ -50,6 +50,11 @@ public class SetupArena implements SubCommand, AdminCommand{
     
     @Override
     public void onCommand(CommandSender sender, String[] args) {
+        if(!sender.hasPermission("theimpostor.admin.setup")){
+            sender.sendMessage(LanguageManager.getTranslation(MessageKey.COMMAND_USE_NOT_ALLOWED));
+            return;
+        }
+        
         if(args.length < 2){
             sender.sendMessage(LanguageManager.getTranslation(MessageKey.INVALID_ARGUMENTS_NUMBER));
             return;
