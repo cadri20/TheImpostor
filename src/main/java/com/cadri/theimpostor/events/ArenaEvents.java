@@ -162,6 +162,13 @@ public class ArenaEvents implements Listener {
         if(itemClicked == null || itemClicked.getType() == Material.AIR)
             return;
         
+        Material material = itemClicked.getType();
+        
+        if(material.equals(Material.LEATHER_HELMET) 
+                || material.equals(Material.LEATHER_CHESTPLATE)
+                || material.equals(Material.LEATHER_LEGGINGS)
+                || material.equals(Material.LEATHER_BOOTS))
+            evt.setCancelled(true); // his prevents players from removing their armor        
         VoteSystem vs = arena.getVoteSystem();
         if(vs != null){
             if(evt.getInventory().equals(vs.getInventory())){ //If player selected skip vote
@@ -184,8 +191,7 @@ public class ArenaEvents implements Listener {
                 }
             }
         }
-        
-        
+             
         PlayerColor playerColor = PlayerColor.getPlayerColor(itemClicked);
         if(playerColor != null){
 
@@ -216,6 +222,7 @@ public class ArenaEvents implements Listener {
     public void onMoveItemFromInventory(InventoryMoveItemEvent evt){
         Inventory inventorySource = evt.getInitiator();
         Inventory inventoryDestiny = evt.getDestination();
+        
         if(! (inventoryDestiny.getHolder() instanceof Player))
             return;
         
@@ -225,6 +232,13 @@ public class ArenaEvents implements Listener {
         if(arena == null)
             return;
         
+        ItemStack item = evt.getItem();
+        Material material = item.getType();
+        if(material.equals(Material.LEATHER_HELMET) 
+                || material.equals(Material.LEATHER_CHESTPLATE)
+                || material.equals(Material.LEATHER_LEGGINGS)
+                || material.equals(Material.LEATHER_BOOTS))
+            evt.setCancelled(true); // his prevents players from removing their armor
         VoteSystem vs = arena.getVoteSystem();
         if(inventorySource.equals(vs.getInventory()) || inventorySource.equals(GameUtils.getGUIChoiceColors(arena))){
             evt.setCancelled(true);
