@@ -693,10 +693,7 @@ public class Arena {
         yamlSettings.set("name", name);
         yamlSettings.set("minPlayers", minPlayers);
         yamlSettings.set("maxPlayers", maxPlayers);
-        yamlSettings.set("Lobby" + ".world", lobby.getWorld().getName());
-        yamlSettings.set("Lobby" + ".x", lobby.getX());
-        yamlSettings.set("Lobby" + ".y", lobby.getY());
-        yamlSettings.set("Lobby" + ".z", lobby.getZ());
+        yamlSettings.set("lobby_location", Serializer.serializeLocation(lobby));
         yamlSettings.set("enabled", enabled);
         yamlSettings.set("impostors", impostorsNumber);
         yamlSettings.set("discussion_time", discussionTime);
@@ -712,22 +709,15 @@ public class Arena {
         
         if(emergencyMeetingBlock != null){
             Location embLoc = emergencyMeetingBlock.getLocation();
-            yamlSettings.set("emergency_meeting_block_location.world", embLoc.getWorld().getName());
-            yamlSettings.set("emergency_meeting_block_location.x", embLoc.getX());
-            yamlSettings.set("emergency_meeting_block_location.y", embLoc.getY());
-            yamlSettings.set("emergency_meeting_block_location.z", embLoc.getZ());
+            yamlSettings.set("emergency_meeting_block_location", Serializer.serializeLocation(embLoc));
         }
         for(CrewTask task: tasks){
             String taskName = task.getName();
             String key = "tasks." + taskName;
             
             Location loc = task.getLocation();
-            yamlSettings.set(key + ".location.world", loc.getWorld().getName());
-            yamlSettings.set(key + ".location.x", loc.getX());
-            yamlSettings.set(key + ".location.y", loc.getY());
-            yamlSettings.set(key + ".location.z", loc.getZ());
-            
-            yamlSettings.set(key + ".time_to_complete", task.getTimeToComplete());
+            yamlSettings.set(key + ".location", Serializer.serializeLocation(task.getLocation()));
+            yamlSettings.set(key + ".duration", task.getTimeToComplete());
         }
         
         for(SabotageComponent sabotage: sabotages){
@@ -735,7 +725,7 @@ public class Arena {
             String key = "sabotages." + sabotageName;
            
             yamlSettings.set(key + ".block_location", Serializer.serializeLocation(sabotage.getBlock().getLocation()));
-            yamlSettings.set(key + ".time", sabotage.getTime());
+            yamlSettings.set(key + ".cooldown", sabotage.getTime());
         }
         
         yamlSettings.save(fileSettings);

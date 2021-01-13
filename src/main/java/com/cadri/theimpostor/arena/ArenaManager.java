@@ -56,12 +56,7 @@ public class ArenaManager {
             if (fc.getString("Lobby") == null) {
                 TheImpostor.plugin.getLogger().log(Level.INFO, "La arena " + name + " no tiene lobby");
             } else {
-                String World = fc.getString("Lobby" + ".world");
-                World lobbyWorld = Bukkit.getWorld(World);
-                Double x = fc.getDouble("Lobby" + ".x");
-                Double y = fc.getDouble("Lobby" + ".y");
-                Double z = fc.getDouble("Lobby" + ".z");
-                Location lobby = new Location(lobbyWorld, x, y, z);
+                Location lobby = Serializer.getLocation(fc.getString("lobby_location"));
                                 
                 List<Location> playerSpawnPoints = new ArrayList<>();
                 for(String stringLocation: fc.getStringList("player_spawn_points")){
@@ -75,14 +70,10 @@ public class ArenaManager {
                     for (String taskName : tasksSection.getKeys(false)) {
                         String taskPath = "tasks." + taskName + ".";
 
-                        World world = Bukkit.getWorld(fc.getString(taskPath + "location.world"));
-                        double locX = fc.getDouble(taskPath + "location.x");
-                        double locY = fc.getDouble(taskPath + "location.y");
-                        double locZ = fc.getDouble(taskPath + "location.z");
-                        Location loc = new Location(world, locX, locY, locZ);
+                        Location taskLoc = Serializer.getLocation(fc.getString(taskPath + "location"));
 
-                        int time = fc.getInt("tasks." + taskName + ".time_to_complete");
-                        CrewTask task = new CrewTask(taskName, loc, time);
+                        int time = fc.getInt("tasks." + taskName + ".duration");
+                        CrewTask task = new CrewTask(taskName, taskLoc, time);
                         tasksList.add(task);
                     }
                 }
@@ -95,19 +86,15 @@ public class ArenaManager {
                         
                         Location blockLoc = Serializer.getLocation(fc.getString(sabotagePath + ".block_location"));
                         Block sabotageBlock = blockLoc.getBlock();
-                        int sabotageTime = fc.getInt(sabotagePath + ".time");
+                        int sabotageTime = fc.getInt(sabotagePath + ".cooldown");
                         sabotagesList.add(new SabotageComponent(sabotageName, sabotageBlock, sabotageTime));
                     }
                     
                 }
                 Block emergencyMeetingBlock = null;
                 if(fc.get("emergency_meeting_block_location") != null){
-                    World world = Bukkit.getWorld(fc.getString("emergency_meeting_block_location.world"));
-                    double xBlock = fc.getDouble("emergency_meeting_block_location.x");
-                    double yBlock = fc.getDouble("emergency_meeting_block_location.y");
-                    double zBlock = fc.getDouble("emergency_meeting_block_location.z");
-                    Location blockLocation = new Location(world, xBlock, yBlock, zBlock);
-                    emergencyMeetingBlock = world.getBlockAt(blockLocation);
+                    Location blockLocation = Serializer.getLocation(fc.getString("emergency_meeting_block_location"));
+                    emergencyMeetingBlock = blockLocation.getBlock();
                 }
                 
                 int impostors = fc.getInt("impostors");
