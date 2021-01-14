@@ -31,6 +31,7 @@ public enum MessageKey {
     ARENA_ENABLED("arena_enabled"),
     ARENA_NOT_ENABLED("arena_not_enabled"),
     ARENA_NOT_READY("arena_not_ready"),
+    GAME_ALREADY_STARTED("game_already_started"),
     ALL_SPAWNS_SETTED("all_spawns_setted"),
     
     CHOOSE_COLOR("choose_color"),

@@ -52,8 +52,11 @@ public class JoinArena implements SubCommand{
                 Arena arena = ArenaManager.getArena(args[0]);
                 
                 if(arena.isEnabled()){
-                    arena.addPlayer(player);
-                    player.teleport(arena.getLobby());
+                    if(!arena.started()){
+                        arena.addPlayer(player);
+                        player.teleport(arena.getLobby());
+                    }else
+                        player.sendMessage(LanguageManager.getTranslation(MessageKey.GAME_ALREADY_STARTED));
                 }else
                     player.sendMessage(LanguageManager.getTranslation(MessageKey.ARENA_NOT_ENABLED));
 

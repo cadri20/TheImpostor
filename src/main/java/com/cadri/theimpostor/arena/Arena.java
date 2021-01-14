@@ -184,16 +184,25 @@ public class Arena {
         playersColor.remove(player);
         resetDisplayColor(player);
         aliveMap.remove(player);
-        if(this.isImpostor(player))
-            impostors.remove(player);
-        else
-            crew.remove(player);
         player.teleport(playerLocations.get(player));
         player.setGameMode(GameMode.SURVIVAL);
         playerLocations.remove(player);
         resetInventory(player);
         invStore.remove(player);
         taskProgressBar.removePlayer(player);
+        if(this.isImpostor(player)){
+            impostors.remove(player);
+            if(impostors.isEmpty()){
+                endGame(false);
+                return true;
+            }   
+        }else{
+            crew.remove(player);
+            if(noenoughCrew()){
+                endGame(true);
+                return true;
+            }
+        }        
         return true;
     }
 
