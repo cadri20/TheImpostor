@@ -55,6 +55,7 @@ import org.golde.bukkit.corpsereborn.CorpseAPI.events.CorpseClickEvent;
 import org.golde.bukkit.corpsereborn.nms.Corpses.CorpseData;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
+import org.bukkit.inventory.PlayerInventory;
 
 /**
  *
@@ -81,17 +82,23 @@ public class ArenaEvents implements Listener {
             String title = LanguageManager.getTranslation(MessageKey.PLAYER_KILLED_TITLE);
             String subtitle = LanguageManager.getTranslation(MessageKey.PLAYER_KILLED_SUBTITLE);
             killed.sendTitle(title, subtitle, 20, 70, 20);
-            GameUtils.makePhantom(killed, arena);
-            CorpseData corpse = CorpseAPI.spawnCorpse(killed, killed.getLocation());
-            arena.addCorpse(corpse);
-            arena.setKillFlag(killer, false);
-            BukkitScheduler scheduler = TheImpostor.plugin.getServer().getScheduler();
-            int killTime = arena.getKillTime();
-            scheduler.runTaskLater(TheImpostor.plugin, () -> {
-                if(arena.started())
-                    arena.setKillFlag(killer, true);                                
-            }, killTime * 20);
-            killer.sendMessage(LanguageManager.getTranslation(MessageKey.IMPOSTOR_KILL_COOLDOWN, killTime));
+            PlayerInventory inventory = killed.getInventory();
+            ItemStack[] armor = inventory.getArmorContents();
+            
+            boolean gameOver = GameUtils.makePhantom(killed, arena);
+            if (!gameOver) {
+                CorpseData corpse = CorpseAPI.spawnCorpse(killed, killed.getLocation(), inventory.getContents(), armor[3], armor[2], armor[1], armor[0]);
+                arena.addCorpse(corpse);
+                arena.setKillFlag(killer, false);
+                BukkitScheduler scheduler = TheImpostor.plugin.getServer().getScheduler();
+                int killTime = arena.getKillTime();
+                scheduler.runTaskLater(TheImpostor.plugin, () -> {
+                    if (arena.started()) {
+                        arena.setKillFlag(killer, true);
+                    }
+                }, killTime * 20);
+                killer.sendMessage(LanguageManager.getTranslation(MessageKey.IMPOSTOR_KILL_COOLDOWN, killTime));
+            }
         }
 
     }

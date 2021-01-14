@@ -68,11 +68,13 @@ public class GameUtils {
         }
     }
 
-    public static void makePhantom(Player player, Arena arena) {
-        if(arena.noenoughCrew()){
-            arena.endGame(true);
-            return;
-        }
+    /**
+     * 
+     * @param player
+     * @param arena
+     * @return true if the game is over or false if it is not
+     */
+    public static boolean makePhantom(Player player, Arena arena) {
         Map<Player, Boolean> aliveMap = arena.getAliveMap();
         aliveMap.put(player, false);
 
@@ -92,7 +94,9 @@ public class GameUtils {
         }
         if(arena.noenoughCrew()){
             arena.endGame(true);
-        }
+            return true;
+        }else
+            return false;
     }
     
     public static void setPlayerVisible(Player deadPlayer, Arena arena){
