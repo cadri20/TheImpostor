@@ -22,6 +22,7 @@ import com.cadri.theimpostor.TheImpostor;
 import com.cadri.theimpostor.arena.Arena;
 import com.sun.prism.paint.Color;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +57,7 @@ public class GameUtils {
     
     public static Player chooseImpostor(List<Player> players) {
         int index = random.nextInt(players.size());
-
+        
         return players.remove(index);
     }
 

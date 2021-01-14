@@ -243,6 +243,8 @@ public class Arena {
     }
     
     public void setRoles() {
+        crew.clear();
+        impostors.clear();
         crew.addAll(players);
         for(int i = 1; i <= impostorsNumber; i++)
             impostors.add(GameUtils.chooseImpostor(crew));
