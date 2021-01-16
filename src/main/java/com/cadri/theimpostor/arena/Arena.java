@@ -506,8 +506,16 @@ public class Arena {
             }            
         }
         removeAllPlayers();
+        stopSabotages();
         taskProgressBar.setProgress(0);
         state = ArenaState.WAITING_FOR_PLAYERS;
+    }
+    
+    private void stopSabotages(){
+        for(SabotageComponent sabotage: sabotages){
+            sabotage.setIsSabotaged(false);
+            board.remove(sabotage.getBoardKey());
+        }
     }
     
     private String getImpostorsString(){
