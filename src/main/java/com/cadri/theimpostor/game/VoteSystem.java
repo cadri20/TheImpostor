@@ -23,8 +23,10 @@ import com.cadri.theimpostor.arena.Arena;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -33,6 +35,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.scheduler.BukkitTask;
 
 /**
  *
@@ -47,11 +50,14 @@ public class VoteSystem{
     private boolean tie = false;
     private Arena arena;
     private String skipVoteDisplayName = LanguageManager.getTranslation(MessageKey.SKIP_VOTE);
+    private BukkitTask timer;
+    private Map<Player, Boolean> playersVoteFlags = new HashMap<>();
 
     public VoteSystem(List<Player> players, Arena arena) {
         this.arena = arena;
         inv = Bukkit.createInventory(null, 9, LanguageManager.getTranslation(MessageKey.VOTE));
         for (Player player : players) {
+            playersVoteFlags.put(player, false);
             votes.put(player, 0);
             PlayerColor color = arena.getPlayerColor(player);
             if (color == null) {
@@ -89,11 +95,17 @@ public class VoteSystem{
             return;
         }
         Integer previousCount = votes.put(voted, voteCount + 1);
-        if(previousCount != null){ // If the player was in the map
+        if(previousCount != null){ // If the player was in the map            
             voter.sendMessage(LanguageManager.getTranslation(MessageKey.PLAYER_VOTE_FOR, voted.getDisplayName()));
             List<Player> voters = votersMap.get(voted);
-            if(voters != null)
+            if(voters != null){
                 voters.add(voter);
+                playersVoteFlags.put(voter, true);
+                if(allPlayersVoted()){
+                    timer.cancel();
+                    arena.stopVote();
+                }
+            }
             else
                 TheImpostor.plugin.getLogger().log(Level.SEVERE, "Voters list is null");
         }
@@ -109,7 +121,13 @@ public class VoteSystem{
 
     public void skipVote(Player voter){
         playersSkipVotes.add(voter);
+        playersVoteFlags.put(voter, true);
+        if (allPlayersVoted()) {
+            timer.cancel();
+            arena.stopVote();
+        }
     }
+    
     public Inventory getInventory() {
         return inv;
     }
@@ -170,5 +188,24 @@ public class VoteSystem{
     
     public Set<Player> getPlayersInVote(){
         return votes.keySet();
+    }
+    
+    public void startTimer(){
+        timer = new VoteTimer(arena.getVotingTime(), arena).runTaskTimer(TheImpostor.plugin, 10L, 20L);
+    }
+    
+    public void stopTimer(){
+        if(timer != null)
+            timer.cancel();
+        
+    }
+    
+    public boolean allPlayersVoted(){
+        for(Entry<Player,Boolean> entry: playersVoteFlags.entrySet()){
+            if(!entry.getValue()) //If player not voted
+                return false;
+        }
+        
+        return true;
     }
 }

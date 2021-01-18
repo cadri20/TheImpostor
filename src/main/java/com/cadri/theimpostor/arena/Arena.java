@@ -295,6 +295,10 @@ public class Arena {
         }
         return true;
     }
+
+    public int getVotingTime() {
+        return votingTime;
+    }
     
     public void startVoting(){
         voteSystem = new VoteSystem(this.getAlivePlayers(),this);
@@ -309,7 +313,7 @@ public class Arena {
             TheImpostor.plugin.getLogger().log(Level.SEVERE, "Error");
         }
         
-        BukkitTask task = new VoteTimer(this.votingTime, this).runTaskTimer(TheImpostor.plugin, 10L, 20L);
+        voteSystem.startTimer();
     }
     
     public void stopVote(){
