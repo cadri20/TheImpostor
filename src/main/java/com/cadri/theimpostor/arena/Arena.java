@@ -214,7 +214,7 @@ public class Arena {
             player.sendMessage(LanguageManager.getTranslation(MessageKey.ARENA_GAME_START));
         }
         setRoles();
-
+        
         for (Player player : players) {
             teleportToSpawnPoint(player);
             player.getInventory().remove(ItemOptions.CHOOSE_COLOR.getItem());
@@ -242,6 +242,7 @@ public class Arena {
         playerTasks = GameUtils.assignTasks(players, tasks, playerTasksNumber);
         putMapsToPlayers();
         //showColorsOnBoard();
+        allowImpostorsToKillLater(killCooldown);
         state = ArenaState.IN_GAME;
     }
 
@@ -260,11 +261,21 @@ public class Arena {
         impostorsAlive = impostors.size();
         
         for(Player impostor: impostors){
-            impostorsKillFlags.put(impostor, true);
+            impostorsKillFlags.put(impostor, false);
             impostorsSabotageFlags.put(impostor, true);
         }
     }
 
+    private void allowImpostorsToKillLater(int seconds){
+        Bukkit.getScheduler().runTaskLater(TheImpostor.plugin, new Runnable() {
+            @Override
+            public void run() {
+                for(Player impostor: impostors)
+                    setKillFlag(impostor, true);
+            }
+        }, seconds * 20L);
+    }
+    
     public void reportCorpse(Player reporter, CorpseData corpseReported){
         PlayerColor reporterColor = getPlayerColor(reporter);
         for(Player player: players){
