@@ -97,6 +97,9 @@ public enum MessageKey {
     ARENA("arena"),
     MIN_PLAYERS("min_players"),
     MAX_PLAYERS("max_players"),
+    ARENA_STARTS_IN("arena_starts_in"),
+    VOTING_STARTS_IN("voting_starts_in"),
+    VOTING_ENDS_IN("voting_ends_in"),
     
     INVALID_TASKS_NUMBER("invalid_tasks_number"),
     TASKS_NUMBER_SETTED("tasks_number_setted"),

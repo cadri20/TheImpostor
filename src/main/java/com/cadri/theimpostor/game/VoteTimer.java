@@ -37,18 +37,19 @@ public class VoteTimer extends BukkitRunnable{
     
     @Override
     public void run() {
-        if(counter > 0){
-            for(Player player: arena.getPlayers()){
-                player.setLevel(counter);
-            }
+        String votingEndingTitle = LanguageManager.getTranslation(MessageKey.VOTING_ENDS_IN);
+        if(counter > 0){          
+            arena.getBoard().put(votingEndingTitle, counter);
             
             if(counter < 4){
+                String votingFinishMessage = LanguageManager.getTranslation(MessageKey.VOTE_FINISH_TIME, counter);
                 for(Player player: arena.getPlayers()){
-                    player.sendMessage(LanguageManager.getTranslation(MessageKey.VOTE_FINISH_TIME, counter));
+                    player.sendMessage(votingFinishMessage);
                 }
             }
             counter--;
         }else{
+            arena.getBoard().remove(votingEndingTitle);
             arena.stopVote();
             this.cancel();
         }        

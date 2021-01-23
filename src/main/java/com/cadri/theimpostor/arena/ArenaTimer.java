@@ -37,18 +37,19 @@ public class ArenaTimer extends BukkitRunnable {
 
     @Override
     public void run() {
+        String arenaCountTitle = LanguageManager.getTranslation(MessageKey.ARENA_STARTS_IN);
         if (counter > 0) {
 
-            for (Player player : arena.getPlayers()) {
-                player.setLevel(counter);
-            }
+            arena.getBoard().put(arenaCountTitle, counter);
             if (counter < 4) {
+                String arenaCooldownMessage = LanguageManager.getTranslation(MessageKey.ARENA_COUNTDOWN, counter);
                 for (Player player : arena.getPlayers()) {
-                    player.sendMessage(LanguageManager.getTranslation(MessageKey.ARENA_COUNTDOWN, counter));
+                    player.sendMessage(arenaCooldownMessage);
                 }
             }
             counter--;
         } else {
+            arena.getBoard().remove(arenaCountTitle);
             arena.startGame();
             this.cancel();
             
