@@ -51,6 +51,7 @@ import org.bukkit.block.Block;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -141,11 +142,78 @@ public class Arena {
         taskProgressBar.setProgress(0);
     }
 
+    public Arena(YamlConfiguration arenaYml){
+        
+        this.yamlSettings = arenaYml;
+        this.name = arenaYml.getString("name");
+        this.minPlayers = arenaYml.getInt("minPlayers");
+        this.maxPlayers = arenaYml.getInt("maxPlayers");
+        this.players = new ArrayList<>();
+        this.lobby = Serializer.getLocation(arenaYml.getString("lobby_location"));
+        this.state = ArenaState.WAITING_FOR_PLAYERS;
+        this.crew = new ArrayList<>();
+        this.impostors = new ArrayList<>();
+        this.impostorsAlive = 0;
+        this.aliveMap = new HashMap<>();
+        this.corpses = new ArrayList<>();
+        this.playerTasks = new HashMap<>();
+        this.board = new GameScoreboard(TheImpostor.pluginTitle, ChatColor.WHITE);
+
+        playerSpawnPoints = new ArrayList<>();
+        for (String stringLocation : arenaYml.getStringList("player_spawn_points")) {
+            playerSpawnPoints.add(Serializer.getLocation(stringLocation));
+        }
+
+        tasks = new ArrayList<>();
+
+        ConfigurationSection tasksSection = arenaYml.getConfigurationSection("tasks");
+        if (tasksSection != null) {
+            for (String taskName : tasksSection.getKeys(false)) {
+                String taskPath = "tasks." + taskName + ".";
+
+                Location taskLoc = Serializer.getLocation(arenaYml.getString(taskPath + "location"));
+
+                int time = arenaYml.getInt("tasks." + taskName + ".duration");
+                CrewTask task = new CrewTask(taskName, taskLoc, time);
+                tasks.add(task);
+            }
+        }
+
+        sabotages = new ArrayList<>();
+        ConfigurationSection sabotagesSection = arenaYml.getConfigurationSection("sabotages");
+        if (sabotagesSection != null) {
+            for (String sabotageName : sabotagesSection.getKeys(false)) {
+                String sabotagePath = "sabotages." + sabotageName;
+
+                Location blockLoc = Serializer.getLocation(arenaYml.getString(sabotagePath + ".block_location"));
+                Block sabotageBlock = blockLoc.getBlock();
+                int sabotageTime = arenaYml.getInt(sabotagePath + ".cooldown");
+                sabotages.add(new SabotageComponent(sabotageName, sabotageBlock, sabotageTime));
+            }
+
+        }
+
+        if (arenaYml.get("emergency_meeting_block_location") != null) {
+            Location blockLocation = Serializer.getLocation(arenaYml.getString("emergency_meeting_block_location"));
+            emergencyMeetingBlock = blockLocation.getBlock();
+        }
+
+        impostorsNumber = arenaYml.getInt("impostors");
+        discussionTime = arenaYml.getInt("discussion_time");
+        votingTime = arenaYml.getInt("voting_time");
+        killCooldown = arenaYml.getInt("kill_cooldown");
+        sabotageCooldown = arenaYml.getInt("sabotage_cooldown");
+        enabled = arenaYml.getBoolean("enabled");
+        playerTasksNumber = arenaYml.getInt("player_tasks_number");
+        makeScoreBoard();
+        taskProgressBar.setProgress(0);
+    }
+    
     public void initCountDown() {
         for (Player player : players) {
             player.sendMessage(LanguageManager.getTranslation(MessageKey.ARENA_READY));
         }
-        BukkitTask countdown = new ArenaTimer(10, this).runTaskTimer(TheImpostor.plugin, 10L, 20L);
+        BukkitTask countdown = new ArenaTimer(TheImpostor.plugin.getConfig().getInt("starting-waiting-time"), this).runTaskTimer(TheImpostor.plugin, 10L, 20L);
 
     }
 
@@ -493,6 +561,10 @@ public class Arena {
         String winnersMessage = LanguageManager.getTranslation(MessageKey.WINNERS);
         String defeatMessage = LanguageManager.getTranslation(MessageKey.DEFEAT);
         String winnersListTitle = LanguageManager.getTranslation(MessageKey.WINNERS_LIST_TITLE);
+        
+        if(voteSystem != null)
+            voteSystem.stopTimer();
+        
         if(impostorsWon){
             for(Player player: crew){        
                 player.sendTitle(defeatMessage, "", 20, 70, 20);

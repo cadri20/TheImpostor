@@ -49,61 +49,11 @@ public class ArenaManager {
             return;
         
         for (File arenaFile : arenasDirectory.listFiles()) {
-            YamlConfiguration fc = YamlConfiguration.loadConfiguration(arenaFile);
-            String name = fc.getString("name");
-            int minPlayers = fc.getInt("minPlayers");
-            int maxPlayers = fc.getInt("maxPlayers");
-
-            Location lobby = Serializer.getLocation(fc.getString("lobby_location"));
-
-            List<Location> playerSpawnPoints = new ArrayList<>();
-            for (String stringLocation : fc.getStringList("player_spawn_points")) {
-                playerSpawnPoints.add(Serializer.getLocation(stringLocation));
-            }
-
-            List<CrewTask> tasksList = new ArrayList<>();
-
-            ConfigurationSection tasksSection = fc.getConfigurationSection("tasks");
-            if (tasksSection != null) {
-                for (String taskName : tasksSection.getKeys(false)) {
-                    String taskPath = "tasks." + taskName + ".";
-
-                    Location taskLoc = Serializer.getLocation(fc.getString(taskPath + "location"));
-
-                    int time = fc.getInt("tasks." + taskName + ".duration");
-                    CrewTask task = new CrewTask(taskName, taskLoc, time);
-                    tasksList.add(task);
-                }
-            }
-
-            List<SabotageComponent> sabotagesList = new ArrayList<>();
-            ConfigurationSection sabotagesSection = fc.getConfigurationSection("sabotages");
-            if (sabotagesSection != null) {
-                for (String sabotageName : sabotagesSection.getKeys(false)) {
-                    String sabotagePath = "sabotages." + sabotageName;
-
-                    Location blockLoc = Serializer.getLocation(fc.getString(sabotagePath + ".block_location"));
-                    Block sabotageBlock = blockLoc.getBlock();
-                    int sabotageTime = fc.getInt(sabotagePath + ".cooldown");
-                    sabotagesList.add(new SabotageComponent(sabotageName, sabotageBlock, sabotageTime));
-                }
-
-            }
-            Block emergencyMeetingBlock = null;
-            if (fc.get("emergency_meeting_block_location") != null) {
-                Location blockLocation = Serializer.getLocation(fc.getString("emergency_meeting_block_location"));
-                emergencyMeetingBlock = blockLocation.getBlock();
-            }
-
-            int impostors = fc.getInt("impostors");
-            int discussionTime = fc.getInt("discussion_time");
-            int votingTime = fc.getInt("voting_time");
-            int killCooldown = fc.getInt("kill_cooldown");
-            int sabotageCooldown = fc.getInt("sabotage_cooldown");
-            Arena a = new Arena(name, maxPlayers, minPlayers, impostors, discussionTime, votingTime, killCooldown, sabotageCooldown, lobby, playerSpawnPoints, tasksList, sabotagesList, emergencyMeetingBlock, fc.getBoolean("enabled"), fc.getInt("player_tasks_number"));
-            ArenaManager.arenas.add(a);
+            YamlConfiguration arenaYml = YamlConfiguration.loadConfiguration(arenaFile);
+            Arena arena = new Arena(arenaYml);
+            arenas.add(arena);
            
-            TheImpostor.plugin.getLogger().log(Level.INFO, "The arena " + name + " has been loaded");
+            TheImpostor.plugin.getLogger().log(Level.INFO, "The arena " + arena.getName() + " has been loaded");
         }
     }
 
