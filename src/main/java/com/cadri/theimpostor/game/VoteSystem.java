@@ -148,7 +148,9 @@ public class VoteSystem{
                 maxEntry = entry;
             }
         }
-        if(thereIsTie() || skipVotesCount() >= maxEntry.getValue())
+        
+        
+        if(thereIsTie() || maxEntry == null || skipVotesCount() >= maxEntry.getValue())
             return null;
 
         return maxEntry.getKey();
