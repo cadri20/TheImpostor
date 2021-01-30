@@ -142,14 +142,15 @@ public class Arena {
         taskProgressBar.setProgress(0);
     }
 
-    public Arena(YamlConfiguration arenaYml){
+    public Arena(File arenaFile){
         
-        this.yamlSettings = arenaYml;
-        this.name = arenaYml.getString("name");
-        this.minPlayers = arenaYml.getInt("minPlayers");
-        this.maxPlayers = arenaYml.getInt("maxPlayers");
+        this.fileSettings = arenaFile;
+        this.yamlSettings = YamlConfiguration.loadConfiguration(arenaFile);        
+        this.name = yamlSettings.getString("name");
+        this.minPlayers = yamlSettings.getInt("minPlayers");
+        this.maxPlayers = yamlSettings.getInt("maxPlayers");
         this.players = new ArrayList<>();
-        this.lobby = Serializer.getLocation(arenaYml.getString("lobby_location"));
+        this.lobby = Serializer.getLocation(yamlSettings.getString("lobby_location"));
         this.state = ArenaState.WAITING_FOR_PLAYERS;
         this.crew = new ArrayList<>();
         this.impostors = new ArrayList<>();
@@ -160,51 +161,51 @@ public class Arena {
         this.board = new GameScoreboard(TheImpostor.pluginTitle, ChatColor.WHITE);
 
         playerSpawnPoints = new ArrayList<>();
-        for (String stringLocation : arenaYml.getStringList("player_spawn_points")) {
+        for (String stringLocation : yamlSettings.getStringList("player_spawn_points")) {
             playerSpawnPoints.add(Serializer.getLocation(stringLocation));
         }
 
         tasks = new ArrayList<>();
 
-        ConfigurationSection tasksSection = arenaYml.getConfigurationSection("tasks");
+        ConfigurationSection tasksSection = yamlSettings.getConfigurationSection("tasks");
         if (tasksSection != null) {
             for (String taskName : tasksSection.getKeys(false)) {
                 String taskPath = "tasks." + taskName + ".";
 
-                Location taskLoc = Serializer.getLocation(arenaYml.getString(taskPath + "location"));
+                Location taskLoc = Serializer.getLocation(yamlSettings.getString(taskPath + "location"));
 
-                int time = arenaYml.getInt("tasks." + taskName + ".duration");
+                int time = yamlSettings.getInt("tasks." + taskName + ".duration");
                 CrewTask task = new CrewTask(taskName, taskLoc, time);
                 tasks.add(task);
             }
         }
 
         sabotages = new ArrayList<>();
-        ConfigurationSection sabotagesSection = arenaYml.getConfigurationSection("sabotages");
+        ConfigurationSection sabotagesSection = yamlSettings.getConfigurationSection("sabotages");
         if (sabotagesSection != null) {
             for (String sabotageName : sabotagesSection.getKeys(false)) {
                 String sabotagePath = "sabotages." + sabotageName;
 
-                Location blockLoc = Serializer.getLocation(arenaYml.getString(sabotagePath + ".block_location"));
+                Location blockLoc = Serializer.getLocation(yamlSettings.getString(sabotagePath + ".block_location"));
                 Block sabotageBlock = blockLoc.getBlock();
-                int sabotageTime = arenaYml.getInt(sabotagePath + ".cooldown");
+                int sabotageTime = yamlSettings.getInt(sabotagePath + ".cooldown");
                 sabotages.add(new SabotageComponent(sabotageName, sabotageBlock, sabotageTime));
             }
 
         }
 
-        if (arenaYml.get("emergency_meeting_block_location") != null) {
-            Location blockLocation = Serializer.getLocation(arenaYml.getString("emergency_meeting_block_location"));
+        if (yamlSettings.get("emergency_meeting_block_location") != null) {
+            Location blockLocation = Serializer.getLocation(yamlSettings.getString("emergency_meeting_block_location"));
             emergencyMeetingBlock = blockLocation.getBlock();
         }
 
-        impostorsNumber = arenaYml.getInt("impostors");
-        discussionTime = arenaYml.getInt("discussion_time");
-        votingTime = arenaYml.getInt("voting_time");
-        killCooldown = arenaYml.getInt("kill_cooldown");
-        sabotageCooldown = arenaYml.getInt("sabotage_cooldown");
-        enabled = arenaYml.getBoolean("enabled");
-        playerTasksNumber = arenaYml.getInt("player_tasks_number");
+        impostorsNumber = yamlSettings.getInt("impostors");
+        discussionTime = yamlSettings.getInt("discussion_time");
+        votingTime = yamlSettings.getInt("voting_time");
+        killCooldown = yamlSettings.getInt("kill_cooldown");
+        sabotageCooldown = yamlSettings.getInt("sabotage_cooldown");
+        enabled = yamlSettings.getBoolean("enabled");
+        playerTasksNumber = yamlSettings.getInt("player_tasks_number");
         makeScoreBoard();
         taskProgressBar.setProgress(0);
     }

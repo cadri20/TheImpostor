@@ -49,8 +49,7 @@ public class ArenaManager {
             return;
         
         for (File arenaFile : arenasDirectory.listFiles()) {
-            YamlConfiguration arenaYml = YamlConfiguration.loadConfiguration(arenaFile);
-            Arena arena = new Arena(arenaYml);
+            Arena arena = new Arena(arenaFile);
             arenas.add(arena);
            
             TheImpostor.plugin.getLogger().log(Level.INFO, "The arena " + arena.getName() + " has been loaded");
