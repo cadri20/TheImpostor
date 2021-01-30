@@ -18,12 +18,17 @@ package com.cadri.theimpostor.commands;
 
 import com.cadri.theimpostor.LanguageManager;
 import com.cadri.theimpostor.MessageKey;
+import com.cadri.theimpostor.TheImpostor;
 import com.cadri.theimpostor.arena.Arena;
 import com.cadri.theimpostor.arena.ArenaManager;
 import com.cadri.theimpostor.game.CrewTask;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -47,12 +52,28 @@ public class AddTask implements SetupArenaCommand{
             player.sendMessage(LanguageManager.getTranslation(MessageKey.ARGUMENT_NOT_NUMBER));
             return;
         }
-        CrewTask task = new CrewTask(args[0], player.getLocation(), taskDuration);
+        
+        Location playerLoc = player.getLocation();
+        CrewTask task = new CrewTask(args[0], playerLoc, taskDuration);
+        Material materialInHand = player.getInventory().getItemInMainHand().getType();
+       
+        if(materialInHand == Material.AIR){
+            player.sendMessage(LanguageManager.getTranslation(MessageKey.NO_BLOCK_IN_HAND));
+            return;
+        }else if(!materialInHand.isBlock()){
+            player.sendMessage(LanguageManager.getTranslation(MessageKey.ITEM_ISNT_BLOCK));
+            return;
+        }
+            
+            
+        
         try {
             arena.addTask(task);
+            buildBlockUnderOf(playerLoc, player.getInventory().getItemInMainHand().getType());
             player.sendMessage(LanguageManager.getTranslation(MessageKey.TASK_CREATED));
         } catch (IllegalArgumentException e) {
             player.sendMessage(LanguageManager.getTranslation(MessageKey.TASK_SAME_LOCATION));
+            e.printStackTrace();
         }
         
     }
@@ -67,4 +88,9 @@ public class AddTask implements SetupArenaCommand{
         return Collections.emptyList();
     }
     
+    private void buildBlockUnderOf(Location loc, Material type){
+        Block block = loc.getWorld().getBlockAt(loc.getBlockX(), loc.getBlockY() - 1, loc.getBlockZ());
+        block.setType(type);
+        
+    }
 }

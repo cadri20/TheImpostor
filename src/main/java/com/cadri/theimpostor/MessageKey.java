@@ -57,6 +57,9 @@ public enum MessageKey {
     TASK_PROGRESS_BAR("task_progress_bar"),
     TASK_SAME_LOCATION("task_same_location"),
     TASKS_NUMBER_NOT_SET("tasks_number_not_set"),
+    NO_BLOCK_IN_HAND("no_block_in_hand"),
+    ITEM_ISNT_BLOCK("item_isnt_block"),
+    
     VOTE("vote"),
     VOTES("votes"),
     SKIP_VOTE("skip_vote"),
