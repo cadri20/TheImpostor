@@ -77,6 +77,7 @@ public enum MessageKey {
     EMERGENCY_MEETING_BLOCK_CREATED("emergency_meeting_block_created"),
     EMERGENCY_MEETING_BLOCK_PROBLEM("emergency_meeting_block_problem"),
     EMERGENCY_MEETING_BLOCK_NOT_SET("emergency_meeting_block_not_set"),
+    EMERGENCY_BLOCK_ENABLED_IN("emergency_block_enabled_in"),
     
     IMPOSTOR_ABLE_TO_KILL("impostor_able_to_kill"),
     IMPOSTOR_KILL_COOLDOWN("impostor_kill_cooldown"),

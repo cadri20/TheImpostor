@@ -147,7 +147,10 @@ public class ArenaEvents implements Listener {
                 SabotageComponent sabotage = arena.getSabotage(clickedBlock);
                 if (arena.isEmergencyMeetingBlock(clickedBlock)) {
                     if (arena.started()) {
-                        arena.startEmergencyMeeting(player);
+                        if(arena.isEmergencyMeetingEnabled())
+                            arena.startEmergencyMeeting(player);
+                        else
+                            player.sendMessage(LanguageManager.getTranslation(MessageKey.EMERGENCY_BLOCK_ENABLED_IN, arena.getEnableCount()));
                     }
                 } else if (sabotage != null) {
                     arena.fixSabotage(sabotage);
