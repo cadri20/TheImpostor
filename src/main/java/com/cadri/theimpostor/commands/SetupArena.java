@@ -105,4 +105,9 @@ public class SetupArena implements SubCommand, AdminCommand{
     public String getDescription(){
         return LanguageManager.getTranslation(MessageKey.SETUP_COMMAND_DESCRIPTION);
     }
+    
+    @Override
+    public String getPermission(){
+        return "theimpostor.arena.setup";
+    }
 }

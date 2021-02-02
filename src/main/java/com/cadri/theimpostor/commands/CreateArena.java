@@ -45,7 +45,7 @@ public class CreateArena implements SubCommand, AdminCommand {
     private String usage = "&6/imp create &b<arenaname> &b<maxplayers> &b<minplayers>";
     @Override
     public void onCommand(CommandSender sender, String[] args) {
-        if(!sender.hasPermission("theimpostor.admin.create")){
+        if(!sender.hasPermission(getPermission())){
             sender.sendMessage(LanguageManager.getTranslation(MessageKey.COMMAND_USE_NOT_ALLOWED));
             return;
         }
@@ -112,5 +112,10 @@ public class CreateArena implements SubCommand, AdminCommand {
     @Override
     public String getDescription() {
         return LanguageManager.getTranslation(MessageKey.CREATE_COMMAND_DESCRIPTION);
+    }
+
+    @Override
+    public String getPermission() {
+        return "theimpostor.arena.create";
     }
 }

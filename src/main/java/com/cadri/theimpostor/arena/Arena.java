@@ -111,7 +111,7 @@ public class Arena {
     private BossBar taskProgressBar = Bukkit.createBossBar(LanguageManager.getTranslation(MessageKey.TASK_PROGRESS_BAR), BarColor.GREEN, BarStyle.SOLID); 
     
     public Arena(String name, int maxPlayers, int minPlayers, Location lobby){
-        this(name, maxPlayers, minPlayers, 1, 30, 30, 20, 20, lobby, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), null, false, 0, 15);
+        this(name, maxPlayers, minPlayers, 1, 30, 30, 20, 20, lobby, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), null, false, 0, 30);
     }
     public Arena(String name, int maxPlayers, int minPlayers, int impostorsNumber, int discussionTime, int votingTime, int killCooldown, int sabotageCooldown, Location lobby, List<Location> spawnLocations, List<CrewTask> tasks, List<SabotageComponent> sabotages, Block emergencyMeetingBlock, boolean enabled, int playerTasksNumber, int emergencyCooldown) {
         this.name = name;

@@ -35,6 +35,10 @@ public class LeaveArena implements SubCommand{
     private String usage = "&6/imp leave &b<arena>";
     @Override
     public void onCommand(CommandSender sender, String[] args) {
+        if(!sender.hasPermission(getPermission())){
+            sender.sendMessage(LanguageManager.getTranslation(MessageKey.COMMAND_USE_NOT_ALLOWED));
+            return;
+        }
         
         if(sender instanceof Player){
             Player player = (Player) sender;
@@ -62,4 +66,8 @@ public class LeaveArena implements SubCommand{
         return LanguageManager.getTranslation(MessageKey.LEAVE_COMMAND_DESCRIPTION);
     }
     
+    @Override
+    public String getPermission(){
+        return "theimpostor.arena.leave";
+    }
 }

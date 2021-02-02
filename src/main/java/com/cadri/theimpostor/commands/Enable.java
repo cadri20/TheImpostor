@@ -36,7 +36,7 @@ public class Enable implements SubCommand, AdminCommand{
     String usage = "&6/imp enable &b<arena>";
     @Override
     public void onCommand(CommandSender sender, String[] args) {
-        if(!sender.hasPermission("theimpostor.admin.enable")){
+        if(!sender.hasPermission(getPermission())){
             sender.sendMessage(LanguageManager.getTranslation(MessageKey.COMMAND_USE_NOT_ALLOWED));
             return;
         }
@@ -79,5 +79,10 @@ public class Enable implements SubCommand, AdminCommand{
     @Override
     public String getDescription(){
         return LanguageManager.getTranslation(MessageKey.ENABLE_COMMAND_DESCRIPTION);
+    }
+    
+    @Override
+    public String getPermission(){
+        return "theimpostor.arena.enable";
     }
 }

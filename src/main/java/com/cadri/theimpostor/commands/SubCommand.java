@@ -28,4 +28,5 @@ public interface SubCommand{
     public List<String> onTabComplete(String[] args);
     public String getUsage();
     public String getDescription();
+    public String getPermission();
 }

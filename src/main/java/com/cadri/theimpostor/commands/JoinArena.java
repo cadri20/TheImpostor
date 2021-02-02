@@ -37,6 +37,11 @@ public class JoinArena implements SubCommand{
     private String usage = "&6/imp join &b<arena>";
     @Override
     public void onCommand(CommandSender sender, String[] args) {
+        if(!sender.hasPermission(getPermission())){
+            sender.sendMessage(LanguageManager.getTranslation(MessageKey.COMMAND_USE_NOT_ALLOWED));
+            return;
+        }        
+        
         if(args.length != 1){
             sender.sendMessage(LanguageManager.getTranslation(MessageKey.INVALID_ARGUMENTS_NUMBER));
             return;
@@ -88,5 +93,10 @@ public class JoinArena implements SubCommand{
     @Override
     public String getDescription(){
         return LanguageManager.getTranslation(MessageKey.JOIN_COMMAND_DESCRIPTION);
+    }
+    
+    @Override
+    public String getPermission(){
+        return "theimpostor.arena.join";
     }
 }

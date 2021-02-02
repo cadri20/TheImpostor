@@ -5,6 +5,7 @@ import com.cadri.theimpostor.commands.CommandManager;
 import com.cadri.theimpostor.events.ArenaEvents;
 import com.cadri.theimpostor.events.ChatEvents;
 import com.cadri.theimpostor.events.ServerEvents;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -35,6 +36,8 @@ public class TheImpostor extends JavaPlugin{
         this.getServer().getPluginManager().registerEvents(new ChatEvents(), plugin);
         this.getServer().getPluginManager().registerEvents(new ServerEvents(), plugin);
         this.getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "The plugin has been Enabled");
+        
+        
     }
 
     @Override
