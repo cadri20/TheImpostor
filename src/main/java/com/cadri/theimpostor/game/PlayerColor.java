@@ -33,7 +33,13 @@ public enum PlayerColor {
     RED(LanguageManager.getTranslation(MessageKey.RED_COLOR), ChatColor.RED, Material.RED_WOOL, Color.RED),
     BLUE(LanguageManager.getTranslation(MessageKey.BLUE_COLOR),ChatColor.BLUE,Material.BLUE_WOOL, Color.BLUE),
     YELLOW(LanguageManager.getTranslation(MessageKey.YELLOW_COLOR), ChatColor.YELLOW,Material.YELLOW_WOOL, Color.YELLOW),
-    GREEN(LanguageManager.getTranslation(MessageKey.GREEN_COLOR), ChatColor.GREEN, Material.GREEN_WOOL, Color.GREEN);
+    GREEN(LanguageManager.getTranslation(MessageKey.GREEN_COLOR), ChatColor.GREEN, Material.GREEN_WOOL, Color.GREEN),
+    WHITE(LanguageManager.getTranslation(MessageKey.WHITE_COLOR), ChatColor.WHITE, Material.WHITE_WOOL, Color.WHITE),
+    PURPLE(LanguageManager.getTranslation(MessageKey.PURPLE_COLOR), ChatColor.DARK_PURPLE, Material.PURPLE_WOOL, Color.PURPLE),
+    ORANGE(LanguageManager.getTranslation(MessageKey.ORANGE_COLOR), ChatColor.GOLD, Material.ORANGE_WOOL, Color.ORANGE),
+    GRAY(LanguageManager.getTranslation(MessageKey.GRAY_COLOR), ChatColor.GRAY, Material.GRAY_WOOL, Color.GRAY),
+    BLACK(LanguageManager.getTranslation(MessageKey.BLACK_COLOR), ChatColor.BLACK, Material.BLACK_WOOL, Color.BLACK),
+    AQUA(LanguageManager.getTranslation(MessageKey.AQUA_COLOR), ChatColor.AQUA, Material.LIGHT_BLUE_WOOL, Color.AQUA);
     
     private String name;
     private ChatColor chatColor;

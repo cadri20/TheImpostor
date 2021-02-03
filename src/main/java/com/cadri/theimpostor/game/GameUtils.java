@@ -112,12 +112,17 @@ public class GameUtils {
     }
     
     public static Inventory getGUIChoiceColors(Arena arena){
-        PlayerColor[] playerColors = PlayerColor.values();
-        Inventory guiColors = Bukkit.createInventory(null, 9, LanguageManager.getTranslation(MessageKey.CHOOSE_COLOR));
-        for(PlayerColor color: playerColors){
+        List<PlayerColor> availableColors = new ArrayList<>();        
+        for(PlayerColor color: PlayerColor.values()){
             if(!isColorSelected(color, arena))
-                guiColors.addItem(color.getItem());
+                availableColors.add(color);
         }
+
+            
+        Inventory guiColors = Bukkit.createInventory(null, getInventorySize(availableColors.size()), LanguageManager.getTranslation(MessageKey.CHOOSE_COLOR));     
+        availableColors.forEach(availableColor -> {
+            guiColors.addItem(availableColor.getItem());
+        });
         
         return guiColors;
     }
@@ -216,4 +221,12 @@ public class GameUtils {
         return sabotagesGUI;
     }
     
+    public static int getInventorySize(int itemsNumber){
+        if(itemsNumber % 9 == 0)
+            return itemsNumber;
+        else{
+            int a = (itemsNumber / 9) + 1;
+            return 9 * a;
+        }
+    }
 }

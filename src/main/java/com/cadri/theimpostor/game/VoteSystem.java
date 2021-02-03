@@ -55,7 +55,7 @@ public class VoteSystem{
 
     public VoteSystem(List<Player> players, Arena arena) {
         this.arena = arena;
-        inv = Bukkit.createInventory(null, 9, LanguageManager.getTranslation(MessageKey.VOTE));
+        inv = Bukkit.createInventory(null, GameUtils.getInventorySize(players.size() + 1) , LanguageManager.getTranslation(MessageKey.VOTE));
         for (Player player : players) {
             playersVoteFlags.put(player, false);
             votes.put(player, 0);

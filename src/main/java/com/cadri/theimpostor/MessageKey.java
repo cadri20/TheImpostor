@@ -39,6 +39,12 @@ public enum MessageKey {
     RED_COLOR("red_color"),
     YELLOW_COLOR("yellow_color"),
     GREEN_COLOR("green_color"),
+    WHITE_COLOR("white_color"),
+    PURPLE_COLOR("purple_color"),
+    ORANGE_COLOR("orange_color"),
+    GRAY_COLOR("gray_color"),
+    BLACK_COLOR("black_color"),
+    AQUA_COLOR("aqua_color"),
     COLOR_CHOOSEN("color_choosen"),
     
     PLAYER_IN_ARENA("player_in_arena"),
