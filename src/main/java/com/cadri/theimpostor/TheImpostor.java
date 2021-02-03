@@ -5,6 +5,7 @@ import com.cadri.theimpostor.commands.CommandManager;
 import com.cadri.theimpostor.events.ArenaEvents;
 import com.cadri.theimpostor.events.ChatEvents;
 import com.cadri.theimpostor.events.ServerEvents;
+import java.util.logging.Level;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -24,6 +25,13 @@ public class TheImpostor extends JavaPlugin{
     
     @Override
     public void onEnable() {
+        try{
+            Class.forName("org.golde.bukkit.corpsereborn.CorpseAPI.CorpseAPI");
+        }catch(ClassNotFoundException e){
+            getLogger().log(Level.SEVERE, "CorpseReborn not found, this plugin need it to work. Disabling plugin...");
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
         saveDefaultConfig();
    
         getCommand(CommandManager.mainCommand).setExecutor(new CommandManager());
@@ -35,14 +43,14 @@ public class TheImpostor extends JavaPlugin{
         this.getServer().getPluginManager().registerEvents(new ArenaEvents(), plugin);
         this.getServer().getPluginManager().registerEvents(new ChatEvents(), plugin);
         this.getServer().getPluginManager().registerEvents(new ServerEvents(), plugin);
-        this.getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "The plugin has been Enabled");
+        this.getLogger().log(Level.INFO, "The plugin has been Enabled");
         
         
     }
 
     @Override
     public void onDisable(){
-        getServer().getConsoleSender().sendMessage(ChatColor.RED + "The plugin has been Disabled");
+        this.getLogger().log(Level.INFO, "The plugin has been Disabled");
         ArenaManager.removePlayersFromArenas();
     }
 
