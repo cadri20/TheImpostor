@@ -113,7 +113,7 @@ public class Arena {
     public Arena(String name, int maxPlayers, int minPlayers, Location lobby){
         this(name, maxPlayers, minPlayers, 1, 30, 30, 20, 20, lobby, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), null, false, 0, 30);
     }
-    public Arena(String name, int maxPlayers, int minPlayers, int impostorsNumber, int discussionTime, int votingTime, int killCooldown, int sabotageCooldown, Location lobby, List<Location> spawnLocations, List<CrewTask> tasks, List<SabotageComponent> sabotages, Block emergencyMeetingBlock, boolean enabled, int playerTasksNumber, int emergencyCooldown) {
+    public Arena(String name, int maxPlayers, int minPlayers, int impostorsNumber, int discussionTime, int votingTime, int killCooldown, int sabotageCooldown, Location lobby, List<Location> spawnLocations, List<CrewTask> tasks, List<SabotageComponent> sabotages, EmergencyBlock emergencyMeetingBlock, boolean enabled, int playerTasksNumber, int emergencyCooldown) {
         this.name = name;
         this.maxPlayers = maxPlayers;
         this.minPlayers = minPlayers;
@@ -136,7 +136,7 @@ public class Arena {
         this.corpses = new ArrayList<>();
         this.tasks = tasks;
         this.sabotages = sabotages;
-        this.emergencyMeetingBlock = new EmergencyBlock(emergencyMeetingBlock, this);
+        this.emergencyMeetingBlock = emergencyMeetingBlock;
         this.playerTasks = new HashMap<>();
         this.board = new GameScoreboard(TheImpostor.pluginTitle, ChatColor.WHITE);
         this.fileSettings = new File(TheImpostor.plugin.getDataFolder() + File.separator + "arenas" + File.separator + name + ".yml");
