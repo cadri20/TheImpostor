@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 cadri
+ * Copyright (C) 2021 cadri
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,17 +16,16 @@
  */
 package com.cadri.theimpostor.commands;
 
+import com.cadri.theimpostor.arena.Arena;
 import java.util.List;
-import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 /**
  *
  * @author cadri
  */
-public interface SubCommand{
-    public void onCommand(CommandSender sender, String[] args);
-    public List<String> onTabComplete(String[] args);
-    public String getUsage();
-    public String getDescription();
-    public String getPermission();
+public interface SetupArenaCommand {
+   
+    public void onCommand(Player player, Arena arena, String[] args);
+    public List<String> onTabComplete(String[] args, Arena arena);
 }

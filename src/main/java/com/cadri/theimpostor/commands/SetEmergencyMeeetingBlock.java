@@ -20,6 +20,8 @@ import com.cadri.theimpostor.LanguageManager;
 import com.cadri.theimpostor.MessageKey;
 import com.cadri.theimpostor.arena.Arena;
 import com.cadri.theimpostor.arena.ArenaManager;
+import java.util.Collections;
+import java.util.List;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -28,23 +30,23 @@ import org.bukkit.entity.Player;
  *
  * @author cadri
  */
-public class SetEmergencyMeeetingBlock implements SubCommand{
+public class SetEmergencyMeeetingBlock implements SetupArenaCommand{
 
     @Override
-    public void onCommand(CommandSender sender, String[] args) {
-        if(sender instanceof Player){
-            Player player = (Player) sender;
-            Arena arena = ArenaManager.getArena(args[0]);
-            if(arena != null){
-                Block blockTargeted = player.getTargetBlockExact(4);
-                if(blockTargeted != null){
-                    arena.setEmergencyMeetingBlock(blockTargeted);
-                    player.sendMessage(LanguageManager.getTranslation(MessageKey.EMERGENCY_MEETING_BLOCK_CREATED));
-                }else
-                    player.sendMessage(LanguageManager.getTranslation(MessageKey.EMERGENCY_MEETING_BLOCK_PROBLEM));
-            }
-            
+    public void onCommand(Player player, Arena arena, String[] args) {
+        Block blockTargeted = player.getTargetBlockExact(4);
+        if (blockTargeted != null) {
+            arena.setEmergencyMeetingBlock(blockTargeted);
+            player.sendMessage(LanguageManager.getTranslation(MessageKey.EMERGENCY_MEETING_BLOCK_CREATED));
+        } else {
+            player.sendMessage(LanguageManager.getTranslation(MessageKey.EMERGENCY_MEETING_BLOCK_PROBLEM));
         }
+
+    }
+
+    @Override
+    public List<String> onTabComplete(String[] args, Arena arena) {
+        return Collections.emptyList();
     }
     
 }

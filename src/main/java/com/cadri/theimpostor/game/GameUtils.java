@@ -22,6 +22,7 @@ import com.cadri.theimpostor.TheImpostor;
 import com.cadri.theimpostor.arena.Arena;
 import com.sun.prism.paint.Color;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +57,7 @@ public class GameUtils {
     
     public static Player chooseImpostor(List<Player> players) {
         int index = random.nextInt(players.size());
-
+        
         return players.remove(index);
     }
 
@@ -68,11 +69,13 @@ public class GameUtils {
         }
     }
 
-    public static void makePhantom(Player player, Arena arena) {
-        if(arena.noenoughCrew()){
-            arena.endGame(true);
-            return;
-        }
+    /**
+     * 
+     * @param player
+     * @param arena
+     * @return true if the game is over or false if it is not
+     */
+    public static boolean makePhantom(Player player, Arena arena) {
         Map<Player, Boolean> aliveMap = arena.getAliveMap();
         aliveMap.put(player, false);
 
@@ -86,13 +89,15 @@ public class GameUtils {
                    
                 }
             }else{
-                playerInArena.sendMessage("You're not in arena");
+                playerInArena.sendMessage(LanguageManager.getTranslation(MessageKey.PLAYER_NOT_IN_ARENA));
             }
 
         }
         if(arena.noenoughCrew()){
             arena.endGame(true);
-        }
+            return true;
+        }else
+            return false;
     }
     
     public static void setPlayerVisible(Player deadPlayer, Arena arena){
@@ -107,12 +112,17 @@ public class GameUtils {
     }
     
     public static Inventory getGUIChoiceColors(Arena arena){
-        PlayerColor[] playerColors = PlayerColor.values();
-        Inventory guiColors = Bukkit.createInventory(null, 9, "Choose a color");
-        for(PlayerColor color: playerColors){
+        List<PlayerColor> availableColors = new ArrayList<>();        
+        for(PlayerColor color: PlayerColor.values()){
             if(!isColorSelected(color, arena))
-                guiColors.addItem(color.getItem());
+                availableColors.add(color);
         }
+
+            
+        Inventory guiColors = Bukkit.createInventory(null, getInventorySize(availableColors.size()), LanguageManager.getTranslation(MessageKey.CHOOSE_COLOR));     
+        availableColors.forEach(availableColor -> {
+            guiColors.addItem(availableColor.getItem());
+        });
         
         return guiColors;
     }
@@ -211,4 +221,12 @@ public class GameUtils {
         return sabotagesGUI;
     }
     
+    public static int getInventorySize(int itemsNumber){
+        if(itemsNumber % 9 == 0)
+            return itemsNumber;
+        else{
+            int a = (itemsNumber / 9) + 1;
+            return 9 * a;
+        }
+    }
 }

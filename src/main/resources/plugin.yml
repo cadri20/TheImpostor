@@ -1,9 +1,26 @@
 name: TheImpostor
 main: com.cadri.theimpostor.TheImpostor
-version: 0.1
-author: Adrian Coloma
-api-version: 1.13
+version: 1.0
+author: cadri1
+api-version: 1.14
+depend: [CorpseReborn]
 commands:
     theimpostor:
         aliases: [imp]
-        description: Comando principal
+        description: Main command
+permissions:
+    theimpostor.arena.*:
+        default: op
+        children:
+            theimpostor.arena: true
+            theimpostor.arena.setup: true
+            theimpostor.arena.create: true
+            theimpostor.arena.enable: true
+    theimpostor.arena.join:
+        default: true
+    theimpostor.arena.leave:
+        default: true
+
+        
+        
+        

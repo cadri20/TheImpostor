@@ -19,7 +19,11 @@ package com.cadri.theimpostor.commands;
 import com.cadri.theimpostor.LanguageManager;
 import com.cadri.theimpostor.MessageKey;
 import com.cadri.theimpostor.arena.Arena;
+import com.cadri.theimpostor.arena.ArenaManager;
 import com.cadri.theimpostor.arena.ArenaUtils;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -28,9 +32,14 @@ import org.bukkit.entity.Player;
  * @author cadri
  */
 public class LeaveArena implements SubCommand{
-
+    private String usage = "&6/imp leave &b<arena>";
     @Override
     public void onCommand(CommandSender sender, String[] args) {
+        if(!sender.hasPermission(getPermission())){
+            sender.sendMessage(LanguageManager.getTranslation(MessageKey.COMMAND_USE_NOT_ALLOWED));
+            return;
+        }
+        
         if(sender instanceof Player){
             Player player = (Player) sender;
             Arena wherePlayerIs = ArenaUtils.whereArenaIs(player);
@@ -41,5 +50,24 @@ public class LeaveArena implements SubCommand{
             }
         }
     }
+
+    @Override
+    public List<String> onTabComplete(String[] args) {        
+        return Collections.emptyList();
+    }
+
+    @Override
+    public String getUsage() {
+        return usage;
+    }
     
+    @Override
+    public String getDescription(){
+        return LanguageManager.getTranslation(MessageKey.LEAVE_COMMAND_DESCRIPTION);
+    }
+    
+    @Override
+    public String getPermission(){
+        return "theimpostor.arena.leave";
+    }
 }

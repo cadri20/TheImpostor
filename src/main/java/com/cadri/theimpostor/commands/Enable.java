@@ -21,6 +21,9 @@ import com.cadri.theimpostor.MessageKey;
 import com.cadri.theimpostor.arena.Arena;
 import com.cadri.theimpostor.arena.ArenaManager;
 import com.cadri.theimpostor.arena.ArenaNotReadyException;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -29,10 +32,20 @@ import org.bukkit.entity.Player;
  *
  * @author cadri
  */
-public class Enable implements SubCommand{
-
+public class Enable implements SubCommand, AdminCommand{
+    String usage = "&6/imp enable &b<arena>";
     @Override
     public void onCommand(CommandSender sender, String[] args) {
+        if(!sender.hasPermission(getPermission())){
+            sender.sendMessage(LanguageManager.getTranslation(MessageKey.COMMAND_USE_NOT_ALLOWED));
+            return;
+        }
+        
+        if(args.length != 1){
+            sender.sendMessage(LanguageManager.getTranslation(MessageKey.INVALID_ARGUMENTS_NUMBER));
+            return;
+        }
+        
         if(sender instanceof Player){
             Player player = (Player) sender;
             Arena arena = ArenaManager.getArena(args[0]);
@@ -49,5 +62,27 @@ public class Enable implements SubCommand{
             }
         }
     }
+
+    @Override
+    public List<String> onTabComplete(String[] args) {
+       if(args.length == 1)
+           return ArenaManager.getArenaNames().stream().filter(arenaName -> arenaName.startsWith(args[0])).collect(Collectors.toList());
+       
+       return Collections.emptyList();
+    }
     
+    @Override
+    public String getUsage(){
+        return usage;
+    }
+    
+    @Override
+    public String getDescription(){
+        return LanguageManager.getTranslation(MessageKey.ENABLE_COMMAND_DESCRIPTION);
+    }
+    
+    @Override
+    public String getPermission(){
+        return "theimpostor.arena.enable";
+    }
 }

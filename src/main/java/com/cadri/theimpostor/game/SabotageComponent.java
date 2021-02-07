@@ -38,12 +38,14 @@ public class SabotageComponent {
     private boolean isSabotaged;
     private int time;
     private BukkitTask timer;
+    private String boardKey;
 
     public SabotageComponent(String name, Block block, int time) {
         this.name = name;
         this.block = block;
         this.time = time;
         this.isSabotaged = false;
+        this.boardKey = LanguageManager.getTranslation(MessageKey.SABOTAGE_BOARD_ADVERTISEMENT, name);
     }
 
     public Block getBlock() {
@@ -87,7 +89,7 @@ public class SabotageComponent {
             @Override
             public void run() {
                 if(count != 0){
-                    arena.getBoard().put(LanguageManager.getTranslation(MessageKey.SABOTAGE_BOARD_ADVERTISEMENT, name), count);
+                    arena.getBoard().put(boardKey, count);
                     count--;
                 }
                 else{
@@ -105,6 +107,9 @@ public class SabotageComponent {
     public BukkitTask getTaskTimer() {
         return timer;
     }
-    
+
+    public String getBoardKey() {
+        return boardKey;
+    }
     
 }

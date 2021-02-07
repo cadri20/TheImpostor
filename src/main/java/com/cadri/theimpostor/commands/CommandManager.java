@@ -16,24 +16,46 @@
  */
 package com.cadri.theimpostor.commands;
 
+import com.cadri.theimpostor.LanguageManager;
+import com.cadri.theimpostor.MessageKey;
+import com.cadri.theimpostor.TheImpostor;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.function.Predicate;
+import java.util.logging.Level;
+import java.util.stream.Collectors;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 
 /**
  *
  * @author cadri
  */
-public class CommandManager implements CommandExecutor{
+public class CommandManager implements CommandExecutor, TabCompleter{
     public static String mainCommand = "theimpostor";
     public static HashMap<String,SubCommand> commands = new HashMap<>();
+    
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String string, String[] args) {
-        if(cmd.getName().equalsIgnoreCase(mainCommand)){
-            commands.get(args[0]).onCommand(sender, Arrays.copyOfRange(args, 1, args.length));
-            return true;
+        if (args.length == 0) {
+            sendHelpCommand(sender);
+        } else {
+            if (cmd.getName().equalsIgnoreCase(mainCommand)) {
+                SubCommand command = commands.get(args[0]);
+                if (command == null) {
+                    sender.sendMessage(LanguageManager.getTranslation(MessageKey.INVALID_COMMAND));
+                    return false;
+                }
+                command.onCommand(sender, Arrays.copyOfRange(args, 1, args.length));
+                return true;
+            }
         }
         return false;
         
@@ -43,12 +65,39 @@ public class CommandManager implements CommandExecutor{
         commands.put("join", new JoinArena());
         commands.put("create", new CreateArena());
         commands.put("leave", new LeaveArena());
-        commands.put("addtask", new AddTask());
-        commands.put("addspawn", new AddSpawn());
-        commands.put("setemb", new SetEmergencyMeeetingBlock());
         commands.put("enable", new Enable());
-        commands.put("settasksnumber", new SetTasksNumber());
-        commands.put("addsabotage", new AddSabotage());
+        
+        SetupArena setupArena = new SetupArena();
+        setupArena.loadSubCommands();
+        commands.put("setup", setupArena);
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender cs, Command cmnd, String string, String[] args) {
+        if(args.length == 1){
+            List<String> commandsFiltered = commands.keySet().stream().filter(command -> command.startsWith(args[0])).collect(Collectors.toList());
+            return commandsFiltered;
+        }else if(args.length >= 2){
+            SubCommand subCommand = commands.get(args[0]);
+            if(subCommand != null)
+                return commands.get(args[0]).onTabComplete(Arrays.copyOfRange(args, 1, args.length));
+            
+        }
+        
+        
+        return Collections.emptyList();
     }
     
+    public void sendHelpCommand(CommandSender sender){
+        sender.sendMessage(LanguageManager.getTranslation(MessageKey.HELP_COMMAND_HEADER, TheImpostor.pluginTitle));
+        boolean isAdmin = sender.hasPermission("theimpostor.admin");
+        for(Entry<String, SubCommand> entry: commands.entrySet()){
+            SubCommand cmd = entry.getValue();
+            if(!isAdmin && cmd instanceof AdminCommand)
+                continue;
+            
+            String messageWithoutColor = String.format("%s: &7%s", cmd.getUsage(), cmd.getDescription());
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', messageWithoutColor));
+        }
+    }
 }

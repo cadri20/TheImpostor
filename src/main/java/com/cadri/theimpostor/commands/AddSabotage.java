@@ -21,6 +21,9 @@ import com.cadri.theimpostor.MessageKey;
 import com.cadri.theimpostor.arena.Arena;
 import com.cadri.theimpostor.arena.ArenaManager;
 import com.cadri.theimpostor.game.SabotageComponent;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -29,23 +32,36 @@ import org.bukkit.entity.Player;
  *
  * @author cadri
  */
-public class AddSabotage implements SubCommand{
+public class AddSabotage implements SetupArenaCommand{
 
     @Override
-    public void onCommand(CommandSender sender, String[] args) {
-        if(sender instanceof Player){
-            Player player = (Player) sender;
-            Arena arena = ArenaManager.getArena(args[0]);
-            if(arena != null){
-                String sabotageName = args[1];
-                int time = Integer.parseInt(args[2]);
-                Block sabotageBlock = player.getTargetBlockExact(4);
-                arena.addSabotageComponent(new SabotageComponent(sabotageName, sabotageBlock, time));
-                player.sendMessage(LanguageManager.getTranslation(MessageKey.SABOTAGE_CREATED));
-            }else{
-                player.sendMessage(LanguageManager.getTranslation(MessageKey.ARENA_DOESNT_EXIST, args[0]));
-            }
+    public void onCommand(Player player, Arena arena, String[] args) {
+        if(args.length != 2){
+            player.sendMessage(LanguageManager.getTranslation(MessageKey.INVALID_ARGUMENTS_NUMBER));
+            return;
         }
+        String sabotageName = args[0];
+        int cooldown = 0;
+        try{
+            cooldown = Integer.parseInt(args[1]);
+        }catch(NumberFormatException e){
+            player.sendMessage(LanguageManager.getTranslation(MessageKey.ARGUMENT_NOT_NUMBER));
+            return;
+        }
+        Block sabotageBlock = player.getTargetBlockExact(4);
+        arena.addSabotageComponent(new SabotageComponent(sabotageName, sabotageBlock, cooldown));
+        player.sendMessage(LanguageManager.getTranslation(MessageKey.SABOTAGE_CREATED));
+        
+    }
+
+    @Override
+    public List<String> onTabComplete(String[] args, Arena arena) {
+        if(args.length == 1)
+            return Arrays.asList("<name>");
+        else if(args.length == 2)
+            return Arrays.asList("<cooldown>");
+        
+        return Collections.emptyList();
     }
     
 }

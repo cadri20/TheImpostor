@@ -20,6 +20,8 @@ import com.cadri.theimpostor.LanguageManager;
 import com.cadri.theimpostor.MessageKey;
 import com.cadri.theimpostor.arena.Arena;
 import com.cadri.theimpostor.arena.ArenaManager;
+import java.util.Collections;
+import java.util.List;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -28,24 +30,24 @@ import org.bukkit.entity.Player;
  *
  * @author cadri
  */
-public class AddSpawn implements SubCommand{
+public class AddSpawn implements SetupArenaCommand{
 
     @Override
-    public void onCommand(CommandSender sender, String[] args) {
-        if(sender instanceof Player){
-            Player player = (Player) sender;
-            Arena arena = ArenaManager.getArena(args[0]);
+    public void onCommand(Player player, Arena arena, String[] args) {
             if(arena != null){
                 if(!arena.areSpawnPointsSetted()){
                     arena.addSpawnLocation(player.getLocation());
                     player.sendMessage(LanguageManager.getTranslation(MessageKey.ARENA_SPAWN_ADDED));                  
                 }else
                     player.sendMessage(LanguageManager.getTranslation(MessageKey.ALL_SPAWNS_SETTED));
-
-            }else
-                player.sendMessage(LanguageManager.getTranslation(MessageKey.ARENA_DOESNT_EXIST, args[0]));
+            }
            
-        }
+        
+    }
+
+    @Override
+    public List<String> onTabComplete(String[] args, Arena arena) {
+        return Collections.emptyList();
     }
     
 }

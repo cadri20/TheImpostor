@@ -24,6 +24,9 @@ import com.cadri.theimpostor.arena.ArenaManager;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
@@ -38,16 +41,38 @@ import org.bukkit.entity.Player;
  *
  * @author cadri
  */
-public class CreateArena implements SubCommand {
-
+public class CreateArena implements SubCommand, AdminCommand {
+    private String usage = "&6/imp create &b<arenaname> &b<maxplayers> &b<minplayers>";
     @Override
     public void onCommand(CommandSender sender, String[] args) {
- 
+        if(!sender.hasPermission(getPermission())){
+            sender.sendMessage(LanguageManager.getTranslation(MessageKey.COMMAND_USE_NOT_ALLOWED));
+            return;
+        }
         if (sender instanceof Player) {
+            
+            if(args.length != 3){
+                sender.sendMessage(LanguageManager.getTranslation(MessageKey.INVALID_ARGUMENTS_NUMBER));
+                return;
+            }
+            String arenaName = args[0];
+            if(arenaName.startsWith(" ") || arenaName.isEmpty()){
+                sender.sendMessage(LanguageManager.getTranslation(MessageKey.INVALID_ARENA_NAME));
+                return;
+            }
+            int maxPlayers = 0;
+            int minPlayers = 0;
+            try{
+                maxPlayers = Integer.parseInt(args[1]);
+                minPlayers = Integer.parseInt(args[2]);
+            }catch(NumberFormatException e){
+                sender.sendMessage(LanguageManager.getTranslation(MessageKey.ARGUMENT_NOT_NUMBER));
+                return;
+            }
             Player player = (Player) sender;
             
             if (!ArenaManager.getArenaNames().contains(args[0])) {
-                Arena arena = new Arena(args[0], Integer.parseInt(args[1]), Integer.parseInt(args[2]), player.getLocation());
+                Arena arena = new Arena(arenaName, maxPlayers, minPlayers, player.getLocation());
                 ArenaManager.arenas.add(arena);               
                 try {
                     arena.saveConfig();
@@ -61,5 +86,36 @@ public class CreateArena implements SubCommand {
             }
         }
 
+    }
+
+    @Override
+    public List<String> onTabComplete(String[] args) {
+        switch (args.length) {
+            case 1:
+                return Arrays.asList("<arenaname>");
+            case 2:
+                return Arrays.asList("<maxplayers>");
+            case 3:
+                return Arrays.asList("<minplayers>");
+            default:
+                break;
+        }
+        
+        return Collections.emptyList();
+    }
+
+    @Override
+    public String getUsage() {
+        return usage;
+    }
+
+    @Override
+    public String getDescription() {
+        return LanguageManager.getTranslation(MessageKey.CREATE_COMMAND_DESCRIPTION);
+    }
+
+    @Override
+    public String getPermission() {
+        return "theimpostor.arena.create";
     }
 }

@@ -21,6 +21,9 @@ import com.cadri.theimpostor.MessageKey;
 import com.cadri.theimpostor.arena.Arena;
 import com.cadri.theimpostor.arena.ArenaManager;
 import com.cadri.theimpostor.game.PlayerColor;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -28,21 +31,37 @@ import org.bukkit.entity.Player;
  *
  * @author cadri
  */
-public class SetTasksNumber implements SubCommand{
+public class SetTasksNumber implements SetupArenaCommand{
 
     @Override
-    public void onCommand(CommandSender sender, String[] args) {
-        Arena arena = ArenaManager.getArena(args[0]);
-        if(arena == null){
-            sender.sendMessage(LanguageManager.getTranslation(MessageKey.ARENA_DOESNT_EXIST, args[0]));
+    public void onCommand(Player player, Arena arena, String[] args) {
+        if(args.length != 1){
+            player.sendMessage(LanguageManager.getTranslation(MessageKey.INVALID_ARGUMENTS_NUMBER));
             return;
         }
-        int tasksNumber = Integer.parseInt(args[1]);
+            
+        int tasksNumber = 0;
+        try{
+            tasksNumber = Integer.parseInt(args[0]);
+        }catch(NumberFormatException e){
+            player.sendMessage(LanguageManager.getTranslation(MessageKey.ARGUMENT_NOT_NUMBER));
+            return;
+        }
         if(tasksNumber > 0 && tasksNumber <= arena.getTasks().size()){
             arena.setPlayerTasksNumber(tasksNumber);
-            sender.sendMessage(LanguageManager.getTranslation(MessageKey.TASKS_NUMBER_SETTED));
+            player.sendMessage(LanguageManager.getTranslation(MessageKey.TASKS_NUMBER_SETTED));
         }else
-            sender.sendMessage(LanguageManager.getTranslation(MessageKey.INVALID_TASKS_NUMBER));
+            player.sendMessage(LanguageManager.getTranslation(MessageKey.INVALID_TASKS_NUMBER));
+    }
+
+    @Override
+    public List<String> onTabComplete(String[] args, Arena arena) {
+        if(args.length == 1){
+            String tasksNumberLimit = String.format("<[1-%d]>", arena.getTasks().size());
+            return Arrays.asList(tasksNumberLimit);
+        }
+        
+        return Collections.emptyList();
     }
     
 }

@@ -55,6 +55,7 @@ import org.golde.bukkit.corpsereborn.CorpseAPI.events.CorpseClickEvent;
 import org.golde.bukkit.corpsereborn.nms.Corpses.CorpseData;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
+import org.bukkit.inventory.PlayerInventory;
 
 /**
  *
@@ -78,18 +79,26 @@ public class ArenaEvents implements Listener {
         ItemStack itemInHand = killer.getInventory().getItemInMainHand();
         
         if(itemInHand.equals(ItemOptions.KILL_PLAYER.getItem()) && arena.canKill(killer)){
-            killed.sendTitle("You've been killed", "Make tasks", 20, 70, 20);
-            GameUtils.makePhantom(killed, arena);
-            CorpseData corpse = CorpseAPI.spawnCorpse(killed, killed.getLocation());
-            arena.addCorpse(corpse);
-            arena.setKillFlag(killer, false);
-            BukkitScheduler scheduler = TheImpostor.plugin.getServer().getScheduler();
-            int killTime = arena.getKillTime();
-            scheduler.runTaskLater(TheImpostor.plugin, () -> {
-                if(arena.started())
-                    arena.setKillFlag(killer, true);                                
-            }, killTime * 20);
-            killer.sendMessage("Now you have to wait " + killTime + " seconds before killing again");
+            String title = LanguageManager.getTranslation(MessageKey.PLAYER_KILLED_TITLE);
+            String subtitle = LanguageManager.getTranslation(MessageKey.PLAYER_KILLED_SUBTITLE);
+            killed.sendTitle(title, subtitle, 20, 70, 20);
+            PlayerInventory inventory = killed.getInventory();
+            ItemStack[] armor = inventory.getArmorContents();
+            
+            boolean gameOver = GameUtils.makePhantom(killed, arena);
+            if (!gameOver) {
+                CorpseData corpse = CorpseAPI.spawnCorpse(killed, killed.getLocation(), inventory.getContents(), armor[3], armor[2], armor[1], armor[0]);
+                arena.addCorpse(corpse);
+                arena.setKillFlag(killer, false);
+                BukkitScheduler scheduler = TheImpostor.plugin.getServer().getScheduler();
+                int killTime = arena.getKillTime();
+                scheduler.runTaskLater(TheImpostor.plugin, () -> {
+                    if (arena.started()) {
+                        arena.setKillFlag(killer, true);
+                    }
+                }, killTime * 20);
+                killer.sendMessage(LanguageManager.getTranslation(MessageKey.IMPOSTOR_KILL_COOLDOWN, killTime));
+            }
         }
 
     }
@@ -138,7 +147,10 @@ public class ArenaEvents implements Listener {
                 SabotageComponent sabotage = arena.getSabotage(clickedBlock);
                 if (arena.isEmergencyMeetingBlock(clickedBlock)) {
                     if (arena.started()) {
-                        arena.startEmergencyMeeting(player);
+                        if(arena.isEmergencyMeetingEnabled())
+                            arena.startEmergencyMeeting(player);
+                        else
+                            player.sendMessage(LanguageManager.getTranslation(MessageKey.EMERGENCY_BLOCK_ENABLED_IN, arena.getEnableCount()));
                     }
                 } else if (sabotage != null) {
                     arena.fixSabotage(sabotage);
@@ -160,12 +172,19 @@ public class ArenaEvents implements Listener {
         if(itemClicked == null || itemClicked.getType() == Material.AIR)
             return;
         
+        Material material = itemClicked.getType();
+        
+        if(material.equals(Material.LEATHER_HELMET) 
+                || material.equals(Material.LEATHER_CHESTPLATE)
+                || material.equals(Material.LEATHER_LEGGINGS)
+                || material.equals(Material.LEATHER_BOOTS))
+            evt.setCancelled(true); // his prevents players from removing their armor        
         VoteSystem vs = arena.getVoteSystem();
         if(vs != null){
             if(evt.getInventory().equals(vs.getInventory())){ //If player selected skip vote
                 if(itemClicked.getItemMeta().getDisplayName().equals(vs.getSkipVoteText())){
                     vs.skipVote(player);
-                    player.sendMessage("You've skipped the vote");
+                    player.sendMessage(LanguageManager.getTranslation(MessageKey.VOTE_SKIPPED));
                     player.closeInventory();
                     evt.setCancelled(true);
                     return;
@@ -182,13 +201,12 @@ public class ArenaEvents implements Listener {
                 }
             }
         }
-        
-        
+             
         PlayerColor playerColor = PlayerColor.getPlayerColor(itemClicked);
         if(playerColor != null){
 
             arena.setPlayerColor(player, playerColor);
-            player.sendMessage("You chose " + playerColor.getName());
+            player.sendMessage(LanguageManager.getTranslation(MessageKey.COLOR_CHOOSEN, playerColor.getChatColor() + playerColor.getName()));
             player.closeInventory();  
             evt.setCancelled(true);
             return;
@@ -214,6 +232,7 @@ public class ArenaEvents implements Listener {
     public void onMoveItemFromInventory(InventoryMoveItemEvent evt){
         Inventory inventorySource = evt.getInitiator();
         Inventory inventoryDestiny = evt.getDestination();
+        
         if(! (inventoryDestiny.getHolder() instanceof Player))
             return;
         
@@ -223,6 +242,13 @@ public class ArenaEvents implements Listener {
         if(arena == null)
             return;
         
+        ItemStack item = evt.getItem();
+        Material material = item.getType();
+        if(material.equals(Material.LEATHER_HELMET) 
+                || material.equals(Material.LEATHER_CHESTPLATE)
+                || material.equals(Material.LEATHER_LEGGINGS)
+                || material.equals(Material.LEATHER_BOOTS))
+            evt.setCancelled(true); // his prevents players from removing their armor
         VoteSystem vs = arena.getVoteSystem();
         if(inventorySource.equals(vs.getInventory()) || inventorySource.equals(GameUtils.getGUIChoiceColors(arena))){
             evt.setCancelled(true);
