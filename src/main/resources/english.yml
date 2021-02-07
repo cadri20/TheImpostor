@@ -1,9 +1,8 @@
-## YAML Template.
----
+
 arena_created_successfully: '&aArena created successfully'
 arena_already_exists: '&cThe arena %s already exists'
-arena_ready: '&aThere are enough players!'
-arena_doesnt_exist: '&cThe arena %s doesnt exist'
+arena_ready: '&aThere''re enough players!'
+arena_doesnt_exist: '&cThe arena %s doesn''t exist'
 arena_countdown: '&3The game will start in %d seconds '
 arena_game_start: '&aThe game just started'
 arena_spawn_added: '&aThe spawn has been set successfully'
@@ -26,10 +25,10 @@ black_color: 'Black'
 aqua_color: 'Aqua'
 color_choosen: '&7You chose %s'
 
-player_in_arena: '&cYou are already in an arena'
+player_in_arena: '&cYou''re already in an arena'
 player_not_in_arena: '&cYou''re not in an arena'
 player_vote_for: '&bYou voted for %s'
-player_killed_title: '&cYou have been killed'
+player_killed_title: '&cYou''ve been killed'
 player_killed_subtitle: '&eComplete tasks'
 
 impostor_title: '&cIMPOSTOR'
@@ -81,8 +80,8 @@ impostor_ejected_message: '&9The player %s was the most voted and was the impost
 
 deadchat_prefix: '&8[Dead Chat]'
 
-remaining_spawns: '&cThere are still %d spawns to be set'
-remaining_tasks: '&cThere are still %d tasks to be set'
+remaining_spawns: '&cThere''re still %d spawns to be set'
+remaining_tasks: '&cThere''re still %d tasks to be set'
 
 players_number: '&cPlayers number'
 arena: '&cArena'
@@ -114,4 +113,4 @@ enable_command_description: 'Enable the arena '
 join_command_description: 'Join an arena'
 leave_command_description: 'Leave an arena'
 setup_command_description: 'Setup the arena'
-command_use_not_allowed: '&cYou are not allowed to use that command!'
+command_use_not_allowed: '&cYou''re not allowed to use that command!'

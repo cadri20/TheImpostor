@@ -1,3 +1,4 @@
 ## YAML Template.
 ---
-language: spanish.yml
+language: english.yml
+starting-waiting-time: 10
